@@ -1,5 +1,6 @@
 // Destaca no menu o ícone da página em que a pessoa está
-const paginaAtual = location.pathname.split("/").pop() || "dashboard.html";
+// Na Cloudflare as páginas abrem sem o ".html" (/dashboard), então normaliza para o nome do arquivo
+const paginaAtual = (location.pathname.split("/").pop() || "dashboard").replace(/\.html$/, "") + ".html";
 
 document.querySelectorAll(".menu nav a").forEach(function (link) {
   const destino = link.getAttribute("href");

@@ -73,7 +73,9 @@
   ];
 
   function paginaAtual() {
-    return location.pathname.split("/").pop() || "dashboard.html";
+    // Na Cloudflare as páginas abrem sem o ".html" (/dashboard), então normaliza para o nome do arquivo
+    const nome = location.pathname.split("/").pop() || "dashboard";
+    return nome.replace(/\.html$/, "") + ".html";
   }
 
   // Um tour largado no meio não pode voltar horas depois (por exemplo, ao entrar na conta de novo)

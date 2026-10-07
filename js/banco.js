@@ -198,7 +198,7 @@ function paraBanco(campos) {
 function tourDeExemploAtivo() {
   try {
     const v = JSON.parse(localStorage.getItem("dashvia:tour"));
-    const paginaAgora = location.pathname.split("/").pop() || "dashboard.html";
+    const paginaAgora = (location.pathname.split("/").pop() || "dashboard").replace(/\.html$/, "") + ".html";
     return !!v && typeof v.passo === "number" && v.pagina === paginaAgora && !!v.quando && Date.now() - v.quando <= 30 * 60 * 1000;
   } catch (falha) {
     return false;
