@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Dashvia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=20261008g">
+</head>
+<body>
+  <main class="caixa-login">
+    <img class="logo-login" src="img/avatar-padrao.jpg" alt="" width="72" height="72">
+    <h1><span class="dash">Dash</span><span class="via">via</span></h1>
+    <p class="subtitulo">Seu caminho para o controle financeiro</p>
+
+    <form id="form-login">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" placeholder="seuemail@exemplo.com" autocomplete="email" required>
+
+      <label for="pin-1">Senha (6 números)</label>
+      <div class="pin">
+        <input type="password" class="pin-campo" id="pin-1" inputmode="numeric" maxlength="1" aria-label="Dígito 1" autocomplete="off">
+        <input type="password" class="pin-campo" inputmode="numeric" maxlength="1" aria-label="Dígito 2" autocomplete="off">
+        <input type="password" class="pin-campo" inputmode="numeric" maxlength="1" aria-label="Dígito 3" autocomplete="off">
+        <input type="password" class="pin-campo" inputmode="numeric" maxlength="1" aria-label="Dígito 4" autocomplete="off">
+        <input type="password" class="pin-campo" inputmode="numeric" maxlength="1" aria-label="Dígito 5" autocomplete="off">
+        <input type="password" class="pin-campo" inputmode="numeric" maxlength="1" aria-label="Dígito 6" autocomplete="off">
+        <button type="button" class="ver-senha" id="ver-senha" aria-label="Mostrar senha"></button>
+      </div>
+
+      <div class="linha-esqueci">
+        <label class="lembrar">
+          <input type="checkbox" id="lembrar">
+          <span class="caixinha" aria-hidden="true"></span>
+          <span>Lembrar de mim</span>
+        </label>
+        <a href="#" id="esqueci">Esqueci minha senha</a>
+      </div>
+
+      <p id="mensagem" class="mensagem"></p>
+
+      <button type="submit">Entrar</button>
+    </form>
+
+    <form id="form-recuperar" class="oculto">
+      <label for="email-recuperar">E-mail</label>
+      <input type="email" id="email-recuperar" placeholder="seuemail@exemplo.com" required>
+
+      <p id="mensagem-recuperar" class="mensagem ok"></p>
+
+      <button type="submit">Enviar instruções</button>
+      <p class="rodape"><a href="#" id="voltar-login">Voltar ao login</a></p>
+    </form>
+
+    <div class="rodape rodape-acao" id="rodape-login">
+      <p>Ainda não tem conta?</p>
+      <a class="botao-secundario" href="cadastro.html">Criar conta</a>
+    </div>
+
+    <p class="selo-seguro">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Seus dados financeiros são só seus
+    </p>
+  </main>
+
+  <script src="js/neon.bundle.js?v=20261008g"></script>
+  <script src="js/banco.js?v=20261008g"></script>
+  <script src="js/validacao.js?v=20261008g"></script>
+  <script src="js/login.js?v=20261008g"></script>
+</body>
+</html>

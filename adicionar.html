@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adicionar gasto - Dashvia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/dashboard.css?v=20261008g">
+  <script src="js/tema.js?v=20261008g"></script>
+</head>
+<body>
+
+  <aside class="menu">
+    <div class="logo">D</div>
+    <nav>
+      <a href="dashboard.html" title="Resumo" aria-label="Resumo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg></a>
+<a href="parcelas.html" title="Parcelas futuras" aria-label="Parcelas futuras"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 14v2.2l1.6 1"/><path d="M16 2v4"/><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M3 10h5"/><path d="M8 2v4"/><circle cx="16" cy="16" r="6"/></svg></a>
+<a href="adicionar.html" title="Adicionar gasto" aria-label="Adicionar gasto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></svg></a>
+<a href="assinaturas.html" title="Assinaturas" aria-label="Assinaturas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></a>
+<a href="configuracoes.html" title="Configurações" aria-label="Configurações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></a>
+    </nav>
+  </aside>
+
+  <main class="conteudo">
+    <header class="topo-centralizado">
+      <h1>Adicione seus gastos</h1>
+      <p>Preencha as informações da compra</p>
+    </header>
+
+    <section class="bloco formulario">
+      <form id="form-gasto">
+
+        <label for="categoria">Categoria</label>
+        <select id="categoria" required>
+          <option value="" disabled selected>Escolha</option>
+          <option>Alimentação</option>
+          <option>Compras</option>
+          <option>Transportes</option>
+          <option>Assinatura</option>
+          <option>Boleto</option>
+          <option>Outros</option>
+        </select>
+
+        <div id="grupo-nova-categoria" class="oculto">
+          <label for="nova-categoria">Nome da nova categoria</label>
+          <input type="text" id="nova-categoria" maxlength="30" placeholder="Ex: Academia" autocomplete="off">
+        </div>
+
+        <div id="grupo-boleto" class="oculto">
+          <label for="tipo-boleto">Tipo do boleto</label>
+          <select id="tipo-boleto">
+            <option value="" disabled selected>Escolha</option>
+            <option value="residencial">Residencial</option>
+            <option value="compras">Compras</option>
+          </select>
+
+          <div id="grupo-parcelas-boleto" class="oculto">
+            <label for="parcelas-boleto">Parcelas (quantas vezes)</label>
+            <input type="number" id="parcelas-boleto" inputmode="numeric" min="1" max="60" step="1" placeholder="Ex: 3" autocomplete="off">
+          </div>
+        </div>
+
+        <label for="plataforma" id="rotulo-plataforma">Plataforma ou loja</label>
+        <input type="text" id="plataforma" placeholder="Ex: iFood, Amazon, Magalu" required>
+        <div id="grupo-forma">
+          <label for="forma">Forma de pagamento</label>
+          <select id="forma" required>
+            <option value="" disabled selected>Escolha</option>
+            <option value="pix">Pix</option>
+            <option value="cartao">Cartão</option>
+          </select>
+        </div>
+
+        <div id="grupo-parcelas">
+        <label for="parcelas">Parcelas</label>
+        <select id="parcelas" required>
+          <option value="" disabled selected>Escolha</option>
+          <option value="avista">Sem parcelas</option>
+          <option value="2">2x</option>
+          <option value="3">3x</option>
+          <option value="4">4x</option>
+          <option value="5">5x</option>
+          <option value="6">6x</option>
+          <option value="7">7x</option>
+          <option value="8">8x</option>
+          <option value="9">9x</option>
+          <option value="10">10x</option>
+          <option value="11">11x</option>
+          <option value="12">12x</option>
+        </select>
+        </div>
+
+        <label for="data" id="rotulo-data">Data da compra</label>
+        <div class="campo-data">
+          <button type="button" class="btn-calendario" id="btn-calendario" title="Abrir calendário" aria-label="Abrir calendário">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </button>
+          <input type="date" id="data" required>
+        </div>
+
+        <label for="valor" id="rotulo-valor">Valor (R$)</label>
+        <input type="number" id="valor" step="0.01" min="0.01" placeholder="200,00" required>
+
+        <div id="grupo-vencimento" class="oculto">
+          <label for="vencimento">Dia do vencimento da parcela</label>
+          <select id="vencimento"></select>
+        </div>
+
+        <div id="grupo-banco">
+        <label id="rotulo-banco">Banco</label>
+        <div class="select-banco">
+          <div class="select-banco-botao" id="banco-botao" role="button" tabindex="0" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="rotulo-banco banco-valor">
+            <span class="select-banco-valor" id="banco-valor">Escolha</span>
+          </div>
+          <div class="select-banco-painel oculto" id="banco-painel">
+            <div class="banco-busca">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="banco-busca" placeholder="Pesquisar banco" autocomplete="off" aria-label="Pesquisar banco">
+            </div>
+            <ul class="select-banco-lista" id="banco-lista" role="listbox" aria-labelledby="rotulo-banco"></ul>
+            <p class="banco-vazio oculto" id="banco-vazio">Nenhum banco encontrado. Use "Outro".</p>
+          </div>
+        </div>
+        <select id="banco" class="select-nativo" required tabindex="-1" aria-hidden="true">
+          <option value="" disabled selected>Escolha</option>
+        </select>
+
+        <div id="grupo-outro-banco" class="oculto">
+          <label for="outro-banco">Nome do banco</label>
+          <input type="text" id="outro-banco" maxlength="30" placeholder="Ex: Mercado Pago" autocomplete="off">
+        </div>
+        </div>
+
+        <p id="sucesso" class="sucesso"></p>
+
+        <button type="submit">Adicionar gasto</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="js/neon.bundle.js?v=20261008g"></script>
+  <script src="js/banco.js?v=20261008g"></script>
+  <script src="js/validacao.js?v=20261008g"></script>
+  <script src="js/bancos.js?v=20261008g"></script>
+  <script src="js/categorias.js?v=20261008g"></script>
+  <script src="js/adicionar.js?v=20261008g"></script>
+  <script src="js/parcelamento.js?v=20261008g"></script>
+  <script src="js/menu.js?v=20261008g"></script>
+  <script src="js/tour.js?v=20261008g"></script>
+</body>
+</html>

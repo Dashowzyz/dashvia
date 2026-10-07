@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nova senha - Dashvia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=20261008g">
+</head>
+<body>
+  <main class="caixa-login">
+    <img class="logo-login" src="img/avatar-padrao.jpg" alt="" width="72" height="72">
+    <h1><span class="dash">Dash</span><span class="via">via</span></h1>
+    <p class="subtitulo">Crie sua nova senha</p>
+
+    <form id="form-redefinir">
+      <label for="nova">Nova senha (6 números)</label>
+      <input type="password" id="nova" placeholder="000000" inputmode="numeric" maxlength="6" required>
+
+      <label for="confirmar">Confirmar nova senha</label>
+      <input type="password" id="confirmar" placeholder="Repita os 6 números" inputmode="numeric" maxlength="6" required>
+
+      <p id="mensagem" class="mensagem"></p>
+
+      <button type="submit">Salvar nova senha</button>
+    </form>
+
+    <p class="rodape"><a href="login.html">Voltar ao login</a></p>
+  </main>
+
+  <script src="js/neon.bundle.js?v=20261008g"></script>
+  <script src="js/banco.js?v=20261008g"></script>
+  <script src="js/validacao.js?v=20261008g"></script>
+  <script src="js/redefinir.js?v=20261008g"></script>
+</body>
+</html>

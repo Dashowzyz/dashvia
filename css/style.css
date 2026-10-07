@@ -1,0 +1,693 @@
+:root {
+  --roxo: #3E1785;
+  --mistura: #200D85;
+  --destaque: #7a4be0;
+  --fundo: #07050f;
+  --painel: #120d22;
+  --borda: #241a3d;
+  --texto: #f2f0f8;
+  --texto-suave: #9b94b5;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Poppins', Arial, sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh; /* no celular, não conta a barra do navegador */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--texto);
+  background:
+    radial-gradient(ellipse 120% 40% at 50% 100%, var(--roxo) 0%, rgba(62, 23, 133, 0.4) 50%, transparent 100%),
+    #000000;
+  background-attachment: fixed;
+}
+
+/* Card de login e cadastro */
+.caixa-login {
+  background: rgba(18, 13, 34, 0.85);
+  border: 1px solid var(--borda);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  width: 100%;
+  max-width: 400px;
+  padding: 36px 32px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+  animation: entrar 0.6s ease both;
+}
+
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+h1 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 44px;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: -1px;
+  margin-bottom: 4px;
+  text-shadow: 0 0 28px rgba(122, 75, 224, 0.55);
+}
+
+.dash {
+  color: #b08cff;
+}
+
+.via {
+  color: #6f7cff;
+}
+
+.subtitulo {
+  text-align: center;
+  color: var(--texto-suave);
+  font-size: 14px;
+  margin: 8px 0 26px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: var(--texto-suave);
+}
+
+input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  background: var(--fundo);
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input::placeholder {
+  color: #5f5878;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--destaque);
+  box-shadow: 0 0 0 3px rgba(122, 75, 224, 0.25);
+}
+
+/* Mantém o fundo escuro quando o navegador preenche sozinho */
+input:-webkit-autofill {
+  -webkit-text-fill-color: var(--texto);
+  box-shadow: 0 0 0 100px var(--fundo) inset;
+}
+
+button {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--destaque), var(--roxo));
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s, filter 0.2s;
+}
+
+button:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.rodape {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 22px;
+  color: var(--texto-suave);
+}
+
+a {
+  color: #b79cff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.mensagem {
+  color: #ff6b6b;
+  font-size: 14px;
+  margin-bottom: 12px;
+  min-height: 18px;
+}
+
+/* Senha em 4 caixinhas */
+.pin {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.pin .pin-campo {
+  flex: 1;
+  min-width: 0;
+  height: 54px;
+  margin-bottom: 0;
+  padding: 0;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.pin .ver-senha {
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--texto-suave);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+}
+
+.pin .ver-senha:hover {
+  color: var(--texto);
+  border-color: var(--destaque);
+  filter: none;
+  transform: none;
+}
+
+.pin.tremer {
+  animation: tremer 0.35s;
+}
+
+@keyframes tremer {
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.mensagem.ok {
+  color: #4cd98a;
+}
+
+.oculto {
+  display: none;
+}
+
+.linha-esqueci {
+  text-align: center;
+  margin: -6px 0 14px;
+}
+
+.linha-esqueci a {
+  font-size: 13px;
+  font-weight: 400;
+}
+
+/* Avisos de campo obrigatório */
+input.campo-erro {
+  border-color: #ff6b6b;
+  margin-bottom: 4px;
+}
+
+.erro-campo {
+  display: block;
+  color: #ff6b6b;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+/* Celular */
+@media (max-width: 480px) {
+  body {
+    padding: 16px;
+  }
+
+  .caixa-login {
+    padding: 28px 22px;
+  }
+
+  h1 {
+    font-size: 38px;
+  }
+
+  .pin {
+    gap: 6px;
+  }
+
+  .pin .pin-campo {
+    height: 50px;
+    font-size: 20px;
+  }
+
+  .pin .ver-senha {
+    flex: 0 0 40px;
+    width: 40px;
+  }
+}
+
+/* Sem rolagem quando tudo cabe na tela */
+body.sem-rolagem {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+
+/* Barra de rolagem padrão em todas as telas: fina e na cor de destaque (igual à do Resumo) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--destaque) transparent;
+}
+
+/* ===== Visual novo: login, cadastro e redefinir senha ===== */
+body {
+  background:
+    radial-gradient(ellipse 80% 45% at 50% 0%, rgba(122, 75, 224, 0.28) 0%, transparent 70%),
+    radial-gradient(ellipse 120% 40% at 50% 100%, var(--roxo) 0%, rgba(62, 23, 133, 0.4) 50%, transparent 100%),
+    #000000;
+  background-attachment: fixed;
+}
+
+.caixa-login {
+  position: relative;
+  overflow: hidden;
+  padding-top: 32px;
+  border-color: rgba(122, 75, 224, 0.35);
+  background:
+    linear-gradient(180deg, rgba(122, 75, 224, 0.12), transparent 160px),
+    rgba(18, 13, 34, 0.88);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.6),
+    0 0 60px rgba(122, 75, 224, 0.12);
+}
+
+/* Faixa de luz no topo do cartão */
+.caixa-login::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(90deg, transparent, var(--destaque), transparent);
+}
+
+.logo-login {
+  display: block;
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--destaque);
+  box-shadow: 0 0 0 5px rgba(122, 75, 224, 0.15), 0 10px 30px rgba(122, 75, 224, 0.45);
+}
+
+/* Nome com degradê */
+h1 {
+  font-size: 38px;
+  background: linear-gradient(90deg, #c4a4ff, #7a8bff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 0 18px rgba(122, 75, 224, 0.5));
+}
+
+.dash,
+.via {
+  color: inherit;
+}
+
+.subtitulo {
+  margin: 4px 0 24px;
+}
+
+label {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+input {
+  padding: 13px 14px;
+  border-radius: 12px;
+}
+
+input:hover:not(:focus) {
+  border-color: rgba(122, 75, 224, 0.5);
+}
+
+/* Botão principal */
+button[type="submit"] {
+  padding: 15px;
+  border-radius: 14px;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, var(--destaque), var(--roxo));
+  box-shadow: 0 10px 26px rgba(122, 75, 224, 0.4);
+}
+
+button[type="submit"]:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 14px 32px rgba(122, 75, 224, 0.5);
+}
+
+button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
+/* "Esqueci minha senha" fica à direita, perto da senha */
+.linha-esqueci {
+  text-align: right;
+  margin: -4px 0 18px;
+}
+
+/* Linha separando o cartão do convite para criar conta */
+.rodape {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--borda);
+}
+
+@media (max-width: 480px) {
+  .caixa-login {
+    padding-top: 28px;
+  }
+
+  .logo-login {
+    width: 64px;
+    height: 64px;
+  }
+
+  h1 {
+    font-size: 34px;
+  }
+}
+/* ===== Fundo: luzes que flutuam, grade e um gráfico subindo ===== */
+body {
+  background:
+    radial-gradient(1.5px 1.5px at 8% 14%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1px 1px at 22% 62%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1.5px 1.5px at 35% 9%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 48% 88%, rgba(255, 255, 255, 0.35), transparent),
+    radial-gradient(1.5px 1.5px at 63% 22%, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1px 1px at 76% 71%, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1.5px 1.5px at 90% 12%, rgba(255, 255, 255, 0.5), transparent),
+    radial-gradient(1px 1px at 94% 58%, rgba(255, 255, 255, 0.35), transparent),
+    radial-gradient(1px 1px at 5% 80%, rgba(255, 255, 255, 0.4), transparent),
+    linear-gradient(160deg, #0a0618 0%, #05030c 55%, #0b0420 100%);
+  background-attachment: fixed;
+}
+
+/* Luzes coloridas que passeiam bem devagar */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -25%;
+  z-index: -2;
+  background:
+    radial-gradient(38% 38% at 22% 28%, rgba(122, 75, 224, 0.55), transparent 70%),
+    radial-gradient(34% 34% at 80% 22%, rgba(70, 110, 255, 0.4), transparent 70%),
+    radial-gradient(42% 42% at 72% 84%, rgba(176, 90, 255, 0.36), transparent 70%),
+    radial-gradient(30% 30% at 14% 80%, rgba(60, 40, 200, 0.42), transparent 70%);
+  filter: none;
+  transform: none;
+  animation: flutuar 24s ease-in-out infinite alternate;
+  pointer-events: none;
+  will-change: transform;
+}
+
+@keyframes flutuar {
+  0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate3d(3%, -4%, 0) scale(1.08) rotate(3deg); }
+  100% { transform: translate3d(-3%, 3%, 0) scale(1.04) rotate(-3deg); }
+}
+
+/* Grade fina e um gráfico subindo, que somem nas bordas */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 400' preserveAspectRatio='none'><defs><linearGradient id='l' x1='0' x2='1'><stop offset='0' stop-color='rgb(122,75,224)' stop-opacity='0'/><stop offset='0.5' stop-color='rgb(196,164,255)' stop-opacity='0.75'/><stop offset='1' stop-color='rgb(111,124,255)' stop-opacity='0.6'/></linearGradient><linearGradient id='a' x1='0' x2='0' y1='0' y2='1'><stop offset='0' stop-color='rgb(122,75,224)' stop-opacity='0.28'/><stop offset='1' stop-color='rgb(122,75,224)' stop-opacity='0'/></linearGradient></defs><path d='M0 330 C120 300 200 345 300 275 S480 235 560 255 S760 140 860 172 S1060 62 1200 38 L1200 400 L0 400 Z' fill='url(%23a)'/><path d='M0 330 C120 300 200 345 300 275 S480 235 560 255 S760 140 860 172 S1060 62 1200 38' fill='none' stroke='url(%23l)' stroke-width='3' stroke-linecap='round' vector-effect='non-scaling-stroke'/><circle cx='860' cy='172' r='6' fill='rgb(196,164,255)'/><circle cx='1200' cy='38' r='0' fill='none'/></svg>") center 78% / 100% 46% no-repeat,
+    linear-gradient(rgba(160, 120, 255, 0.07) 1px, transparent 1px) 0 0 / 56px 56px,
+    linear-gradient(90deg, rgba(160, 120, 255, 0.07) 1px, transparent 1px) 0 0 / 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 70% at 50% 50%, #000 25%, transparent 78%);
+  mask-image: radial-gradient(ellipse 75% 70% at 50% 50%, #000 25%, transparent 78%);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
+}
+/* ===== Caixa mais rica: bordas em degradê, ícones nos campos, botões e entrada animada ===== */
+.caixa-login {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(180deg, rgba(122, 75, 224, 0.14), transparent 180px) padding-box,
+    linear-gradient(rgba(18, 13, 34, 0.9), rgba(18, 13, 34, 0.9)) padding-box,
+    linear-gradient(145deg, rgba(196, 164, 255, 0.7), rgba(122, 75, 224, 0.12) 38%, rgba(122, 75, 224, 0.12) 62%, rgba(111, 124, 255, 0.55)) border-box;
+}
+
+/* Brilho suave que passa pelo cartão */
+.caixa-login::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -60%;
+  width: 40%;
+  height: 180%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+  transform: rotate(8deg);
+  animation: brilho 7s ease-in-out 1.2s infinite;
+  pointer-events: none;
+}
+
+@keyframes brilho {
+  0%, 55% { left: -60%; }
+  100% { left: 140%; }
+}
+
+/* Os campos entram um depois do outro */
+.caixa-login > :not(.logo-login) {
+  animation: subir 0.55s ease both;
+}
+.caixa-login > :nth-child(3) { animation-delay: 0.08s; }
+.caixa-login > :nth-child(4) { animation-delay: 0.16s; }
+.caixa-login > :nth-child(5) { animation-delay: 0.24s; }
+.caixa-login > :nth-child(6) { animation-delay: 0.32s; }
+.caixa-login > :nth-child(7) { animation-delay: 0.4s; }
+
+@keyframes subir {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Ícone dentro de cada campo */
+#email, #email-recuperar, #nome, #usuario, #senha, #confirmar-senha, #nova, #confirmar {
+  padding-left: 44px;
+  background-repeat: no-repeat;
+  background-position: 14px center;
+  background-size: 18px;
+}
+
+#email, #email-recuperar { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239b94b5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='2' y='4' width='20' height='16' rx='2'/><path d='m22 7-10 6L2 7'/></svg>"); }
+#nome { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239b94b5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg>"); }
+#usuario { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239b94b5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='4'/><path d='M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8'/></svg>"); }
+#senha, #confirmar-senha, #nova, #confirmar { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239b94b5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>"); }
+
+/* Botão Entrar com seta e brilho */
+button[type="submit"] {
+  position: relative;
+  overflow: hidden;
+}
+
+button[type="submit"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.22) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform 0.6s ease;
+}
+
+button[type="submit"]:hover::after {
+  transform: translateX(120%);
+}
+
+/* "Criar conta" / "Entrar" como botão de contorno */
+.rodape-acao {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.botao-secundario {
+  display: block;
+  padding: 12px;
+  border: 1px solid rgba(122, 75, 224, 0.55);
+  border-radius: 14px;
+  background: rgba(122, 75, 224, 0.1);
+  color: #d4c2ff;
+  font-weight: 600;
+  text-align: center;
+  transition: background 0.2s, border-color 0.2s, transform 0.15s;
+}
+
+.botao-secundario:hover {
+  text-decoration: none;
+  background: rgba(122, 75, 224, 0.22);
+  border-color: var(--destaque);
+  transform: translateY(-1px);
+}
+
+/* Selo no rodapé do cartão */
+.selo-seguro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 18px;
+  font-size: 12px;
+  color: var(--texto-suave);
+  opacity: 0.85;
+}
+
+.selo-seguro svg {
+  color: #4cd98a;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caixa-login::after,
+  .caixa-login > * {
+    animation: none;
+  }
+}
+
+/* Respiro em volta do cartão, para ele não encostar nas bordas em telas baixas */
+body {
+  padding: 24px 16px;
+}
+
+/* "Lembrar de mim" ao lado do "Esqueci minha senha" */
+.linha-esqueci {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+}
+
+.lembrar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--texto-suave);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* A caixinha de verdade fica invisível; quem aparece é a caixinha desenhada */
+.lembrar input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.caixinha {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(122, 75, 224, 0.6);
+  border-radius: 6px;
+  background: var(--fundo);
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.caixinha::after {
+  content: "";
+  width: 9px;
+  height: 5px;
+  margin-top: -2px;
+  border-left: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(-45deg) scale(0);
+  transition: transform 0.15s;
+}
+
+.lembrar input:checked + .caixinha {
+  background: linear-gradient(135deg, var(--destaque), var(--roxo));
+  border-color: var(--destaque);
+}
+
+.lembrar input:checked + .caixinha::after {
+  transform: rotate(-45deg) scale(1);
+}
+
+.lembrar input:focus-visible + .caixinha {
+  box-shadow: 0 0 0 3px rgba(122, 75, 224, 0.35);
+}
+
+.lembrar:hover .caixinha {
+  border-color: var(--destaque);
+}
+
+.lembrar input:checked ~ span:last-child {
+  color: var(--texto);
+}
+/* ===== Fontes: Inter no texto e nos números (todos os dígitos com a mesma largura), Poppins nos títulos ===== */
+body {
+  font-family: 'Inter', 'Poppins', Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+h1,
+h2,
+h3,
+.cartao-nome {
+  font-family: 'Poppins', 'Inter', Arial, sans-serif;
+}

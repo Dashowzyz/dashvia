@@ -1,0 +1,13 @@
+{
+  "name": "dashvia",
+  "private": true,
+  "scripts": {
+    "build": "esbuild neon-entry.js --bundle --format=iife --minify --outfile=../js/neon.bundle.js"
+  },
+  "dependencies": {
+    "@neondatabase/neon-js": "latest"
+  },
+  "devDependencies": {
+    "esbuild": "latest"
+  }
+}

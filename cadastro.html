@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro - Dashvia</title>
+  <link rel="stylesheet" href="css/style.css?v=20261008g">
+</head>
+<body>
+  <main class="caixa-login">
+    <img class="logo-login" src="img/avatar-padrao.jpg" alt="" width="72" height="72">
+    <h1><span class="dash">Dash</span><span class="via">via</span></h1>
+    <p class="subtitulo">Crie sua conta</p>
+
+    <form id="form-cadastro">
+      <label for="nome">Nome completo</label>
+      <input type="text" id="nome" placeholder="Seu nome" required>
+
+      <label for="email">E-mail</label>
+      <input type="email" id="email" placeholder="seuemail@exemplo.com" required>
+
+      <label for="senha">Senha (6 números)</label>
+<input type="password" id="senha" placeholder="000000" inputmode="numeric" maxlength="6" required>
+
+<label for="confirmar-senha">Confirmar senha</label>
+<input type="password" id="confirmar-senha" placeholder="Repita os 6 números" inputmode="numeric" maxlength="6" required>
+
+      <p id="mensagem" class="mensagem"></p>
+
+      <button type="submit">Criar conta</button>
+    </form>
+
+    <div class="rodape rodape-acao">
+      <p>Já tem conta?</p>
+      <a class="botao-secundario" href="login.html">Entrar</a>
+    </div>
+  </main>
+
+  <script src="js/neon.bundle.js?v=20261008g"></script>
+  <script src="js/banco.js?v=20261008g"></script>
+  <script src="js/validacao.js?v=20261008g"></script>
+  <script src="js/cadastro.js?v=20261008g"></script>
+</body>
+</html>

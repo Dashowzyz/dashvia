@@ -1,0 +1,3819 @@
+:root {
+  --fundo: #07050f;
+  --painel: #120d22;
+  --borda: #241a3d;
+  --roxo: #3E1785;
+  --azul: #010385;
+  --mistura: #200D85;
+  --destaque: #7a4be0;
+  --menu: #3E1785;
+  --texto-destaque: #ffffff;
+  --texto-menu: #ffffff;
+  --texto: #f2f0f8;
+  --texto-suave: #9b94b5;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Poppins', Arial, sans-serif;
+  background: var(--fundo);
+  color: var(--texto);
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 80px 1fr;
+}
+
+/* Menu lateral */
+.menu {
+  background: var(--menu);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  gap: 28px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--menu);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 22px;
+}
+
+.menu nav {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+/* Último ícone (configurações) fica lá embaixo */
+.menu nav a:last-child {
+  margin-top: auto;
+}
+
+.menu a {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  text-decoration: none;
+  color: var(--texto-menu);
+}
+
+.menu a svg {
+  width: 26px;
+  height: 26px;
+}
+
+.menu a:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.menu a.ativo {
+  background: var(--destaque);
+  color: var(--texto-destaque);
+}
+
+/* Conteúdo central */
+.conteudo {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+header h1 {
+  font-size: 26px;
+}
+
+header p {
+  color: var(--texto-suave);
+  font-size: 14px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.card {
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.card strong {
+  font-size: 20px;
+}
+
+.card span {
+  color: var(--texto-suave);
+  font-size: 13px;
+}
+
+.bloco {
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.bloco h2 {
+  font-size: 18px;
+}
+
+.legenda {
+  color: var(--texto-suave);
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+/* Histórico */
+.historico {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.historico li {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr 60px 66px;
+  gap: 12px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.remover,
+.editar {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  color: var(--texto-suave);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.remover:hover {
+  color: #ff6b6b;
+  border-color: #ff6b6b;
+}
+
+.vazio {
+  color: var(--texto-suave);
+  font-size: 14px;
+}
+
+.tag {
+  font-size: 12px;
+  color: var(--destaque);
+  text-align: right;
+}
+
+/* Gráfico */
+/* Resumo: cartões de mês */
+.grafico {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.mes {
+  flex: 1 0 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mes-cartao {
+  background: var(--borda);
+  border-radius: 20px;
+  height: 260px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mes.selecionado .mes-cartao {
+  background: var(--destaque);
+  color: var(--texto-destaque);
+}
+
+.mes-lista {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.mes-lista li {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+}
+
+.mes-lista small {
+  font-size: 11px;
+  color: var(--texto-suave);
+}
+
+.mes.selecionado .mes-lista small {
+  color: var(--texto-destaque);
+  opacity: 0.8;
+}
+
+.mes-vazio {
+  flex: 1;
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.mes.selecionado .mes-vazio {
+  color: var(--texto-destaque);
+  opacity: 0.8;
+}
+
+.mes-total {
+  font-size: 12px;
+  font-weight: 600;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 8px;
+}
+
+.mes-nome {
+  text-align: center;
+  font-size: 11px;
+  color: var(--texto-suave);
+}
+
+.mes.selecionado .mes-nome {
+  color: var(--texto);
+}
+
+/* Barras de rolagem */
+.mes-lista {
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--destaque) transparent;
+}
+
+/* No cartão do mês atual, que já é roxo, a barra fica branca */
+.mes.selecionado .mes-lista {
+  scrollbar-color: #ffffff transparent;
+}
+
+/* Rolagem horizontal dos 12 meses */
+.grafico {
+  scrollbar-width: thin;
+  scrollbar-color: var(--destaque) transparent;
+}
+
+.grafico::-webkit-scrollbar {
+  height: 6px;
+}
+
+.grafico::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.grafico::-webkit-scrollbar-thumb {
+  background: var(--borda);
+  border-radius: 6px;
+}
+
+.grafico::-webkit-scrollbar-thumb:hover {
+  background: var(--destaque);
+}
+
+/* Formulário de adicionar gasto */
+.formulario {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.formulario label {
+  display: block;
+  font-size: 13px;
+  color: var(--texto-suave);
+  margin-bottom: 6px;
+}
+
+.formulario input,
+.formulario select {
+  width: 100%;
+  padding: 11px 12px;
+  margin-bottom: 16px;
+  background: var(--fundo);
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.formulario input:focus,
+.formulario select:focus {
+  outline: none;
+  border-color: var(--destaque);
+}
+
+.formulario button {
+  width: 100%;
+  padding: 12px;
+  background: var(--mistura);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.formulario button:hover {
+  background: var(--roxo);
+}
+
+.sucesso {
+  color: #4cd98a;
+  font-size: 14px;
+  margin-bottom: 12px;
+  min-height: 18px;
+}
+
+.oculto {
+  display: none;
+}
+.topo-centralizado {
+  text-align: center;
+}
+
+/* Telas menores */
+@media (max-width: 1100px) {
+  body {
+    grid-template-columns: 70px 1fr;
+  }
+}
+
+@media (max-width: 700px) {
+  .cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .historico li {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Página de configurações */
+.perfil {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.avatar {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  border: 4px solid var(--destaque);
+  background: var(--borda) center / cover no-repeat;
+  color: var(--texto);
+  font-size: 48px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.perfil h2 {
+  font-size: 20px;
+}
+
+.perfil-email {
+  color: var(--texto-suave);
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.opcoes {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.opcao {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--fundo);
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 15px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.opcao:hover {
+  border-color: var(--destaque);
+}
+
+.opcao.sair {
+  color: #ff6b6b;
+  margin-top: 8px;
+}
+
+.opcao.sair:hover {
+  border-color: #ff6b6b;
+}
+
+.painel {
+  width: 100%;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.painel label {
+  display: block;
+  font-size: 13px;
+  color: var(--texto-suave);
+  margin-bottom: 6px;
+}
+
+.painel input {
+  width: 100%;
+  padding: 11px 12px;
+  margin-bottom: 14px;
+  background: var(--painel);
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.painel input:focus {
+  outline: none;
+  border-color: var(--destaque);
+}
+
+.painel button {
+  width: 100%;
+  padding: 11px;
+  background: var(--mistura);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.painel button:hover {
+  background: var(--roxo);
+}
+
+.aviso {
+  width: 100%;
+  min-height: 20px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.aviso.ok {
+  color: #4cd98a;
+}
+
+.aviso.erro {
+  color: #ff6b6b;
+}
+
+/* Caixa de confirmação */
+.modal-fundo {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  padding: 24px;
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+}
+
+.modal-texto {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+.modal-botoes {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-botoes button {
+  flex: 1;
+  padding: 11px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.modal-cancelar {
+  background: transparent;
+  color: var(--texto);
+  border: 1px solid var(--borda);
+}
+
+.modal-cancelar:hover {
+  border-color: var(--destaque);
+}
+
+.modal-ok {
+  background: #e5484d;
+  color: #ffffff;
+  border: none;
+}
+
+.modal-ok:hover {
+  background: #c93a3f;
+}
+
+/* Avisos de campo obrigatório */
+input.campo-erro,
+select.campo-erro {
+  border-color: #ff6b6b !important;
+  margin-bottom: 4px !important;
+}
+
+.erro-campo {
+  display: block;
+  color: #ff6b6b;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+/* ===== Versão para celular ===== */
+@media (max-width: 700px) {
+  body {
+    grid-template-columns: 1fr;
+  }
+
+  /* Menu vira uma barra fixa embaixo */
+  .menu {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: auto;
+    min-height: 64px;
+    flex-direction: row;
+    justify-content: center;
+    padding: 8px 12px;
+    gap: 0;
+    z-index: 50;
+  }
+
+  .menu .logo {
+    display: none;
+  }
+
+  .menu nav {
+    flex-direction: row;
+    justify-content: space-around;
+    width: 100%;
+    max-width: 420px;
+    gap: 0;
+  }
+
+  .menu nav a:last-child {
+    margin-top: 0;
+  }
+
+  .conteudo {
+    padding: 18px 16px 80px;
+    gap: 18px;
+  }
+
+  header h1 {
+    font-size: 22px;
+  }
+
+  .cards {
+    gap: 10px;
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .card strong {
+    font-size: 17px;
+  }
+
+  .bloco {
+    padding: 16px;
+  }
+
+  /* Histórico: duas linhas por gasto */
+  .historico li {
+    grid-template-columns: 1fr auto auto 66px;
+    gap: 4px 10px;
+  }
+
+  .historico li span:nth-child(1) {
+    grid-area: 1 / 1;
+    font-weight: 600;
+  }
+
+  .historico li span:nth-child(4) {
+    grid-area: 1 / 2 / 2 / 4;
+    text-align: right;
+  }
+
+  .historico li span:nth-child(2),
+  .historico li span:nth-child(3) {
+    font-size: 12px;
+    color: var(--texto-suave);
+  }
+
+  .historico li span:nth-child(2) {
+    grid-area: 2 / 1;
+  }
+
+  .historico li span:nth-child(3) {
+    grid-area: 2 / 2;
+    text-align: right;
+  }
+
+  .historico li span:nth-child(5) {
+    grid-area: 2 / 3;
+  }
+
+  .historico li .acoes {
+    grid-area: 1 / 4 / 3 / 5;
+    align-self: center;
+  }
+
+  .mes {
+    flex: 0 0 120px;
+  }
+
+  /* 16px evita o zoom automático do iPhone ao tocar nos campos */
+  .formulario input,
+  .formulario select,
+  .painel input {
+    font-size: 16px;
+  }
+
+  .avatar {
+    width: 110px;
+    height: 110px;
+  }
+}
+
+/* Campos de seleção (Categoria, Parcelas, Banco...) */
+.formulario select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239b94b5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+/* Lista que abre ao clicar */
+.formulario select option {
+  background: var(--painel);
+  color: var(--texto);
+  padding: 8px;
+}
+
+.formulario select option:disabled {
+  color: var(--texto-suave);
+}
+
+/* Bolinha de perfil no topo (só no celular) */
+.avatar-topo {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .conteudo header {
+    position: relative;
+    padding-right: 56px;
+  }
+
+  .conteudo header.topo-centralizado {
+    padding-left: 56px;
+  }
+
+  .avatar-topo {
+    display: flex;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid var(--destaque);
+    background: var(--borda) center / cover no-repeat;
+    color: var(--texto);
+    font-weight: 800;
+    font-size: 18px;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+}
+
+/* Editar gasto */
+.acoes {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.editar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.editar:hover {
+  color: var(--destaque);
+  border-color: var(--destaque);
+}
+
+.modal.modal-form {
+  max-width: 420px;
+  max-height: 90vh;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.modal-titulo {
+  font-size: 18px;
+  margin-bottom: 18px;
+}
+
+.modal-erro {
+  color: #ff6b6b;
+  font-size: 13px;
+  min-height: 18px;
+  margin-bottom: 12px;
+}
+
+.modal-ok.salvar {
+  background: var(--destaque);
+  color: var(--texto-destaque);
+}
+
+.modal-ok.salvar:hover {
+  background: var(--roxo);
+}
+
+/* Página de assinaturas */
+.lista-assinaturas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 16px;
+}
+
+.assinatura {
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.assinatura-topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.assinatura-topo h3 {
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+
+.assinatura-valor {
+  font-size: 18px;
+  white-space: nowrap;
+}
+
+.assinatura-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.assinatura .tag {
+  text-align: left;
+}
+
+.detalhes {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--borda);
+  padding-top: 12px;
+}
+
+.detalhes li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--texto-suave);
+}
+
+.detalhes strong {
+  color: var(--texto);
+  font-weight: 600;
+}
+
+.detalhe-cartao {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lista-assinaturas .vazio a {
+  color: var(--destaque);
+}
+
+/* Aviso de erro ao salvar */
+.sucesso.falha {
+  color: #ff6b6b;
+}
+
+/* Nome e e-mail grandes no perfil */
+.perfil h2,
+.perfil-email {
+  max-width: 100%;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* Nome centralizado de verdade: o olho fica ao lado, fora do cálculo do centro */
+.perfil .perfil-email-linha {
+  position: relative;
+  display: block;
+  width: auto;
+  max-width: 100%;
+}
+
+.perfil .perfil-email-linha .btn-olho {
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  margin-left: 8px;
+  transform: translateY(-50%);
+}
+
+/* Linhas sem valor (Ajuda): a seta vai para a ponta direita, como nas outras */
+.linha-texto + .seta {
+  margin-left: auto;
+}
+
+.acoes-foto {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.acoes-foto .link-foto {
+  margin-bottom: 0;
+}
+
+.link-foto-remover {
+  color: #ff6b81;
+  background: color-mix(in srgb, #ff6b81 14%, transparent);
+}
+
+.link-foto-remover:hover {
+  background: color-mix(in srgb, #ff6b81 24%, transparent);
+}
+
+.perfil-email-linha {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  max-width: 100%;
+  margin-bottom: 14px;
+}
+
+.perfil-email-linha .perfil-email {
+  margin-bottom: 0;
+}
+
+.btn-olho {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--destaque) 14%, transparent);
+  color: var(--destaque);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-olho:hover {
+  background: color-mix(in srgb, var(--destaque) 24%, transparent);
+}
+
+.perfil h2 {
+  line-height: 1.3;
+}
+
+/* Páginas sem rolagem (adicionar gasto e configurações) */
+body {
+  min-height: 100vh;
+  min-height: 100dvh; /* no celular, não conta a barra do navegador */
+}
+
+body.sem-rolagem {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+@media (max-width: 700px) {
+  .opcao {
+    padding: 12px 16px;
+  }
+
+  .perfil {
+    gap: 4px;
+  }
+}
+
+/* ===== Configurações: lista de opções em grupos ===== */
+.perfil h2 {
+  font-size: 18px;
+}
+
+.link-foto {
+  background: none;
+  border: none;
+  color: var(--destaque);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.link-foto:hover {
+  text-decoration: underline;
+}
+
+.grupo {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.grupo-titulo {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+  margin: 0 4px 8px;
+}
+
+.lista-opcoes {
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.linha {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: transparent;
+  color: var(--texto);
+  border: none;
+  border-top: 1px solid var(--borda);
+  font-family: inherit;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lista-opcoes > .linha:first-child {
+  border-top: none;
+}
+
+.linha:hover {
+  background: color-mix(in srgb, var(--destaque) 12%, transparent);
+}
+
+.linha-icone,
+.seta {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.linha-icone {
+  color: var(--destaque);
+}
+
+.linha-valor {
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+  color: var(--texto-suave);
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seta {
+  color: var(--texto-suave);
+  transition: transform 0.2s;
+}
+
+.linha.aberta .seta {
+  transform: rotate(90deg);
+}
+
+.linha.sair,
+.linha.sair .linha-icone {
+  color: #ff6b6b;
+}
+
+.lista-opcoes .painel {
+  border: none;
+  border-top: 1px solid var(--borda);
+  border-radius: 0;
+  background: var(--fundo);
+  padding: 16px;
+}
+
+/* Notificação flutuante */
+.toast {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translate(-50%, -24px);
+  max-width: calc(100% - 32px);
+  padding: 12px 18px;
+  background: var(--painel);
+  border: 1px solid #4cd98a;
+  border-radius: 12px;
+  color: var(--texto);
+  font-size: 14px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 200;
+}
+
+.toast.mostrar {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.toast.erro {
+  border-color: #ff6b6b;
+}
+
+.grupo-nota {
+  font-size: 12px;
+  color: var(--texto-suave);
+  margin: 8px 4px 0;
+}
+
+/* Aparência: escolher cores */
+.linha-cor {
+  cursor: pointer;
+}
+
+.linha-cor input[type="color"] {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 2px solid var(--borda);
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.linha-cor input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.linha-cor input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+.linha-cor input[type="color"]::-moz-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+/* Rodapé do site (configurações) */
+.rodape-site {
+  width: 100%;
+  margin-top: 28px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--texto-suave);
+  opacity: 0.8;
+}
+
+.rodape-site a {
+  color: var(--destaque);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.rodape-site a:hover {
+  text-decoration: underline;
+}
+
+/* Reportar um problema */
+.formulario textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 11px 12px;
+  margin-bottom: 12px;
+  background: var(--fundo);
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.formulario textarea:focus {
+  outline: none;
+  border-color: var(--destaque);
+}
+
+.modal-nota {
+  font-size: 12px;
+  color: var(--texto-suave);
+  margin-bottom: 12px;
+}
+
+@media (max-width: 700px) {
+  .formulario textarea {
+    font-size: 16px;
+  }
+}
+
+/* Guia: como usar */
+.guia {
+  list-style: none;
+  counter-reset: passo;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.guia li {
+  counter-increment: passo;
+  position: relative;
+  padding-left: 40px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--texto-suave);
+}
+
+.guia li::before {
+  content: counter(passo);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--destaque);
+  color: var(--texto-destaque);
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.guia strong {
+  display: block;
+  font-size: 15px;
+  color: var(--texto);
+  margin-bottom: 2px;
+}
+
+/* Janelas abertas: a página de trás não rola */
+body:has(.modal-fundo) {
+  overflow: hidden;
+}
+
+.modal-fundo,
+.modal {
+  overscroll-behavior: contain;
+}
+
+/* Nome de página com o ícone do menu (guia) */
+.guia-pagina {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px 1px 5px;
+  margin: 1px 0;
+  border-radius: 8px;
+  background: var(--borda);
+  color: var(--texto);
+  font-weight: 600;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.guia-pagina svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Novidades (lista de atualizações) */
+.novidades {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.novidades h4 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 15px;
+  color: var(--texto);
+  margin-bottom: 8px;
+}
+
+.novidades h4 span {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--texto-suave);
+}
+
+.novidades ul {
+  list-style: disc;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--texto-suave);
+}
+
+.novidades-vazio {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--texto-suave);
+}
+
+/* Dashboard: escolher os blocos do topo */
+.cards-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.btn-personalizar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: transparent;
+  color: var(--texto-suave);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  flex: none;
+}
+
+.btn-personalizar:hover {
+  color: var(--texto);
+  border-color: var(--destaque);
+}
+
+.btn-personalizar svg {
+  width: 16px;
+  height: 16px;
+}
+
+.escolha-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.escolha-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  color: var(--texto);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.escolha-card:has(input:checked) {
+  border-color: var(--destaque);
+}
+
+.escolha-card input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex: none;
+  accent-color: var(--destaque);
+}
+
+/* Celular: só o ícone, para o título do mês caber */
+@media (max-width: 480px) {
+  .btn-personalizar {
+    padding: 8px;
+  }
+  .btn-personalizar .btn-texto {
+    display: none;
+  }
+}
+
+/* Sino de notificações no topo */
+.conteudo header {
+  position: relative;
+}
+
+.sino-topo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--painel);
+  color: var(--texto-suave);
+  border: 1px solid var(--borda);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.sino-topo:hover {
+  color: var(--texto);
+  border-color: var(--destaque);
+}
+
+.sino-topo svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Bolinha de aviso (para quando houver notificações novas) */
+.sino-topo.tem-novas::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff6b6b;
+  border: 2px solid var(--painel);
+  box-sizing: content-box;
+}
+
+@media (max-width: 700px) {
+  .sino-topo {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Ao lado da bolinha de perfil */
+  .conteudo header:has(.avatar-topo) .sino-topo {
+    right: 54px;
+  }
+
+  .conteudo header:not(.topo-centralizado):has(.avatar-topo) {
+    padding-right: 108px;
+  }
+
+  /* Páginas de título centralizado: o sino fica na esquerda, equilibrando com a bolinha */
+  .conteudo header.topo-centralizado .sino-topo {
+    right: auto;
+    left: 0;
+  }
+}
+
+/* ===== Parcelas futuras ===== */
+.area-parcelas {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* Faixa de cartões que se arrasta para o lado */
+.faixa-cartoes {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding: 4px calc(50% - 140px);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  cursor: grab;
+  -webkit-overflow-scrolling: touch;
+}
+
+.faixa-cartoes::-webkit-scrollbar {
+  display: none;
+}
+
+.faixa-cartoes.arrastando {
+  scroll-snap-type: none;
+  cursor: grabbing;
+  user-select: none;
+}
+
+.cartao-banco {
+  position: relative;
+  flex: 0 0 280px;
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 160px;
+  padding: 20px;
+  border-radius: 20px;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 85% 0%, rgba(255, 255, 255, 0.18), transparent 55%),
+    linear-gradient(135deg, var(--roxo), var(--mistura));
+  border: 1px solid var(--borda);
+  opacity: 0.55;
+  transform: scale(0.94);
+  transition: opacity 0.25s, transform 0.25s, border-color 0.25s;
+  user-select: none;
+}
+
+.cartao-banco.selecionado {
+  opacity: 1;
+  transform: scale(1);
+  border-color: var(--destaque);
+}
+
+.cartao-nome {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.cartao-rotulo {
+  margin-top: auto;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.cartao-valor {
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.cartao-rodape {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.pontos {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.pontos span {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--borda);
+  transition: width 0.25s, background 0.25s;
+}
+
+.pontos span.ativo {
+  width: 18px;
+  background: var(--destaque);
+}
+
+/* Compras do banco escolhido */
+.lista-parcelas {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+}
+
+.item-parcela {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--borda);
+}
+
+.item-parcela:first-child {
+  border-top: none;
+}
+
+.item-inicial {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: var(--destaque);
+  color: var(--texto-destaque);
+  font-weight: 800;
+}
+
+.item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.item-info strong,
+.item-valores strong {
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item-info small,
+.item-valores small {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.item-barra {
+  height: 4px;
+  margin-top: 4px;
+  border-radius: 2px;
+  background: var(--borda);
+  overflow: hidden;
+}
+
+.item-barra i {
+  display: block;
+  height: 100%;
+  background: var(--destaque);
+}
+
+.item-valores {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  text-align: right;
+}
+
+/* Celulares estreitos: cartão um pouco menor */
+@media (max-width: 360px) {
+  .faixa-cartoes {
+    padding: 4px calc(50% - 120px);
+  }
+  .cartao-banco {
+    flex-basis: 240px;
+  }
+}
+
+/* ===== Ícone do banco ===== */
+.banco-icone {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.3px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+
+.banco-icone svg {
+  width: 14px;
+  height: 14px;
+}
+
+.cartao-nome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ===== Escolha do banco (com ícones) ===== */
+.select-banco {
+  margin-bottom: 16px;
+}
+
+.select-banco:has(+ select.campo-erro) {
+  margin-bottom: 4px;
+}
+
+.select-banco-botao {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 46px;
+  padding: 8px 40px 8px 12px;
+  background-color: var(--fundo);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239b94b5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.select-banco-botao:focus,
+.select-banco-botao.aberto {
+  outline: none;
+  border-color: var(--destaque);
+}
+
+.select-banco:has(+ select.campo-erro) .select-banco-botao {
+  border-color: #ff6b6b;
+}
+
+.select-banco-valor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.select-banco-lista {
+  list-style: none;
+  margin-top: 6px;
+  padding: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+}
+
+.select-banco-lista li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 8px;
+  color: var(--texto);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.select-banco-lista li:hover,
+.select-banco-lista li:focus {
+  outline: none;
+  background: var(--borda);
+}
+
+.select-banco-lista li[aria-selected="true"] {
+  box-shadow: inset 0 0 0 1px var(--destaque);
+}
+
+/* Data da compra: botão de calendário bem visível dentro do campo */
+.campo-data {
+  position: relative;
+}
+
+.campo-data input[type="date"] {
+  min-height: 48px;
+  padding-right: 56px;
+  cursor: pointer;
+}
+
+/* O ícone pequeno do navegador some: quem abre o calendário é o botão e o próprio campo */
+.campo-data input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+/* "formulario button" já define largura 100% e fundo, por isso o seletor aqui é mais específico */
+.formulario .campo-data .btn-calendario {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background: var(--destaque);
+  color: var(--texto-destaque);
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+
+.formulario .campo-data .btn-calendario:hover {
+  background: var(--destaque);
+  filter: brightness(1.12);
+}
+
+.formulario .campo-data .btn-calendario:active {
+  transform: scale(0.94);
+}
+
+/* Painel da lista: pesquisa em cima, bancos embaixo */
+.select-banco-painel {
+  margin-top: 6px;
+  padding: 4px;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+}
+
+.select-banco-painel .select-banco-lista {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  max-height: 210px;
+}
+
+.select-banco-lista li[hidden] {
+  display: none;
+}
+
+.banco-busca {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  padding: 0 10px;
+  color: var(--texto-suave);
+  border-bottom: 1px solid var(--borda);
+}
+
+.banco-busca svg {
+  flex: none;
+}
+
+.formulario .banco-busca input,
+.formulario .banco-busca input:hover,
+.formulario .banco-busca input:focus {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 10px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.banco-vazio {
+  padding: 12px 10px;
+  color: var(--texto-suave);
+  font-size: 13px;
+}
+
+/* O <select> de verdade fica escondido; o aviso de erro continua aparecendo logo abaixo */
+.formulario .select-nativo {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0 !important;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Ícone do banco no Resumo dos meses */
+.mes-lista small {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mes-lista small .banco-icone {
+  width: 16px;
+  height: 16px;
+  font-size: 7px;
+  letter-spacing: -0.2px;
+}
+
+.mes-lista small .banco-icone svg {
+  width: 9px;
+  height: 9px;
+}
+
+/* O "apagado" do cartão selecionado vale só para o nome, não para o ícone */
+.mes.selecionado .mes-lista small {
+  opacity: 1;
+}
+
+.mes.selecionado .mes-lista small .origem-nome {
+  opacity: 0.8;
+}
+
+/* ===== Cartões do topo em páginas de 4, que se arrastam para o lado ===== */
+.cards {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;
+}
+
+.cards::-webkit-scrollbar {
+  display: none;
+}
+
+.cards.arrastando {
+  scroll-snap-type: none;
+  cursor: grabbing;
+  user-select: none;
+}
+
+.cards-pagina {
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  align-content: start;
+}
+
+@media (max-width: 900px) {
+  .cards-pagina {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.card span {
+  overflow-wrap: anywhere;
+}
+
+#pontos-cards span {
+  cursor: pointer;
+}
+
+/* Blocos do topo: a partir de 5 itens a lista rola, no mesmo estilo do Resumo (acompanha a cor do tema) */
+.escolha-cards.rolavel {
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--destaque) transparent;
+}
+
+/* Parcelas futuras: tela vazia */
+.vazio-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  max-width: 420px;
+  margin: 28px auto 0;
+  padding: 28px 22px;
+  border: 1px dashed var(--borda);
+  border-radius: 20px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--destaque) 10%, transparent), transparent 70%);
+}
+
+.vazio-icone {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  color: var(--texto-destaque);
+  background: linear-gradient(135deg, var(--menu), var(--destaque));
+  box-shadow: 0 10px 26px color-mix(in srgb, var(--destaque) 40%, transparent);
+}
+
+.vazio-icone svg {
+  width: 30px;
+  height: 30px;
+}
+
+.vazio-card h3 {
+  margin: 6px 0 0;
+  font-size: 18px;
+  color: var(--texto);
+}
+
+.vazio-card > p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--texto-suave);
+}
+
+.vazio-botao {
+  margin-top: 8px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--texto-destaque);
+  background: linear-gradient(135deg, var(--menu), var(--destaque));
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--destaque) 35%, transparent);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.vazio-botao:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--destaque) 45%, transparent);
+}
+
+.vazio-dicas {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 16px 0 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--borda);
+  text-align: left;
+}
+
+.vazio-dicas li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--texto-suave);
+}
+
+.vazio-dicas strong {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  color: var(--destaque);
+  border: 1px solid var(--destaque);
+}
+
+.vazio-dicas b {
+  color: var(--texto);
+  font-weight: 600;
+}
+
+/* ===== Adicionar gasto: visual mais atrativo ===== */
+.bloco.formulario {
+  position: relative;
+  overflow: hidden;
+  padding: 28px 24px 24px;
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--destaque) 9%, transparent), transparent 140px),
+    var(--painel);
+  box-shadow: 0 18px 44px color-mix(in srgb, var(--destaque) 16%, transparent);
+}
+
+/* Faixa de cor no topo do cartão */
+.bloco.formulario::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--menu), var(--destaque));
+}
+
+.formulario label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+
+.formulario input,
+.formulario select,
+.select-banco-botao {
+  padding-top: 13px;
+  padding-bottom: 13px;
+  border-radius: 12px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.formulario input:hover,
+.formulario select:hover,
+.select-banco-botao:hover {
+  border-color: color-mix(in srgb, var(--destaque) 55%, var(--borda));
+}
+
+.formulario input:focus,
+.formulario select:focus,
+.select-banco-botao:focus,
+.select-banco-botao.aberto {
+  border-color: var(--destaque);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--destaque) 22%, transparent);
+}
+
+.formulario button[type="submit"] {
+  margin-top: 6px;
+  padding: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--texto-destaque);
+  background: linear-gradient(135deg, var(--menu), var(--destaque));
+  border-radius: 14px;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--destaque) 35%, transparent);
+  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+}
+
+.formulario button[type="submit"]:hover {
+  background: linear-gradient(135deg, var(--menu), var(--destaque));
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--destaque) 45%, transparent);
+}
+
+.formulario button[type="submit"]:active {
+  transform: translateY(0);
+}
+
+.formulario button[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
+/* Mensagem de sucesso em "pílula" */
+.sucesso:not(:empty) {
+  padding: 10px 14px;
+  border-radius: 10px;
+  text-align: center;
+  background: color-mix(in srgb, #4cd98a 14%, transparent);
+  border: 1px solid color-mix(in srgb, #4cd98a 40%, transparent);
+}
+
+.sucesso.falha:not(:empty) {
+  background: color-mix(in srgb, #ff6b6b 14%, transparent);
+  border-color: color-mix(in srgb, #ff6b6b 40%, transparent);
+}
+
+@media (max-width: 700px) {
+  .bloco.formulario {
+    padding: 24px 18px 20px;
+  }
+}
+
+/* ===== Assinaturas: visual novo ===== */
+.assinatura {
+  position: relative;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 18px;
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--destaque) 8%, transparent), transparent 55%),
+    var(--painel);
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.assinatura:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--destaque) 60%, var(--borda));
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--destaque) 18%, transparent);
+}
+
+.assinatura-topo {
+  align-items: center;
+}
+
+.assinatura-inicial {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.assinatura-nome {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.assinatura .tag {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--destaque) 16%, transparent);
+}
+
+.assinatura-proxima {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  color: var(--texto-suave);
+  background: color-mix(in srgb, var(--fundo) 70%, transparent);
+  border: 1px solid var(--borda);
+}
+
+.assinatura-proxima strong {
+  color: var(--texto);
+}
+
+.assinatura-proxima .prazo {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: var(--destaque);
+  background: color-mix(in srgb, var(--destaque) 14%, transparent);
+}
+
+.assinatura-proxima.em-breve {
+  border-color: var(--destaque);
+}
+
+.assinatura-proxima.em-breve .prazo {
+  color: var(--texto-destaque);
+  background: var(--destaque);
+}
+
+.detalhes {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.acoes-assinatura {
+  justify-content: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid var(--borda);
+}
+
+/* ===== Visual novo: Dashboard e Configurações ===== */
+
+/* Blocos (Histórico e Resumo) com o mesmo cartão das outras telas */
+.bloco {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--destaque) 8%, transparent), transparent 120px),
+    var(--painel);
+  box-shadow: 0 14px 36px color-mix(in srgb, var(--destaque) 12%, transparent);
+}
+
+.bloco::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--menu), var(--destaque));
+}
+
+.bloco h2 {
+  font-size: 19px;
+}
+
+/* Cards do topo */
+.card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  padding: 20px 20px 18px;
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--destaque) 10%, transparent), transparent 60%),
+    var(--painel);
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  left: 20px;
+  bottom: 0;
+  width: 36px;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+  background: var(--destaque);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--destaque) 60%, var(--borda));
+  box-shadow: 0 14px 30px color-mix(in srgb, var(--destaque) 18%, transparent);
+}
+
+.card strong {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.card span {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Histórico: cada registro vira uma linha com fundo */
+.historico {
+  gap: 8px;
+}
+
+.historico li:not(.vazio) {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--fundo) 60%, transparent);
+  border: 1px solid var(--borda);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.historico li:not(.vazio):hover {
+  border-color: color-mix(in srgb, var(--destaque) 55%, var(--borda));
+  background: color-mix(in srgb, var(--destaque) 8%, transparent);
+}
+
+.historico li > span:first-child {
+  font-weight: 600;
+}
+
+.historico li .tag {
+  justify-self: end;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--destaque) 16%, transparent);
+}
+
+.historico li.vazio {
+  padding: 22px 12px;
+  text-align: center;
+  border: 1px dashed var(--borda);
+  border-radius: 14px;
+}
+
+/* Botões de editar/remover */
+.editar,
+.remover {
+  border-radius: 9px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.editar:hover {
+  background: color-mix(in srgb, var(--destaque) 14%, transparent);
+}
+
+.remover:hover {
+  background: color-mix(in srgb, #ff6b6b 14%, transparent);
+}
+
+/* Meses do Resumo */
+.mes {
+  cursor: pointer;
+}
+
+.mes-cartao {
+  border: 1px solid var(--borda);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--destaque) 10%, transparent), transparent 70%),
+    var(--painel);
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.mes:hover .mes-cartao {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--destaque) 60%, var(--borda));
+}
+
+.mes.selecionado .mes-cartao {
+  background:
+    radial-gradient(circle at 85% 0%, rgba(255, 255, 255, 0.2), transparent 55%),
+    linear-gradient(135deg, var(--menu), var(--destaque));
+  border-color: var(--destaque);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--destaque) 40%, transparent);
+}
+
+.mes-total {
+  font-weight: 800;
+}
+
+.mes-nome {
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.mes.selecionado .mes-nome {
+  color: var(--destaque);
+}
+
+/* Botão Personalizar */
+.btn-personalizar {
+  border-radius: 999px;
+  padding: 8px 14px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.btn-personalizar:hover {
+  background: color-mix(in srgb, var(--destaque) 12%, transparent);
+}
+
+/* ----- Configurações ----- */
+.avatar {
+  border: 0;
+  box-shadow:
+    0 0 0 4px var(--painel),
+    0 0 0 7px var(--destaque),
+    0 14px 34px color-mix(in srgb, var(--destaque) 45%, transparent);
+  margin-bottom: 16px;
+}
+
+.perfil h2 {
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.link-foto {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--destaque) 14%, transparent);
+  transition: background 0.15s;
+}
+
+.link-foto:hover {
+  background: color-mix(in srgb, var(--destaque) 24%, transparent);
+  text-decoration: none;
+}
+
+.grupo-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.grupo-titulo::before {
+  content: "";
+  width: 14px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--destaque);
+}
+
+.lista-opcoes {
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--destaque) 7%, transparent), transparent 90px),
+    var(--painel);
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--destaque) 10%, transparent);
+}
+
+.linha {
+  padding: 13px 16px;
+  transition: background 0.15s;
+}
+
+.linha-icone {
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--destaque) 15%, transparent);
+}
+
+.linha.sair .linha-icone {
+  background: color-mix(in srgb, #ff6b6b 14%, transparent);
+}
+
+.linha.sair:hover {
+  background: color-mix(in srgb, #ff6b6b 10%, transparent);
+}
+
+.lista-opcoes .painel button[type="submit"],
+.painel button {
+  background: linear-gradient(135deg, var(--menu), var(--destaque));
+  color: var(--texto-destaque);
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.painel input:focus {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--destaque) 22%, transparent);
+}
+
+.toast {
+  border-radius: 14px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+}
+
+/* Resumo: espaço em volta dos meses para a sombra e o "pulo" não serem cortados */
+.grafico {
+  padding: 14px 14px 22px;
+  margin: -14px -14px -8px;
+}
+
+/* ===== Menu (navbar) com visual novo ===== */
+.menu {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.14), transparent 60%),
+    linear-gradient(180deg, var(--menu), color-mix(in srgb, var(--menu) 70%, #000000));
+  box-shadow: 4px 0 28px color-mix(in srgb, var(--menu) 45%, transparent);
+}
+
+.logo {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.menu a {
+  position: relative;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.menu a:hover {
+  background: rgba(255, 255, 255, 0.16);
+  transform: translateY(-2px);
+}
+
+.menu a.ativo {
+  background: var(--destaque);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--destaque) 55%, transparent);
+}
+
+/* Traço de luz do lado do item ativo (computador) */
+.menu a.ativo::before {
+  content: "";
+  position: absolute;
+  left: -16px;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--texto-menu);
+}
+
+/* Celular: barra flutuante, com o nome da página ativa aparecendo */
+@media (max-width: 700px) {
+  .menu {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    min-height: 0;
+    padding: 8px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent),
+      color-mix(in srgb, var(--menu) 88%, #000000);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+  }
+
+  .menu nav {
+    max-width: none;
+    align-items: center;
+  }
+
+  .menu a {
+    width: 46px;
+    height: 46px;
+    border-radius: 16px;
+    flex: none;
+  }
+
+  .menu a:hover {
+    transform: none;
+  }
+
+  .menu a.ativo {
+    width: auto;
+    padding: 0 14px 0 12px;
+    gap: 8px;
+  }
+
+  .menu a.ativo::before {
+    content: none;
+  }
+
+  .menu a.ativo::after {
+    content: attr(title);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .menu a svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .conteudo {
+    padding-bottom: 104px;
+  }
+}
+
+/* ===== Aparência: temas recomendados ===== */
+.grupo-subtitulo {
+  margin: 4px 4px 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--texto);
+}
+
+.grupo-subtitulo:not(:first-of-type) {
+  margin-top: 20px;
+}
+
+.temas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.tema-opcao {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 8px 10px;
+  background: var(--painel);
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.tema-opcao:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--destaque) 60%, var(--borda));
+}
+
+.tema-opcao.ativo {
+  border-color: var(--destaque);
+  box-shadow: 0 0 0 2px var(--destaque), 0 10px 24px color-mix(in srgb, var(--destaque) 30%, transparent);
+}
+
+.tema-opcao.ativo .tema-nome::after {
+  content: " ✓";
+  color: var(--destaque);
+}
+
+.tema-nome {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Mini-prévia do app */
+.tema-previa {
+  position: relative;
+  display: block;
+  height: 58px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+.tema-previa i {
+  position: absolute;
+  display: block;
+}
+
+.tema-menu {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 16%;
+}
+
+.tema-cartao-mini {
+  left: 24%;
+  right: 8%;
+  top: 14px;
+  height: 14px;
+  border-radius: 5px;
+  border: 1px solid;
+}
+
+.tema-ponto {
+  left: 24%;
+  width: 34%;
+  bottom: 9px;
+  height: 9px;
+  border-radius: 999px;
+}
+
+/* Personalize do seu jeito */
+.area-cores .linha:first-child {
+  border-top: 1px solid var(--borda);
+}
+
+@media (max-width: 380px) {
+  .temas {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Temas recomendados: bolinhas pequenas */
+.temas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 0 4px;
+}
+
+.tema-opcao {
+  padding: 4px;
+  gap: 0;
+  border-radius: 50%;
+  background: transparent;
+  border: 2px solid transparent;
+}
+
+.tema-opcao:hover {
+  transform: scale(1.12);
+  border-color: transparent;
+}
+
+.tema-opcao.ativo {
+  border-color: var(--destaque);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--destaque) 25%, transparent);
+}
+
+.tema-opcao.ativo .tema-nome::after {
+  content: none;
+}
+
+.tema-bolinha {
+  display: block;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(128, 128, 128, 0.45);
+}
+
+.tema-atual {
+  margin: 10px 4px 0;
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+/* Temas: cartão organizado, 5 por linha */
+.temas {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px 8px;
+  justify-items: center;
+  padding: 20px 14px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--destaque) 7%, transparent), transparent 90px),
+    var(--painel);
+  border: 1px solid var(--borda);
+  border-bottom: 0;
+  border-radius: 18px 18px 0 0;
+}
+
+.tema-opcao {
+  padding: 5px;
+}
+
+.tema-bolinha {
+  width: 40px;
+  height: 40px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+.tema-atual {
+  margin: 0 0 4px;
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--texto);
+  background: color-mix(in srgb, var(--destaque) 10%, var(--painel));
+  border: 1px solid var(--borda);
+  border-radius: 0 0 18px 18px;
+}
+
+@media (max-width: 380px) {
+  .temas {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px 2px;
+    padding: 18px 8px;
+  }
+  .tema-bolinha {
+    width: 34px;
+    height: 34px;
+  }
+}
+
+/* Temas dentro da caixa que abre */
+.lista-seguinte {
+  margin-top: 12px;
+}
+
+.area-cores .temas {
+  border: 0;
+  border-top: 1px solid var(--borda);
+  border-radius: 0;
+  background: var(--fundo);
+  padding: 20px 14px;
+}
+
+/* Assinaturas: a tela vazia ocupa a linha toda da grade, centralizada */
+.lista-assinaturas .vazio-card {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+/* Barra de rolagem das janelas (guia, novidades, etc.): mesmo estilo do Resumo */
+.modal.modal-form {
+  scrollbar-width: thin;
+  scrollbar-color: var(--destaque) transparent;
+}
+
+/* Janelas com lista longa (Como usar, Novidades): só a lista rola, por dentro da janela.
+   Assim a barra não encosta nos cantos arredondados e o botão fica sempre visível. */
+.modal.modal-form:has(.guia),
+.modal.modal-form:has(.novidades) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal.modal-form:has(.guia) .modal-titulo,
+.modal.modal-form:has(.novidades) .modal-titulo,
+.modal.modal-form:has(.guia) .modal-botoes,
+.modal.modal-form:has(.novidades) .modal-botoes {
+  flex-shrink: 0;
+}
+
+.modal.modal-form .guia,
+.modal.modal-form .novidades {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--destaque) transparent;
+}
+
+/* Cartões do topo: espaço em cima e embaixo para o efeito do mouse (sobe e ganha sombra) não ser cortado.
+   As margens negativas compensam, então o resto da página fica no mesmo lugar. */
+.cards {
+  padding-top: 8px;
+  padding-bottom: 28px;
+  margin-top: -8px;
+  margin-bottom: -28px;
+}
+
+/* Para a área extra dos cartões não tapar o título, o botão Personalizar e as bolinhas */
+.cards-topo,
+#pontos-cards {
+  position: relative;
+  z-index: 1;
+}
+
+/* Estrela de favoritar no cartão do banco (Parcelas futuras) */
+.cartao-favorito {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+
+.cartao-favorito svg {
+  width: 17px;
+  height: 17px;
+}
+
+.cartao-favorito:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+.cartao-favorito:active {
+  transform: scale(0.9);
+}
+
+.cartao-favorito.ativo {
+  color: #ffd25e;
+  background: rgba(255, 210, 94, 0.18);
+}
+
+.cartao-favorito.ativo svg {
+  fill: currentColor;
+}
+
+/* Botão de registrar pagamento em cada compra (Parcelas futuras) */
+.item-pagar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--borda);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--texto-suave);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.item-pagar svg {
+  width: 16px;
+  height: 16px;
+}
+
+.item-pagar:hover {
+  color: #4cd98a;
+  border-color: #4cd98a;
+  background: rgba(76, 217, 138, 0.1);
+}
+
+/* Janela de registrar pagamento */
+.opcoes-pagamento {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.opcao-pagamento {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.opcao-pagamento:has(input:checked) {
+  border-color: var(--destaque);
+}
+
+.opcao-pagamento input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  padding: 0;
+  accent-color: var(--destaque);
+}
+
+.opcao-pagamento > span {
+  flex: 1;
+  min-width: 0;
+}
+
+.opcao-pagamento strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--texto);
+}
+
+.opcao-pagamento small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.opcao-pagamento select {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: var(--painel);
+  color: var(--texto);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+}
+
+/* Aviso com "Desfazer" depois de registrar um pagamento */
+.aviso-parcelas {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: calc(100% - 32px);
+  padding: 12px 16px;
+  background: var(--painel);
+  border: 1px solid #4cd98a;
+  border-radius: 14px;
+  color: var(--texto);
+  font-size: 14px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+  z-index: 200;
+}
+
+.aviso-parcelas button {
+  flex: none;
+  padding: 4px 8px;
+  background: none;
+  border: none;
+  color: var(--destaque);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+
+/* Barra de rolagem padrão em todas as telas: fina e na cor de destaque (igual à do Resumo) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--destaque) transparent;
+}
+
+/* Celular: o menu desce e some ao rolar para baixo, e sobe de volta ao rolar para cima */
+@media (max-width: 700px) {
+  .menu {
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+  }
+
+  .menu.menu-escondido {
+    transform: translateY(calc(100% + 24px));
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu {
+    transition: none;
+  }
+}
+/* Boleto que se repete todo mês: status da cobrança do mês */
+.status-boleto {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.status-boleto.pago {
+  color: #4cd98a;
+  background: rgba(76, 217, 138, 0.14);
+}
+
+.status-boleto.aberto {
+  color: var(--destaque);
+  background: color-mix(in srgb, var(--destaque) 16%, transparent);
+}
+
+.status-boleto.vencido {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.14);
+}
+
+/* Botão de pagar já marcado: verde e cheio */
+.item-pagar.paga {
+  color: #0b2a1a;
+  border-color: #4cd98a;
+  background: #4cd98a;
+}
+
+.item-pagar.paga:hover {
+  color: #0b2a1a;
+  background: #4cd98a;
+  filter: brightness(1.1);
+}
+
+/* A etiqueta do histórico nunca quebra em duas linhas */
+.historico li .tag {
+  white-space: nowrap;
+}
+
+/* Histórico no celular: a primeira coluna encolhe (com "…") em vez de empurrar os botões para fora do cartão */
+@media (max-width: 700px) {
+  .historico li {
+    grid-template-columns: minmax(0, 1fr) auto auto 66px;
+  }
+
+  .historico li span:nth-child(1),
+  .historico li span:nth-child(2) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .historico li .acoes {
+    justify-self: end;
+  }
+}
+/* Editar / Encerrar do boleto mensal */
+.acoes-boleto {
+  display: flex;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.link-boleto {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--destaque);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.link-boleto:hover {
+  text-decoration: underline;
+}
+/* Dashboard no computador: setas para trocar de página dos blocos (sem arrastar com o mouse) */
+.cards-area {
+  position: relative;
+}
+
+.cards {
+  cursor: default;
+}
+
+.cards-seta {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--destaque) 55%, var(--borda));
+  border-radius: 50%;
+  background: var(--painel);
+  color: var(--texto);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+}
+
+.cards-seta[hidden] {
+  display: none;
+}
+
+.cards-seta:hover {
+  background: var(--destaque);
+  color: var(--texto-destaque);
+  transform: translateY(-50%) scale(1.08);
+}
+
+.cards-seta-esq {
+  left: -18px;
+}
+
+.cards-seta-dir {
+  right: -18px;
+}
+
+/* No celular o dedo arrasta; as setas não aparecem */
+@media (max-width: 700px) {
+  .cards-seta {
+    display: none;
+  }
+}
+/* ===== Fontes: Inter no texto e nos números (todos os dígitos com a mesma largura), Poppins nos títulos ===== */
+body {
+  font-family: 'Inter', 'Poppins', Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+h1,
+h2,
+h3,
+.cartao-nome {
+  font-family: 'Poppins', 'Inter', Arial, sans-serif;
+}
+/* Valores um pouco mais leves: o número aparece sem "gritar" */
+.cartao-valor,
+.card strong,
+.mes-total {
+  font-weight: 700;
+}
+
+.item-valores strong,
+.historico li > span:nth-child(4) {
+  font-weight: 600;
+}
+/* Linha só para mostrar (não abre painel): sem mãozinha nem efeito de toque */
+.linha-fixa,
+.linha-fixa:hover,
+.linha-fixa:active {
+  cursor: default;
+  background: transparent;
+  transform: none;
+  filter: none;
+}
+/* Parcelas futuras no computador: setas ao lado do cartão do centro (sem arrastar com o mouse) */
+.cartoes-area {
+  position: relative;
+}
+
+.faixa-cartoes {
+  cursor: default;
+}
+
+.cartoes-area .cards-seta-esq {
+  left: calc(50% - 196px);
+}
+
+.cartoes-area .cards-seta-dir {
+  right: calc(50% - 196px);
+}
+/* ===== Tour guiado ===== */
+.tour-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+}
+
+.tour-destaque {
+  position: fixed;
+  z-index: 9999;
+  border-radius: 16px;
+  box-shadow:
+    0 0 0 9999px rgba(5, 3, 12, 0.8),
+    0 0 0 2px var(--destaque),
+    0 0 26px rgba(122, 75, 224, 0.65);
+  pointer-events: none;
+  transition: left 0.3s ease, top 0.3s ease, width 0.3s ease, height 0.3s ease;
+}
+
+.tour-balao {
+  position: fixed;
+  z-index: 10000;
+  width: min(340px, calc(100vw - 24px));
+  padding: 18px 18px 16px;
+  border: 1px solid color-mix(in srgb, var(--destaque) 55%, var(--borda));
+  border-radius: 18px;
+  background: var(--painel);
+  color: var(--texto);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  animation: tour-entrar 0.3s ease both;
+}
+
+@keyframes tour-entrar {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tour-contador {
+  margin-bottom: 4px;
+  color: var(--destaque);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tour-titulo {
+  margin-bottom: 6px;
+  font-size: 17px;
+}
+
+.tour-texto {
+  color: var(--texto-suave);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.tour-pontos {
+  display: flex;
+  gap: 5px;
+  margin: 14px 0;
+}
+
+.tour-pontos span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--borda);
+  transition: background 0.2s, width 0.2s;
+}
+
+.tour-pontos span.feito {
+  background: color-mix(in srgb, var(--destaque) 55%, var(--borda));
+}
+
+.tour-pontos span.ativo {
+  width: 18px;
+  border-radius: 4px;
+  background: var(--destaque);
+}
+
+.tour-botoes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tour-espaco {
+  flex: 1;
+}
+
+.tour-botoes button {
+  padding: 9px 14px;
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--texto);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tour-botoes .tour-pular {
+  padding-left: 0;
+  padding-right: 0;
+  border-color: transparent;
+  color: var(--texto-suave);
+  font-weight: 500;
+}
+
+.tour-botoes .tour-proximo {
+  border-color: transparent;
+  background: linear-gradient(135deg, var(--destaque), var(--menu));
+  color: var(--texto-destaque);
+}
+
+.tour-botoes button:hover {
+  filter: brightness(1.15);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-balao,
+  .tour-destaque {
+    animation: none;
+    transition: none;
+  }
+}
+/* ===== Novidades: visual novo ===== */
+.novidade {
+  position: relative;
+  padding: 16px 16px 14px;
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--destaque) 12%, transparent), transparent 90px),
+    var(--fundo);
+}
+
+.novidade-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.novidade-selo {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--destaque), var(--menu));
+  color: var(--texto-destaque);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.novidade-data {
+  color: var(--texto-suave);
+  font-size: 12px;
+}
+
+.novidades .novidade h4 {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 18px;
+  line-height: 1.25;
+}
+
+.novidade-resumo {
+  margin-bottom: 14px;
+  color: var(--texto);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.novidades .novidade ul {
+  list-style: none;
+  padding-left: 0;
+  gap: 10px;
+}
+
+.novidades .novidade li {
+  position: relative;
+  padding-left: 30px;
+}
+
+.novidades .novidade li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--destaque) 85%, #000000) url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'><polyline points='5 12.5 10 17.5 19 7'/></svg>") center / 12px no-repeat;
+}
+
+/* A observação sobre o beta fica separada, como um aviso */
+.novidades .novidade li:last-child:not(:only-child) {
+  margin-top: 4px;
+  padding: 12px 12px 12px 42px;
+  border: 1px dashed color-mix(in srgb, var(--destaque) 45%, var(--borda));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--destaque) 7%, transparent);
+}
+
+.novidades .novidade li:last-child:not(:only-child)::before {
+  left: 12px;
+  top: 12px;
+}
+/* ===== Janelas (caixas) mais bonitas ===== */
+.modal-fundo {
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(122, 75, 224, 0.22), transparent 70%),
+    rgba(4, 2, 12, 0.72);
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
+  animation: modal-fundo-entrar 0.22s ease both;
+}
+
+.modal {
+  border: 1px solid transparent;
+  border-radius: 22px;
+  padding: 26px;
+  background:
+    linear-gradient(90deg, transparent, var(--destaque), transparent) top center / 55% 2px no-repeat padding-box,
+    linear-gradient(180deg, color-mix(in srgb, var(--destaque) 13%, transparent), transparent 150px) padding-box,
+    linear-gradient(var(--painel), var(--painel)) padding-box,
+    linear-gradient(150deg, rgba(196, 164, 255, 0.55), rgba(122, 75, 224, 0.12) 40%, rgba(122, 75, 224, 0.12) 65%, rgba(111, 124, 255, 0.45)) border-box;
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.65),
+    0 0 50px color-mix(in srgb, var(--destaque) 14%, transparent);
+  animation: modal-entrar 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+
+@keyframes modal-fundo-entrar {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-entrar {
+  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-texto {
+  line-height: 1.55;
+}
+
+/* Título com um traço de destaque embaixo */
+.modal-titulo {
+  font-family: 'Poppins', 'Inter', Arial, sans-serif;
+  font-size: 19px;
+}
+
+.modal-titulo::after {
+  content: "";
+  display: block;
+  width: 38px;
+  height: 3px;
+  margin-top: 9px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--destaque), transparent);
+}
+
+/* Botões */
+.modal-botoes {
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.modal-botoes button {
+  padding: 13px;
+  border-radius: 13px;
+  font-weight: 600;
+  transition: transform 0.15s, filter 0.15s, box-shadow 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.modal-botoes button:hover {
+  transform: translateY(-1px);
+}
+
+.modal-botoes button:active {
+  transform: translateY(0);
+}
+
+.modal-cancelar {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.modal-cancelar:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* Confirmar uma ação perigosa (remover, sair): vermelho com brilho */
+.modal-ok {
+  background: linear-gradient(135deg, #f0585d, #c93a3f);
+  box-shadow: 0 10px 24px rgba(229, 72, 77, 0.32);
+}
+
+.modal-ok:hover {
+  background: linear-gradient(135deg, #f0585d, #c93a3f);
+  filter: brightness(1.08);
+}
+
+/* Salvar / enviar: roxo com brilho */
+.modal-ok.salvar {
+  background: linear-gradient(135deg, var(--destaque), var(--menu));
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--destaque) 38%, transparent);
+}
+
+.modal-ok.salvar:hover {
+  background: linear-gradient(135deg, var(--destaque), var(--menu));
+  filter: brightness(1.1);
+}
+
+.modal-ok:disabled {
+  opacity: 0.6;
+  cursor: wait;
+  transform: none;
+}
+
+.modal-nota {
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-fundo,
+  .modal {
+    animation: none;
+  }
+}
+/* Aviso de "valores de exemplo" dentro do balão do tour */
+.tour-exemplo {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px dashed color-mix(in srgb, var(--destaque) 55%, var(--borda));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--destaque) 9%, transparent);
+  color: var(--texto);
+  font-size: 12px;
+  line-height: 1.45;
+}
+/* ===== Temas recomendados: cartões com mini-prévia do app e o nome ===== */
+.temas {
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  justify-items: stretch;
+  gap: 12px;
+  padding: 16px;
+}
+
+.temas .tema-opcao {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 6px 6px 10px;
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--fundo) 55%, transparent);
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.temas .tema-opcao:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--destaque) 60%, var(--borda));
+}
+
+.temas .tema-opcao.ativo {
+  border-color: var(--destaque);
+  box-shadow: 0 0 0 1px var(--destaque), 0 10px 24px color-mix(in srgb, var(--destaque) 28%, transparent);
+}
+
+/* Marca de escolhido no canto */
+.temas .tema-opcao.ativo::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--destaque) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 12.5 10 17.5 19 7'/%3E%3C/svg%3E") center / 12px no-repeat;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.temas .tema-previa {
+  height: 62px;
+}
+
+.temas .tema-cartao-mini {
+  left: 26%;
+  right: 8%;
+  top: 11px;
+  height: 18px;
+  border-radius: 6px;
+}
+
+.temas .tema-linha {
+  left: 26%;
+  width: 30%;
+  bottom: 22px;
+  height: 4px;
+  border-radius: 2px;
+  opacity: 0.45;
+}
+
+.temas .tema-ponto {
+  left: 26%;
+  width: 42%;
+  bottom: 9px;
+  height: 7px;
+}
+
+.temas .tema-nome {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--texto);
+}
+
+.temas .tema-opcao.ativo .tema-nome::after {
+  content: none;
+}
+
+@media (max-width: 380px) {
+  .temas {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 14px;
+  }
+}
+/* Tour: registros escondidos até a vez deles e depois subindo, um atrás do outro */
+.tour-oculto {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: translateY(22px) scale(0.97) !important;
+}
+
+.tour-revelar {
+  animation: tour-subir 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: var(--tour-atraso, 0ms);
+}
+
+@keyframes tour-subir {
+  from {
+    opacity: 0;
+    transform: translateY(22px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-revelar {
+    animation: none;
+  }
+}
+/* Tour: demonstração do Personalizar (blocos sendo marcados e a prévia mudando) */
+.tour-demo {
+  margin-top: 12px;
+  padding: 10px;
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--fundo) 70%, transparent);
+}
+
+.tour-demo-lista {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.tour-demo-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--painel) 80%, transparent);
+  font-size: 12px;
+  color: var(--texto-suave);
+  transition: background 0.25s, color 0.25s;
+}
+
+.tour-demo-linha.marcada {
+  color: var(--texto);
+}
+
+.tour-demo-caixa {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 1px solid color-mix(in srgb, var(--destaque) 55%, var(--borda));
+  border-radius: 5px;
+  background: var(--fundo);
+  transition: background 0.25s, border-color 0.25s;
+}
+
+.tour-demo-linha.marcada .tour-demo-caixa {
+  border-color: var(--destaque);
+  background: var(--destaque) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='5 12.5 10 17.5 19 7'/%3E%3C/svg%3E") center / 11px no-repeat;
+}
+
+.tour-demo-previa {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--borda);
+}
+
+.tour-demo-bloco {
+  padding: 6px 9px;
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  background: var(--painel);
+  color: var(--texto);
+  font-size: 11px;
+  font-weight: 600;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.tour-demo-bloco.fora {
+  opacity: 0.12;
+  transform: scale(0.92);
+}
