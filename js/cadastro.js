@@ -31,6 +31,11 @@ form.addEventListener("submit", async function (evento) {
     return;
   }
 
+  if (!document.getElementById("aceite").checked) {
+    mensagem.textContent = "Para criar a conta, aceite os Termos de Uso e a Política de Privacidade.";
+    return;
+  }
+
   mensagem.textContent = "";
   botao.disabled = true;
   botao.textContent = "Criando...";

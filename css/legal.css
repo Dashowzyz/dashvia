@@ -1,0 +1,93 @@
+/* Páginas de Política de Privacidade e Termos de Uso (usa as cores e o fundo do style.css) */
+body.pagina-legal {
+  align-items: flex-start;
+  padding: 32px 16px 48px;
+}
+
+.caixa-legal {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 32px 36px;
+  border-radius: 20px;
+  border: 1px solid rgba(122, 75, 224, 0.35);
+  background:
+    linear-gradient(180deg, rgba(122, 75, 224, 0.12), transparent 160px),
+    rgba(18, 13, 34, 0.88);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6), 0 0 60px rgba(122, 75, 224, 0.12);
+}
+
+.caixa-legal .voltar {
+  display: inline-block;
+  margin-bottom: 18px;
+  font-size: 14px;
+}
+
+.caixa-legal h1 {
+  font-size: 30px;
+  text-align: left;
+  margin-bottom: 6px;
+}
+
+.caixa-legal .atualizado {
+  color: var(--texto-suave);
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+.caixa-legal h2 {
+  font-size: 18px;
+  margin: 26px 0 8px;
+  color: #d9c8ff;
+}
+
+.caixa-legal p,
+.caixa-legal li {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--texto);
+}
+
+.caixa-legal p {
+  margin-bottom: 10px;
+}
+
+.caixa-legal ul {
+  margin: 0 0 10px 20px;
+}
+
+.caixa-legal li {
+  margin-bottom: 4px;
+}
+
+.caixa-legal .aviso {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--borda);
+  background: rgba(7, 5, 15, 0.6);
+  color: var(--texto-suave);
+  font-size: 14px;
+}
+
+.caixa-legal .links-legais {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid var(--borda);
+  font-size: 14px;
+  text-align: center;
+  color: var(--texto-suave);
+}
+
+@media (max-width: 480px) {
+  body.pagina-legal {
+    padding: 16px 12px 32px;
+  }
+
+  .caixa-legal {
+    padding: 24px 20px 28px;
+  }
+
+  .caixa-legal h1 {
+    font-size: 26px;
+  }
+}
