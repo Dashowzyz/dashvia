@@ -80,7 +80,9 @@ function montarGrupos() {
   grupos = Object.keys(porBanco).map(function (b) { return porBanco[b]; });
   // O favorito vem primeiro; os outros ficam do maior valor restante para o menor
   grupos.sort(function (a, b) {
-    if (bancoFavorito) {
+    // No espaço compartilhado o Boleto vem primeiro e os cartões ficam depois
+    if (espacoDaTela && (a.banco === "Boleto") !== (b.banco === "Boleto")) return a.banco === "Boleto" ? -1 : 1;
+    if (bancoFavorito && !espacoDaTela) {
       if (a.banco === bancoFavorito) return -1;
       if (b.banco === bancoFavorito) return 1;
     }
@@ -855,7 +857,8 @@ function descricaoDoGasto(g) {
   if (g.categoria === "Assinatura") {
     return "Assinatura · " + ({ mensal: "mensal", trimestral: "trimestral", anual: "anual" }[g.parcelas] || "");
   }
-  return g.categoria + " · " + (g.parcelas === "pix" ? "Pix" : (g.banco || "Cartão"));
+  const base = g.categoria + " · " + (g.parcelas === "pix" ? "Pix" : (g.banco || "Cartão"));
+  return /^\d+$/.test(g.parcelas) && Number(g.parcelas) >= 2 ? base + " · " + g.parcelas + "x" : base;
 }
 
 function linhaDoFeed(g) {

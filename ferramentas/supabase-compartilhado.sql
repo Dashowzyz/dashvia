@@ -6,7 +6,7 @@
 -- Regras:
 --  - cada pessoa está em no máximo 1 espaço;
 --  - o espaço tem 1 líder e no máximo 6 membros;
---  - no espaço só entram gastos das categorias Boleto, Assinatura e Mercado;
+--  - no espaço só entram gastos das categorias Boleto, Assinatura, Mercado e Compras (cartão, com parcelas);
 --  - qualquer membro adiciona, edita, marca como pago e apaga; tudo vai para o histórico;
 --  - o histórico guarda só os últimos 30 dias (o resto é apagado sozinho);
 --  - o líder só sai depois de passar a liderança.
@@ -71,7 +71,7 @@ alter table public.gastos add constraint gastos_dono_ck
 
 alter table public.gastos drop constraint if exists gastos_categoria_espaco_ck;
 alter table public.gastos add constraint gastos_categoria_espaco_ck
-  check (espaco_id is null or categoria in ('Boleto', 'Assinatura', 'Mercado'));
+  check (espaco_id is null or categoria in ('Boleto', 'Assinatura', 'Mercado', 'Compras'));
 
 create index if not exists gastos_espaco_idx on public.gastos (espaco_id);
 

@@ -418,7 +418,7 @@ function recarregarAoVoltar(recarregar) {
 // Cada pessoa pode estar em um espaço (até 6 pessoas). Os gastos têm dois lados:
 // "Pessoal" (só dela) e o espaço (de todos). O lado escolhido fica guardado neste aparelho.
 const CHAVE_ESCOPO = "dashvia:escopo";
-const CATEGORIAS_ESPACO = ["Boleto", "Assinatura", "Mercado"];
+const CATEGORIAS_ESPACO = ["Compras", "Mercado", "Boleto", "Assinatura"];
 const MAXIMO_MEMBROS = 6;
 
 let espacoEmAndamento = null;
