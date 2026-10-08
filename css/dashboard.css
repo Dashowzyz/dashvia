@@ -4740,9 +4740,10 @@ a.linha {
 }
 
 .feed-total-rotulo {
+  flex: 1;
+  text-align: center;
   font-size: 13px;
   color: var(--texto-suave);
-  text-transform: capitalize;
 }
 
 .feed-total-valor {
@@ -4774,4 +4775,41 @@ a.linha {
 
 .feed-total-tipo b {
   font-size: 14px;
+}
+
+.feed-total-topo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.feed-total-seta {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--borda);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--texto);
+  cursor: pointer;
+}
+
+.feed-total-seta:hover:not(:disabled) {
+  border-color: var(--destaque);
+  color: var(--destaque);
+}
+
+.feed-total-seta:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.feed-total-vazio {
+  margin-top: 8px;
+  color: var(--texto-suave);
+  font-size: 13px;
 }

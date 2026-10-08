@@ -896,21 +896,64 @@ function linhaDoFeed(g) {
   return li;
 }
 
-// Quanto o espaço gasta neste mês (mesma conta do Dashboard), com a divisão por tipo
-function cartaoTotalDoMes() {
-  const agora = new Date();
-  const total = { geral: 0, categorias: {} };
+// Mês que o cartão de total está mostrando (começa no atual)
+let mesDoTotal = null;
 
+function mesAtualDoTotal() {
+  if (!mesDoTotal) {
+    const agora = new Date();
+    mesDoTotal = { ano: agora.getFullYear(), mes: agora.getMonth() };
+  }
+  return mesDoTotal;
+}
+
+// Quanto o espaço gasta no mês escolhido (mesma conta do Dashboard), com a divisão por tipo.
+// As setas voltam até o primeiro gasto do espaço e avançam até 12 meses à frente.
+function cartaoTotalDoMes() {
+  const escolhido = mesAtualDoTotal();
+  const indice = escolhido.ano * 12 + escolhido.mes;
+  const agora = new Date();
+  const atual = agora.getFullYear() * 12 + agora.getMonth();
+
+  let primeiro = atual;
   gastos.forEach(function (g) {
-    const valor = valorNoMes(g, agora.getFullYear(), agora.getMonth());
+    const partes = String(g.data).split("-").map(Number);
+    if (partes.length === 3) primeiro = Math.min(primeiro, partes[0] * 12 + (partes[1] - 1));
+  });
+
+  const total = { geral: 0, categorias: {} };
+  gastos.forEach(function (g) {
+    const valor = valorNoMes(g, escolhido.ano, escolhido.mes);
     if (valor <= 0) return;
     total.geral += valor;
     total.categorias[g.categoria] = (total.categorias[g.categoria] || 0) + valor;
   });
 
-  const mes = agora.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  function irPara(novoIndice) {
+    mesDoTotal = { ano: Math.floor(novoIndice / 12), mes: novoIndice % 12 };
+    renderizarEspaco();
+  }
+
+  function seta(direcao, desativada) {
+    const b = novoEl("button", "feed-total-seta");
+    b.type = "button";
+    b.disabled = desativada;
+    b.setAttribute("aria-label", direcao < 0 ? "Mês anterior" : "Próximo mês");
+    b.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="' + (direcao < 0 ? "15 18 9 12 15 6" : "9 18 15 12 9 6") + '"/></svg>';
+    b.addEventListener("click", function () { irPara(indice + direcao); });
+    return b;
+  }
+
+  const nomeDoMes = new Date(escolhido.ano, escolhido.mes, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
   const cartao = novoEl("div", "bloco feed-total");
-  cartao.append(novoEl("span", "feed-total-rotulo", "Gastos de " + mes));
+
+  const topo = novoEl("div", "feed-total-topo");
+  topo.append(
+    seta(-1, indice <= primeiro),
+    novoEl("span", "feed-total-rotulo", "Gastos de " + nomeDoMes + (indice === atual ? " (mês atual)" : "")),
+    seta(1, indice >= atual + 12)
+  );
+  cartao.append(topo);
   cartao.append(novoEl("strong", "feed-total-valor", formatarMoeda(total.geral)));
 
   const tipos = Object.keys(total.categorias).sort(function (a, b) { return total.categorias[b] - total.categorias[a]; });
@@ -922,6 +965,8 @@ function cartaoTotalDoMes() {
       fichas.append(ficha);
     });
     cartao.append(fichas);
+  } else {
+    cartao.append(novoEl("small", "feed-total-vazio", "Nenhum gasto neste mês."));
   }
   return cartao;
 }
