@@ -566,6 +566,7 @@ function abrirEdicaoBoleto(compra) {
     Object.assign(g, novo);
     fechar();
     recarregarMantendoBanco();
+    if (espacoDaTela) renderizarEspaco();
     mostrarAviso("Boleto atualizado.");
   });
 
@@ -852,6 +853,35 @@ function descricaoDoGasto(g) {
   return /^\d+$/.test(g.parcelas) && Number(g.parcelas) >= 2 ? base + " · " + g.parcelas + "x" : base;
 }
 
+// Editar um gasto do espaço: o boleto mensal usa o "Editar boleto"; os outros usam a janela de editar do Dashboard
+async function editarDoEspaco(g) {
+  if (ehBoletoRecorrente(g)) {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const ocorrencia = boletoAtual(g, hoje);
+    if (ocorrencia) abrirEdicaoBoleto({ g: g, ocorrencia: ocorrencia });
+    return;
+  }
+
+  const opcoes = await categoriasParaEditar(gastos);
+  abrirEdicao(g, Object.assign({
+    aoSalvar: function () {
+      desenhar();
+      renderizarEspaco();
+    }
+  }, opcoes));
+}
+
+function botaoEditarDoEspaco(g) {
+  const b = novoEl("button", "feed-editar");
+  b.type = "button";
+  b.title = "Editar gasto";
+  b.setAttribute("aria-label", "Editar " + g.plataforma);
+  b.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+  b.addEventListener("click", function () { editarDoEspaco(g); });
+  return b;
+}
+
 function linhaDoFeed(g) {
   const li = novoEl("li", "feed-item");
   li.append(avatarDaPessoa(g.autorId, g.autorNome));
@@ -868,6 +898,8 @@ function linhaDoFeed(g) {
   const direita = novoEl("div", "feed-direita");
   direita.append(novoEl("strong", "", formatarMoeda(g.valor)), novoEl("small", "", dataBr(g.data)));
   li.append(direita);
+
+  if (g.categoria !== "Boleto" || ehBoletoRecorrente(g)) li.append(botaoEditarDoEspaco(g));
 
   const remover = novoEl("button", "feed-remover", "✕");
   remover.type = "button";
@@ -1084,6 +1116,7 @@ function renderizarAssinaturasDoEspaco() {
     direita.append(novoEl("strong", "", formatarMoeda(g.valor)));
     if (item.proxima) direita.append(novoEl("small", "", item.proxima.toLocaleDateString("pt-BR")));
     li.append(direita);
+    li.append(botaoEditarDoEspaco(g));
     lista.append(li);
   });
   caixa.append(lista);
