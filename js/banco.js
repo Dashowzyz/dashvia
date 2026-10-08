@@ -171,7 +171,11 @@ async function excluirConta(email, pin) {
   if (conferencia.error) return conferencia;
 
   const resposta = await db.rpc("excluir_minha_conta");
-  if (resposta.error) return { error: { tipo: "outro", original: resposta.error }, data: null };
+  if (resposta.error) {
+    // quem lidera um espaço com outras pessoas precisa passar a liderança antes
+    const tipo = String(resposta.error.message || "").includes("PASSE_LIDERANCA") ? "lider" : "outro";
+    return { error: { tipo: tipo, original: resposta.error }, data: null };
+  }
 
   try {
     await db.auth.signOut();
@@ -184,9 +188,13 @@ async function excluirConta(email, pin) {
 
 // ---------- Gastos ----------
 // Converte uma linha do banco para o formato que o site já usa
-function doBanco(linha) {
+function doBanco(linha, nomes) {
   return {
     id: linha.id,
+    espacoId: linha.espaco_id || null, // vazio = gasto individual
+    criadoEm: linha.criado_em || null, // quando foi lançado
+    autorId: linha.user_id || null,
+    autorNome: (nomes && linha.user_id && nomes[linha.user_id]) || "",
     plataforma: linha.plataforma,
     categoria: linha.categoria,
     parcelas: linha.parcelas,
@@ -251,22 +259,33 @@ function gastosDeExemplo() {
   ];
 }
 
+// Devolve os gastos do lado escolhido: os individuais ("Pessoal") ou os do espaço compartilhado
 async function buscarGastos() {
-  const { data, error } = await db.from("gastos").select("*").order("id", { ascending: true });
+  const espaco = await escopoAtual();
+
+  let consulta = db.from("gastos").select("*").order("id", { ascending: true });
+  consulta = espaco ? consulta.eq("espaco_id", espaco.id) : consulta.is("espaco_id", null);
+
+  const resultado = await Promise.all([consulta, espaco ? nomesDoEspaco() : null]);
+  const { data, error } = resultado[0];
   if (error) throw error;
   if (data.length === 0 && tourDeExemploAtivo()) return gastosDeExemplo();
-  return data.map(doBanco);
+  return data.map(function (linha) { return doBanco(linha, resultado[1]); });
 }
 
-// Nomes das categorias já usadas nos gastos da pessoa (para montar a lista, com as que ela criou)
+// Nomes das categorias já usadas nos gastos individuais da pessoa (para montar a lista, com as que ela criou)
 async function buscarCategoriasUsadas() {
-  const { data, error } = await db.from("gastos").select("categoria");
+  const { data, error } = await db.from("gastos").select("categoria").is("espaco_id", null);
   if (error) throw error;
   return Array.from(new Set(data.map(function (linha) { return linha.categoria; })));
 }
 
 async function adicionarGasto(gasto) {
-  const { data, error } = await db.from("gastos").insert(paraBanco(gasto)).select().single();
+  const espaco = await escopoAtual();
+  const linha = paraBanco(gasto);
+  if (espaco) linha.espaco_id = espaco.id;
+
+  const { data, error } = await db.from("gastos").insert(linha).select().single();
   if (error) throw error;
   return doBanco(data);
 }
@@ -393,4 +412,248 @@ function recarregarAoVoltar(recarregar) {
       console.error(falha); // sem internet, por exemplo: a tela continua como estava
     }
   });
+}
+
+// ---------- Espaço compartilhado ----------
+// Cada pessoa pode estar em um espaço (até 6 pessoas). Os gastos têm dois lados:
+// "Pessoal" (só dela) e o espaço (de todos). O lado escolhido fica guardado neste aparelho.
+const CHAVE_ESCOPO = "dashvia:escopo";
+const CATEGORIAS_ESPACO = ["Compras", "Mercado", "Boleto", "Assinatura"];
+const MAXIMO_MEMBROS = 6;
+const NOME_MAXIMO_ESPACO = 14; // cabe numa linha no título "Gastos <nome>" no celular
+
+let espacoEmAndamento = null;
+let nomesEmAndamento = null;
+
+// Depois de criar, entrar ou sair de um espaço, a próxima consulta busca tudo de novo
+function esquecerEspaco() {
+  espacoEmAndamento = null;
+  nomesEmAndamento = null;
+}
+
+function escopoEscolhido() {
+  // Há páginas que só existem no lado pessoal (Assinaturas): elas fixam o lado antes de buscar os gastos
+  if (window.dashviaEscopoFixo) return window.dashviaEscopoFixo === "espaco";
+  try {
+    return localStorage.getItem(CHAVE_ESCOPO) === "espaco";
+  } catch (falha) {
+    return false;
+  }
+}
+
+function escolherEscopo(tipo) {
+  try {
+    localStorage.setItem(CHAVE_ESCOPO, tipo === "espaco" ? "espaco" : "pessoal");
+  } catch (falha) {
+    // sem armazenamento local: a pessoa volta para "Pessoal" a cada página
+  }
+}
+
+// O espaço da pessoa ({ id, nome, liderId, souLider, meuId }) ou null se ela não está em nenhum
+function meuEspaco() {
+  if (!espacoEmAndamento) {
+    espacoEmAndamento = buscarMeuEspaco().catch(function (falha) {
+      espacoEmAndamento = null;
+      console.error(falha);
+      return null;
+    });
+  }
+  return espacoEmAndamento;
+}
+
+async function buscarMeuEspaco() {
+  const usuario = await usuarioAtual();
+  if (!usuario) return null;
+
+  const { data, error } = await db
+    .from("membros")
+    .select("espaco_id, espacos(id, nome, lider_id)")
+    .eq("user_id", usuario.id)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data || !data.espacos) return null;
+
+  return {
+    id: data.espaco_id,
+    nome: data.espacos.nome,
+    liderId: data.espacos.lider_id,
+    souLider: data.espacos.lider_id === usuario.id,
+    meuId: usuario.id
+  };
+}
+
+// O espaço que a página deve mostrar agora: null quando a pessoa está no lado "Pessoal"
+async function escopoAtual() {
+  if (!escopoEscolhido()) return null;
+  return meuEspaco();
+}
+
+async function listarMembros() {
+  const { data, error } = await db.rpc("listar_membros");
+  if (error) throw error;
+  return data.map(function (m) {
+    return { id: m.id, nome: m.nome, usuario: m.usuario, foto: m.foto, lider: m.eh_lider, entrouEm: m.entrou_em };
+  });
+}
+
+// { idDaPessoa: nome } dos membros, para mostrar quem lançou cada gasto
+function nomesDoEspaco() {
+  if (!nomesEmAndamento) {
+    nomesEmAndamento = listarMembros().then(function (lista) {
+      const mapa = {};
+      lista.forEach(function (m) { mapa[m.id] = m.nome; });
+      return mapa;
+    }).catch(function (falha) {
+      nomesEmAndamento = null;
+      console.error(falha);
+      return {};
+    });
+  }
+  return nomesEmAndamento;
+}
+
+function primeiroNome(nome) {
+  return String(nome || "").trim().split(/\s+/)[0] || "";
+}
+
+// "por Ana" embaixo do nome do gasto, só nos gastos do espaço
+function autorHtml(gasto) {
+  if (!gasto || !gasto.espacoId || !gasto.autorNome) return "";
+  const nome = primeiroNome(gasto.autorNome)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return '<small class="por-autor">por ' + nome + "</small>";
+}
+
+// ----- Ações do espaço (as regras ficam no banco; aqui só chamamos e traduzimos o erro) -----
+const CODIGOS_ERRO_ESPACO = [
+  "NOME_INVALIDO", "JA_TEM_ESPACO", "CODIGO_INVALIDO", "ESPACO_CHEIO", "SO_LIDER", "USE_SAIR",
+  "NAO_E_MEMBRO", "JA_E_LIDER", "SEM_ESPACO", "PASSE_LIDERANCA", "USE_EXCLUIR_ESPACO", "REMOVA_MEMBROS"
+];
+
+const TEXTOS_ERRO_ESPACO = {
+  NOME_INVALIDO: "Use um nome de 2 a 30 letras.",
+  JA_TEM_ESPACO: "Você já está em um espaço. Saia dele antes de criar ou entrar em outro.",
+  CODIGO_INVALIDO: "Código inválido, já usado ou vencido. Peça um novo ao líder do espaço.",
+  ESPACO_CHEIO: "Esse espaço já tem " + MAXIMO_MEMBROS + " pessoas.",
+  SO_LIDER: "Só o líder do espaço pode fazer isso.",
+  USE_SAIR: "Para você mesmo sair, use o botão \"Sair do espaço\".",
+  NAO_E_MEMBRO: "Essa pessoa não está mais no espaço.",
+  JA_E_LIDER: "Você já é o líder.",
+  SEM_ESPACO: "Você não está em nenhum espaço.",
+  PASSE_LIDERANCA: "Você é o líder. Passe a liderança para outra pessoa antes de sair.",
+  USE_EXCLUIR_ESPACO: "Você é a única pessoa aqui. Use \"Excluir espaço\".",
+  REMOVA_MEMBROS: "Remova os outros membros antes de excluir o espaço."
+};
+
+function textoDoErroEspaco(erro) {
+  return (erro && TEXTOS_ERRO_ESPACO[erro.codigo]) || "Não foi possível concluir. Tente de novo.";
+}
+
+async function chamarEspaco(funcao, parametros) {
+  const resposta = await db.rpc(funcao, parametros || {});
+  if (resposta.error) {
+    const msg = String(resposta.error.message || "");
+    const codigo = CODIGOS_ERRO_ESPACO.find(function (c) { return msg.includes(c); }) || "OUTRO";
+    return { error: { codigo: codigo, original: resposta.error }, data: null };
+  }
+  esquecerEspaco();
+  return { error: null, data: resposta.data };
+}
+
+async function criarEspaco(nome) {
+  const resposta = await chamarEspaco("criar_espaco", { p_nome: nome });
+  if (!resposta.error) escolherEscopo("espaco");
+  return resposta;
+}
+
+async function entrarComCodigo(codigo) {
+  const resposta = await chamarEspaco("entrar_com_codigo", { p_codigo: codigo });
+  if (!resposta.error) escolherEscopo("espaco");
+  return resposta;
+}
+
+function gerarConvite() {
+  return chamarEspaco("gerar_convite");
+}
+
+function removerMembro(idDaPessoa) {
+  return chamarEspaco("remover_membro", { p_user: idDaPessoa });
+}
+
+function passarLideranca(idDaPessoa) {
+  return chamarEspaco("passar_lideranca", { p_novo: idDaPessoa });
+}
+
+async function sairDoEspaco() {
+  const resposta = await chamarEspaco("sair_do_espaco");
+  if (!resposta.error) escolherEscopo("pessoal");
+  return resposta;
+}
+
+async function excluirEspaco() {
+  const resposta = await chamarEspaco("excluir_espaco");
+  if (!resposta.error) escolherEscopo("pessoal");
+  return resposta;
+}
+
+// Últimos 30 dias de alterações nos gastos do espaço (o banco já esconde o que passou disso)
+async function buscarHistoricoDoEspaco() {
+  const { data, error } = await db
+    .from("historico_espaco")
+    .select("id, nome_pessoa, acao, plataforma, categoria, valor, quando")
+    .order("quando", { ascending: false })
+    .limit(200);
+  if (error) throw error;
+  return data;
+}
+
+// ----- Seletor "Pessoal | nome do espaço" no topo das páginas -----
+async function montarSeletorEscopo() {
+  const cabecalho = document.querySelector(".conteudo header");
+  if (!cabecalho || document.getElementById("seletor-escopo")) return;
+
+  const pagina = (location.pathname.split("/").pop() || "dashboard").replace(/\.html$/, "");
+  if (pagina === "configuracoes" || pagina === "espaco" || pagina === "historico" || pagina === "assinaturas") return;
+
+  const espaco = await meuEspaco();
+  if (!espaco || document.getElementById("seletor-escopo")) return;
+
+  const noEspaco = escopoEscolhido();
+  const caixa = document.createElement("div");
+  caixa.id = "seletor-escopo";
+  caixa.className = "seletor-escopo";
+  caixa.setAttribute("role", "group");
+  caixa.setAttribute("aria-label", "Ver gastos pessoais ou do espaço");
+
+  [["pessoal", "Pessoal"], ["espaco", espaco.nome]].forEach(function (opcao) {
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.textContent = opcao[1];
+    botao.title = opcao[1];
+    const ativo = (opcao[0] === "espaco") === noEspaco;
+    botao.className = ativo ? "ativo" : "";
+    botao.setAttribute("aria-pressed", String(ativo));
+    botao.addEventListener("click", function () {
+      if (ativo) return;
+      escolherEscopo(opcao[0]);
+      window.location.reload();
+    });
+    caixa.appendChild(botao);
+  });
+
+  cabecalho.appendChild(caixa);
+}
+
+montarSeletorEscopo();
+
+// "agora", "há 5 min", "há 3 h" ou a data, para mostrar quando algo aconteceu
+function tempoDecorrido(texto) {
+  const data = new Date(texto);
+  if (isNaN(data.getTime())) return "";
+  const minutos = Math.max(0, Math.round((Date.now() - data.getTime()) / 60000));
+  if (minutos < 1) return "agora";
+  if (minutos < 60) return "há " + minutos + " min";
+  const horas = Math.round(minutos / 60);
+  if (horas < 24) return "há " + horas + " h";
+  return data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
 }

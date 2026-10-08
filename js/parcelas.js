@@ -80,7 +80,9 @@ function montarGrupos() {
   grupos = Object.keys(porBanco).map(function (b) { return porBanco[b]; });
   // O favorito vem primeiro; os outros ficam do maior valor restante para o menor
   grupos.sort(function (a, b) {
-    if (bancoFavorito) {
+    // No espaço compartilhado o Boleto vem primeiro e os cartões ficam depois
+    if (espacoDaTela && (a.banco === "Boleto") !== (b.banco === "Boleto")) return a.banco === "Boleto" ? -1 : 1;
+    if (bancoFavorito && !espacoDaTela) {
       if (a.banco === bancoFavorito) return -1;
       if (b.banco === bancoFavorito) return 1;
     }
@@ -138,7 +140,7 @@ function desenharCartoes() {
   faixa.innerHTML = grupos.map(function (gr) {
     const proxima = gr.proxima.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
     return `
-      <div class="cartao-banco" data-banco="${escapar(gr.banco)}">
+      <div class="cartao-banco${gr.banco === "Boleto" ? " cartao-boleto" : ""}" data-banco="${escapar(gr.banco)}">
         <button type="button" class="cartao-favorito${gr.banco === bancoFavorito ? " ativo" : ""}" aria-pressed="${gr.banco === bancoFavorito}" aria-label="Favoritar ${escapar(gr.banco)}" title="${gr.banco === bancoFavorito ? "Favorito: abre primeiro" : "Favoritar: abrir este cartão primeiro"}">${ICONE_ESTRELA}</button>
         <span class="cartao-nome">${iconeBanco(gr.banco)}${escapar(gr.banco)}</span>
         <span class="cartao-rotulo">Falta pagar</span>
@@ -155,6 +157,24 @@ function desenharCartoes() {
     : "";
 }
 
+// No grupo Boleto, cada item ganha o visual de boleto (ficha com canhoto), pintado com as cores do tema
+function classeItemBoleto(c) {
+  if (bancoSelecionado !== "Boleto") return "";
+  const dia = new Date();
+  dia.setHours(0, 0, 0, 0);
+  let estado = "aberto";
+  if (c.recorrente) {
+    const o = c.ocorrencia;
+    estado = o.paga ? "pago" : o.data < dia ? "vencido" : "aberto";
+  } else if (c.proxima && c.proxima.data < dia) {
+    estado = "vencido";
+  }
+  return " item-boleto st-" + estado;
+}
+
+function rotuloBoleto(texto) {
+  return bancoSelecionado === "Boleto" ? '<span class="boleto-rotulo">' + texto + "</span>" : "";
+}
 // Boleto que se repete todo mês: a cobrança do mês com o status (Pago, Em aberto ou Vencido)
 function itemBoletoMensal(c) {
   const o = c.ocorrencia;
@@ -166,10 +186,10 @@ function itemBoletoMensal(c) {
   const nomeBotao = o.paga ? "Desfazer pagamento de " : "Marcar como pago: ";
 
   return `
-      <li class="item-parcela">
+      <li class="item-parcela${classeItemBoleto(c)}">
         <div class="item-inicial">${escapar(c.g.plataforma.trim().charAt(0).toUpperCase())}</div>
         <div class="item-info">
-          <strong>${escapar(c.g.plataforma)}</strong>
+          ${rotuloBoleto("Beneficiário")}<strong>${escapar(c.g.plataforma)}</strong>${autorHtml(c.g)}
           <small style="display:flex;flex-wrap:wrap;gap:0 8px"><span style="white-space:nowrap">${c.g.canceladoEm ? "Encerra após este mês" : "Todo mês"}</span><span style="white-space:nowrap">vence ${formatarData(o.data)}</span></small>
           <span class="status-boleto ${classe}">${status}</span>
           <div class="acoes-boleto">
@@ -178,6 +198,7 @@ function itemBoletoMensal(c) {
           </div>
         </div>
         <div class="item-valores">
+          ${rotuloBoleto("Valor")}
           <strong>${formatarMoeda(o.valor)}</strong>
           <small>${o.paga ? "Mês pago" : "Deste mês"}</small>
         </div>
@@ -198,14 +219,15 @@ function mostrarLista() {
     const porcentagem = Math.round((c.pagas / c.total) * 100);
     const faltam = c.total - c.pagas;
     return `
-      <li class="item-parcela">
+      <li class="item-parcela${classeItemBoleto(c)}">
         <div class="item-inicial">${escapar(c.g.plataforma.trim().charAt(0).toUpperCase())}</div>
         <div class="item-info">
-          <strong>${escapar(c.g.plataforma)}</strong>
+          ${rotuloBoleto("Beneficiário")}<strong>${escapar(c.g.plataforma)}</strong>${autorHtml(c.g)}
           <small style="display:flex;flex-wrap:wrap;gap:0 8px"><span style="white-space:nowrap">${c.total === 1 ? "Boleto" : "Parcela " + c.proxima.numero + "/" + c.total}</span><span style="white-space:nowrap">vence ${formatarData(c.proxima.data)}</span></small>
           <div class="item-barra"><i style="width:${porcentagem}%"></i></div>
         </div>
         <div class="item-valores">
+          ${rotuloBoleto("Valor")}
           <strong>${formatarMoeda(c.proxima.valor)}</strong>
           <small>${c.total === 1 ? "Pagamento único" : faltam === 1 ? "Última parcela" : "Faltam " + formatarMoeda(c.restante)}</small>
         </div>
@@ -483,7 +505,7 @@ function abrirEdicaoBoleto(compra) {
       <h3 class="modal-titulo">Editar boleto</h3>
       <form id="form-boleto" class="formulario" novalidate>
         <label for="eb-nome">Nome do boleto</label>
-        <input type="text" id="eb-nome" maxlength="60">
+        <input type="text" id="eb-nome" maxlength="60" autocomplete="off">
 
         <label for="eb-valor">Valor (R$)</label>
         <input type="number" id="eb-valor" step="0.01" min="0.01">
@@ -544,6 +566,7 @@ function abrirEdicaoBoleto(compra) {
     Object.assign(g, novo);
     fechar();
     recarregarMantendoBanco();
+    if (espacoDaTela) renderizarEspaco();
     mostrarAviso("Boleto atualizado.");
   });
 
@@ -785,12 +808,430 @@ async function iniciar() {
   bancoFavorito = (perfil && perfil.bancoFavorito) || null;
 
   desenhar();
+  await montarEspaco();
 }
 
+// ---------- Lado "espaço compartilhado": lista de tudo que o grupo adicionou ----------
+// No lado Casa esta página vira três abas: Tudo (lista com a foto de quem lançou), Parcelas (a tela de sempre) e Histórico.
+let espacoDaTela = null;
+let pessoasDoEspaco = {};
+let abaEspaco = "tudo";
+
+function novoEl(tag, classe, texto) {
+  const e = document.createElement(tag);
+  if (classe) e.className = classe;
+  if (texto !== undefined) e.textContent = texto;
+  return e;
+}
+
+function dataBr(texto) {
+  const partes = String(texto).split("-");
+  return partes.length === 3 ? partes[2] + "/" + partes[1] + "/" + partes[0] : String(texto);
+}
+
+// Foto (ou inicial) de quem lançou o gasto
+function avatarDaPessoa(id, nomeAlternativo) {
+  const pessoa = pessoasDoEspaco[id] || {};
+  const nome = pessoa.nome || nomeAlternativo || "?";
+  const a = novoEl("div", "esp-avatar feed-avatar", nome.trim().charAt(0).toUpperCase() || "?");
+  if (pessoa.foto) {
+    a.textContent = "";
+    a.style.backgroundImage = 'url("' + String(pessoa.foto).replace(/"/g, "%22") + '")';
+  }
+  a.title = nome;
+  return a;
+}
+
+function descricaoDoGasto(g) {
+  if (g.categoria === "Boleto") {
+    return g.parcelas === "mensal" ? "Boleto · todo mês" : g.parcelas === "1" ? "Boleto único" : "Boleto · " + g.parcelas + " parcelas";
+  }
+  if (g.categoria === "Assinatura") {
+    return "Assinatura · " + ({ mensal: "mensal", trimestral: "trimestral", anual: "anual" }[g.parcelas] || "");
+  }
+  const base = g.categoria + " · " + (g.parcelas === "pix" ? "Pix" : (g.banco || "Cartão"));
+  return /^\d+$/.test(g.parcelas) && Number(g.parcelas) >= 2 ? base + " · " + g.parcelas + "x" : base;
+}
+
+// Editar um gasto do espaço: o boleto mensal usa o "Editar boleto"; os outros usam a janela de editar do Dashboard
+async function editarDoEspaco(g) {
+  if (ehBoletoRecorrente(g)) {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const ocorrencia = boletoAtual(g, hoje);
+    if (ocorrencia) abrirEdicaoBoleto({ g: g, ocorrencia: ocorrencia });
+    return;
+  }
+
+  const opcoes = await categoriasParaEditar(gastos);
+  abrirEdicao(g, Object.assign({
+    aoSalvar: function () {
+      desenhar();
+      renderizarEspaco();
+    }
+  }, opcoes));
+}
+
+function botaoEditarDoEspaco(g) {
+  const b = novoEl("button", "feed-editar");
+  b.type = "button";
+  b.title = "Editar gasto";
+  b.setAttribute("aria-label", "Editar " + g.plataforma);
+  b.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+  b.addEventListener("click", function () { editarDoEspaco(g); });
+  return b;
+}
+
+function botaoRemoverDoEspaco(g) {
+  const remover = novoEl("button", "feed-remover", "✕");
+  remover.type = "button";
+  remover.title = "Remover gasto";
+  remover.setAttribute("aria-label", "Remover " + g.plataforma);
+  remover.addEventListener("click", async function () {
+    if (!await confirmar("Remover " + g.plataforma + " do espaço? Isso fica registrado no histórico.", "Remover")) return;
+    try {
+      await removerGasto(g.id);
+    } catch (falha) {
+      console.error(falha);
+      alert("Não foi possível remover. Tente de novo.");
+      return;
+    }
+    gastos = gastos.filter(function (x) { return x.id !== g.id; });
+    desenhar();
+    renderizarEspaco();
+  });
+  return remover;
+}
+
+// O gasto visto no mês escolhido: quanto pesa nele, em que dia cai e, se for parcelado, qual parcela é.
+// Devolve null quando o gasto não cai naquele mês (mesma conta do total e do Dashboard).
+function gastoNoMes(g, ano, mes) {
+  const valor = valorNoMes(g, ano, mes);
+  if (valor <= 0) return null;
+
+  const alvo = ano * 12 + mes;
+  let data = null;
+  let nota = "";
+
+  if (ehBoletoRecorrente(g)) {
+    const cobranca = boletoDoMes(g, ano, mes);
+    if (cobranca) data = cobranca.data;
+  } else if (ehParcelado(g)) {
+    const todas = listarParcelas(g);
+    const parcela = todas.find(function (x) { return x.data.getFullYear() * 12 + x.data.getMonth() === alvo; });
+    if (parcela) {
+      data = parcela.data;
+      nota = "Parcela " + parcela.numero + "/" + todas.length;
+    }
+  } else if (g.categoria === "Assinatura") {
+    data = somarMeses(ano, mes, Number(g.data.split("-")[2]), 0);
+  } else {
+    const partes = g.data.split("-").map(Number);
+    data = new Date(partes[0], partes[1] - 1, partes[2]);
+  }
+
+  return { g: g, valor: valor, data: data || new Date(ano, mes, 1), nota: nota };
+}
+
+function linhaDoFeed(item) {
+  const g = item.g;
+  const li = novoEl("li", "feed-item");
+  li.append(avatarDaPessoa(g.autorId, g.autorNome));
+
+  const corpo = novoEl("div", "feed-corpo");
+  const quem = primeiroNome(g.autorNome || (pessoasDoEspaco[g.autorId] || {}).nome) || "Alguém";
+  corpo.append(
+    novoEl("strong", "", g.plataforma),
+    novoEl("small", "", descricaoDoGasto(g)),
+    novoEl("small", "feed-autor", "por " + quem + (g.criadoEm ? " · " + tempoDecorrido(g.criadoEm) : ""))
+  );
+  li.append(corpo);
+
+  const direita = novoEl("div", "feed-direita");
+  direita.append(
+    novoEl("strong", "", formatarMoeda(item.valor)),
+    novoEl("small", "", (item.nota ? item.nota + " · " : "") + item.data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }))
+  );
+  li.append(direita);
+
+  if (g.categoria !== "Boleto" || ehBoletoRecorrente(g)) li.append(botaoEditarDoEspaco(g));
+
+  li.append(botaoRemoverDoEspaco(g));
+  return li;
+}
+
+// Mês que o cartão de total está mostrando (começa no atual)
+let mesDoTotal = null;
+
+function mesAtualDoTotal() {
+  if (!mesDoTotal) {
+    const agora = new Date();
+    mesDoTotal = { ano: agora.getFullYear(), mes: agora.getMonth() };
+  }
+  return mesDoTotal;
+}
+
+// Quanto o espaço gasta no mês escolhido (mesma conta do Dashboard), com a divisão por tipo.
+// As setas voltam até o primeiro gasto do espaço e avançam até 12 meses à frente.
+function cartaoTotalDoMes() {
+  const escolhido = mesAtualDoTotal();
+  const indice = escolhido.ano * 12 + escolhido.mes;
+  const agora = new Date();
+  const atual = agora.getFullYear() * 12 + agora.getMonth();
+
+  let primeiro = atual;
+  gastos.forEach(function (g) {
+    const partes = String(g.data).split("-").map(Number);
+    if (partes.length === 3) primeiro = Math.min(primeiro, partes[0] * 12 + (partes[1] - 1));
+  });
+
+  const total = { geral: 0, categorias: {} };
+  gastos.forEach(function (g) {
+    const valor = valorNoMes(g, escolhido.ano, escolhido.mes);
+    if (valor <= 0) return;
+    total.geral += valor;
+    total.categorias[g.categoria] = (total.categorias[g.categoria] || 0) + valor;
+  });
+
+  function irPara(novoIndice) {
+    mesDoTotal = { ano: Math.floor(novoIndice / 12), mes: novoIndice % 12 };
+    renderizarEspaco();
+  }
+
+  function seta(direcao, desativada) {
+    const b = novoEl("button", "feed-total-seta");
+    b.type = "button";
+    b.disabled = desativada;
+    b.setAttribute("aria-label", direcao < 0 ? "Mês anterior" : "Próximo mês");
+    b.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="' + (direcao < 0 ? "15 18 9 12 15 6" : "9 18 15 12 9 6") + '"/></svg>';
+    b.addEventListener("click", function () { irPara(indice + direcao); });
+    return b;
+  }
+
+  const nomeDoMes = new Date(escolhido.ano, escolhido.mes, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  const cartao = novoEl("div", "bloco feed-total");
+
+  const topo = novoEl("div", "feed-total-topo");
+  topo.append(
+    seta(-1, indice <= primeiro),
+    novoEl("span", "feed-total-rotulo", "Gastos de " + nomeDoMes + (indice === atual ? " (mês atual)" : "")),
+    seta(1, indice >= atual + 12)
+  );
+  cartao.append(topo);
+  cartao.append(novoEl("strong", "feed-total-valor", formatarMoeda(total.geral)));
+
+  const tipos = Object.keys(total.categorias).sort(function (a, b) { return total.categorias[b] - total.categorias[a]; });
+  if (tipos.length > 0) {
+    const fichas = novoEl("div", "feed-total-tipos");
+    tipos.forEach(function (nome) {
+      const ficha = novoEl("span", "feed-total-tipo");
+      ficha.append(novoEl("small", "", nome), novoEl("b", "", formatarMoeda(total.categorias[nome])));
+      fichas.append(ficha);
+    });
+    cartao.append(fichas);
+  } else {
+    cartao.append(novoEl("small", "feed-total-vazio", "Nenhum gasto neste mês."));
+  }
+  return cartao;
+}
+function renderizarEspaco() {
+  if (!espacoDaTela) return;
+
+  const titulo = document.querySelector(".conteudo header h1");
+  titulo.textContent = "Gastos " + espacoDaTela.nome;
+  titulo.classList.add("titulo-uma-linha");
+  const escolhido = mesAtualDoTotal();
+  const itens = gastos
+    .map(function (g) { return gastoNoMes(g, escolhido.ano, escolhido.mes); })
+    .filter(Boolean)
+    .sort(function (a, b) { return (b.data - a.data) || (b.g.id - a.g.id); });
+  const nomeDoMes = new Date(escolhido.ano, escolhido.mes, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  textoResumo.textContent = itens.length + (itens.length === 1 ? " gasto" : " gastos") + " em " + nomeDoMes;
+
+  const feed = document.getElementById("feed-espaco");
+  feed.textContent = "";
+
+  if (gastos.length > 0) feed.append(cartaoTotalDoMes());
+
+  if (gastos.length === 0) {
+    const vazio = novoEl("div", "bloco esp-vazio");
+    vazio.append(novoEl("p", "", "Nada foi adicionado ainda. Em Adicionar gasto, com o seletor em " + espacoDaTela.nome + ", o que você lançar aparece aqui para todo mundo."));
+    feed.append(vazio);
+  } else if (itens.length > 0) {
+    const lista = novoEl("ul", "bloco feed-lista");
+    itens.forEach(function (item) {
+      lista.append(linhaDoFeed(item));
+    });
+    feed.append(lista);
+  }
+
+  renderizarAssinaturasDoEspaco();
+}
+
+// ----- Aba Assinaturas do espaço -----
+const PASSOS_ASSINATURA = { mensal: 1, trimestral: 3, anual: 12 };
+const NOMES_PERIODO = { mensal: "Mensal", trimestral: "Trimestral", anual: "Anual" };
+
+// Próxima cobrança: a primeira data depois de hoje (mesma regra da página de Assinaturas)
+function proximaCobrancaAssinatura(g) {
+  const passo = PASSOS_ASSINATURA[g.parcelas];
+  if (!passo) return null;
+
+  const [ano, mes, dia] = g.data.split("-").map(Number);
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  const primeira = new Date(ano, mes - 1, dia);
+  if (primeira > hoje) return primeira;
+
+  let k = 1;
+  let data = somarMeses(ano, mes - 1, dia, passo);
+  while (data <= hoje && k < 5000) {
+    k++;
+    data = somarMeses(ano, mes - 1, dia, passo * k);
+  }
+  return data;
+}
+
+function prazoDaCobranca(data) {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const dias = Math.round((data - hoje) / 86400000);
+  if (dias <= 0) return "hoje";
+  if (dias === 1) return "amanhã";
+  return "em " + dias + " dias";
+}
+
+function renderizarAssinaturasDoEspaco() {
+  const caixa = document.getElementById("assinaturas-espaco");
+  if (!caixa) return;
+  caixa.textContent = "";
+
+  const itens = gastos
+    .filter(function (g) { return g.categoria === "Assinatura" && !g.canceladoEm; })
+    .map(function (g) { return { g: g, proxima: proximaCobrancaAssinatura(g) }; })
+    .sort(function (a, b) {
+      if (!a.proxima) return 1;
+      if (!b.proxima) return -1;
+      return a.proxima - b.proxima;
+    });
+
+  if (itens.length === 0) {
+    const vazio = novoEl("div", "bloco esp-vazio");
+    vazio.append(novoEl("p", "", "Nenhuma assinatura no espaço ainda. Em Adicionar gasto, com o seletor em " + espacoDaTela.nome + ", escolha a categoria Assinatura."));
+    caixa.append(vazio);
+    return;
+  }
+
+  let porMes = 0;
+  itens.forEach(function (item) {
+    const passo = PASSOS_ASSINATURA[item.g.parcelas];
+    if (passo) porMes += item.g.valor / passo;
+  });
+
+  const resumoCartao = novoEl("div", "bloco feed-total");
+  resumoCartao.append(novoEl("span", "feed-total-rotulo", "Assinaturas do espaço"));
+  resumoCartao.append(novoEl("strong", "feed-total-valor", formatarMoeda(porMes) + " /mês"));
+  const fichas = novoEl("div", "feed-total-tipos");
+  [["Em 12 meses", formatarMoeda(porMes * 12)], ["Assinaturas", String(itens.length)]].forEach(function (par) {
+    const ficha = novoEl("span", "feed-total-tipo");
+    ficha.append(novoEl("small", "", par[0]), novoEl("b", "", par[1]));
+    fichas.append(ficha);
+  });
+  resumoCartao.append(fichas);
+  caixa.append(resumoCartao);
+
+  const lista = novoEl("ul", "bloco feed-lista");
+  itens.forEach(function (item) {
+    const g = item.g;
+    const li = novoEl("li", "feed-item");
+    li.append(avatarDaPessoa(g.autorId, g.autorNome));
+
+    const corpo = novoEl("div", "feed-corpo");
+    const quem = primeiroNome(g.autorNome || (pessoasDoEspaco[g.autorId] || {}).nome) || "Alguém";
+    corpo.append(
+      novoEl("strong", "", g.plataforma),
+      novoEl("small", "", (NOMES_PERIODO[g.parcelas] || "Assinatura") + " · " + (g.banco || "Cartão")),
+      novoEl("small", "feed-autor", "por " + quem + (item.proxima ? " · próxima cobrança " + prazoDaCobranca(item.proxima) : ""))
+    );
+    li.append(corpo);
+
+    const direita = novoEl("div", "feed-direita");
+    direita.append(novoEl("strong", "", formatarMoeda(g.valor)));
+    if (item.proxima) direita.append(novoEl("small", "", item.proxima.toLocaleDateString("pt-BR")));
+    li.append(direita);
+    li.append(botaoEditarDoEspaco(g));
+    li.append(botaoRemoverDoEspaco(g));
+    lista.append(li);
+  });
+  caixa.append(lista);
+
+}
+
+function mostrarAbaEspaco(aba) {
+  abaEspaco = aba;
+  document.querySelectorAll("#abas-espaco .esp-aba").forEach(function (b) {
+    const ativa = b.dataset.aba === aba;
+    b.classList.toggle("ativa", ativa);
+    b.setAttribute("aria-selected", String(ativa));
+  });
+
+  document.getElementById("feed-espaco").style.display = aba === "tudo" ? "" : "none";
+  document.getElementById("assinaturas-espaco").style.display = aba === "assinaturas" ? "" : "none";
+  areaParcelas.style.display = aba === "parcelas" ? "" : "none";
+
+  if (aba === "parcelas") desenhar();
+  else renderizarEspaco();
+}
+
+async function montarEspaco() {
+  espacoDaTela = await escopoAtual();
+  if (!espacoDaTela) return;
+
+  try {
+    (await listarMembros()).forEach(function (m) { pessoasDoEspaco[m.id] = m; });
+  } catch (falha) {
+    console.error(falha);
+  }
+
+  if (!document.getElementById("abas-espaco")) {
+    // O histórico fica separado: um atalho para a tela do espaço, já na aba Histórico
+    const historico = novoEl("a", "atalho-espaco atalho-historico", "Ver histórico do espaço");
+    historico.href = "historico.html";
+
+    const abas = novoEl("div", "esp-abas");
+    abas.id = "abas-espaco";
+    abas.setAttribute("role", "tablist");
+    [["tudo", "Tudo"], ["parcelas", "Parcelas"], ["assinaturas", "Assinaturas"]].forEach(function (a) {
+      const b = novoEl("button", "esp-aba", a[1]);
+      b.type = "button";
+      b.dataset.aba = a[0];
+      b.setAttribute("role", "tab");
+      b.addEventListener("click", function () { mostrarAbaEspaco(a[0]); });
+      abas.append(b);
+    });
+
+    const feed = novoEl("div");
+    feed.id = "feed-espaco";
+    const assinaturas = novoEl("div");
+    assinaturas.id = "assinaturas-espaco";
+    areaParcelas.before(historico, abas, feed, assinaturas);
+  }
+
+  mostrarAbaEspaco(abaEspaco);
+}
 iniciar();
 
 // Ao voltar para a aba depois de um tempo, busca os gastos de novo
 recarregarAoVoltar(async function () {
   gastos = await buscarGastos();
   desenhar();
+  if (espacoDaTela) {
+    try {
+      (await listarMembros()).forEach(function (m) { pessoasDoEspaco[m.id] = m; });
+    } catch (falha) {
+      console.error(falha);
+    }
+    mostrarAbaEspaco(abaEspaco);
+  }
 });

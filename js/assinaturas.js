@@ -1,4 +1,6 @@
-// As assinaturas são os gastos da categoria "Assinatura" (vêm do banco de dados)
+// As assinaturas são os gastos da categoria "Assinatura" (vêm do banco de dados).
+// Esta página é só do lado pessoal; as assinaturas do espaço ficam em Gastos do espaço, na aba Assinaturas.
+window.dashviaEscopoFixo = "pessoal";
 let gastos = [];
 
 // De quantos em quantos meses cada periodicidade se repete
@@ -130,7 +132,7 @@ function desenhar() {
         <div class="assinatura-topo">
           <span class="assinatura-inicial" style="background:${corDoNome(g.plataforma)}" aria-hidden="true">${escapar(g.plataforma.trim().charAt(0).toUpperCase() || "?")}</span>
           <div class="assinatura-nome">
-            <h3>${escapar(g.plataforma)}</h3>
+            <h3>${escapar(g.plataforma)}</h3>${autorHtml(g)}
             <span class="tag">${nomePeriodo || "Sem periodicidade"}</span>
           </div>
           <strong class="assinatura-valor">${formatarMoeda(g.valor)}</strong>
@@ -176,7 +178,7 @@ function abrirEdicao(g) {
       <h3 class="modal-titulo">Editar assinatura</h3>
       <form id="form-editar" class="formulario" novalidate>
         <label for="ed-nome">Nome da assinatura</label>
-        <input type="text" id="ed-nome">
+        <input type="text" id="ed-nome" autocomplete="off">
 
         <label for="ed-valor">Valor (R$)</label>
         <input type="number" id="ed-valor" step="0.01" min="0.01">

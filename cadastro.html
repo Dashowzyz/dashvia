@@ -13,7 +13,7 @@
   <link rel="apple-touch-icon" href="img/icone-180.png">
   <script>if ("serviceWorker" in navigator) window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });</script>
   <title>Cadastro - Dashvia</title>
-  <link rel="stylesheet" href="css/style.css?v=20261009c">
+  <link rel="stylesheet" href="css/style.css?v=20261009z">
 </head>
 <body>
   <main class="caixa-login">
@@ -21,9 +21,9 @@
     <h1><span class="dash">Dash</span><span class="via">via</span></h1>
     <p class="subtitulo">Crie sua conta</p>
 
-    <form id="form-cadastro">
+    <form id="form-cadastro" autocomplete="off">
       <label for="nome">Nome completo</label>
-      <input type="text" id="nome" placeholder="Seu nome" required>
+      <input type="text" id="nome" name="nome-completo" placeholder="Seu nome" autocomplete="off" required>
 
       <label for="email">E-mail</label>
       <input type="email" id="email" placeholder="seuemail@exemplo.com" required>
@@ -50,9 +50,9 @@
     </div>
   </main>
 
-  <script src="js/supabase.bundle.js?v=20261009c"></script>
-  <script src="js/banco.js?v=20261009c"></script>
-  <script src="js/validacao.js?v=20261009c"></script>
-  <script src="js/cadastro.js?v=20261009c"></script>
+  <script src="js/supabase.bundle.js?v=20261009z"></script>
+  <script src="js/banco.js?v=20261009z"></script>
+  <script src="js/validacao.js?v=20261009z"></script>
+  <script src="js/cadastro.js?v=20261009z"></script>
 </body>
 </html>

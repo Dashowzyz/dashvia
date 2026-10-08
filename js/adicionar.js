@@ -47,12 +47,41 @@ const grupoParcelasBoleto = document.getElementById("grupo-parcelas-boleto");
 const campoParcelasBoleto = document.getElementById("parcelas-boleto");
 const grupoBanco = document.getElementById("grupo-banco");
 const rotuloPlataforma = document.getElementById("rotulo-plataforma");
+const rotuloBanco = document.getElementById("rotulo-banco");
+const rotuloOutroBanco = document.querySelector('label[for="outro-banco"]');
 const campoPlataforma = document.getElementById("plataforma");
 const rotuloData = document.getElementById("rotulo-data");
 const rotuloValor = document.getElementById("rotulo-valor");
 
 function ehBoleto() {
   return campoCategoria.value === "Boleto";
+}
+
+// Mercado: compra do dia a dia, quase nunca parcelada
+function ehMercado() {
+  return campoCategoria.value === "Mercado";
+}
+
+// Mercado pago no Pix não usa banco: o campo some e o gasto fica como Pix
+function semBanco() {
+  return ehBoleto() || (ehMercado() && pagandoPix());
+}
+
+// "Banco" vira "Cartão" quando a compra é no cartão (ou é uma assinatura, que sempre é cobrada no cartão)
+function atualizarRotuloBanco() {
+  const assinatura = campoCategoria.value === "Assinatura";
+  const cartao = assinatura || campoForma.value === "cartao";
+  rotuloBanco.textContent = assinatura ? "Cartão da assinatura" : cartao ? (ehMercado() ? "Cartão usado" : "Cartão") : "Banco";
+  rotuloOutroBanco.textContent = cartao ? "Nome do cartão" : "Nome do banco";
+}
+
+function atualizarBanco() {
+  grupoBanco.classList.toggle("oculto", semBanco());
+}
+
+function hojeEmTexto() {
+  const agora = new Date();
+  return agora.getFullYear() + "-" + String(agora.getMonth() + 1).padStart(2, "0") + "-" + String(agora.getDate()).padStart(2, "0");
 }
 
 // Textos do formulário conforme o boleto escolhido
@@ -67,10 +96,14 @@ function atualizarBoleto() {
   if (!compras) campoParcelasBoleto.value = "";
   if (typeof limparErro === "function") limparErro(campoParcelasBoleto);
 
-  grupoBanco.classList.toggle("oculto", boleto);
+  atualizarBanco();
 
-  rotuloPlataforma.textContent = boleto ? "Nome do boleto" : "Plataforma ou loja";
-  campoPlataforma.placeholder = boleto ? (compras ? "Ex: Geladeira" : "Ex: Conta de luz") : "Ex: iFood, Amazon, Magalu";
+  // Assinatura: o nome é o do serviço e o banco é o cartão em que ela é cobrada
+  const assinatura = campoCategoria.value === "Assinatura";
+  const mercado = ehMercado();
+  rotuloPlataforma.textContent = boleto ? "Nome do boleto" : assinatura ? "Nome da assinatura" : mercado ? "Nome do mercado" : "Plataforma ou loja";
+  campoPlataforma.placeholder = boleto ? (compras ? "Ex: Geladeira" : "Ex: Conta de luz") : assinatura ? "Ex: Netflix, Spotify, Disney+" : mercado ? "Ex: Carrefour, Assaí, Atacadão" : "Ex: iFood, Amazon, Magalu";
+  atualizarRotuloBanco();
   rotuloData.textContent = boleto ? (compras ? "Vencimento da 1ª parcela" : "Vencimento (se repete todo mês)") : "Data da compra";
   rotuloValor.textContent = compras ? "Valor total (R$)" : "Valor (R$)";
 }
@@ -101,11 +134,15 @@ campoParcelas.addEventListener("change", atualizarVencimento);
 // Escolhendo Pix, o campo Parcelas some
 function atualizarForma() {
   const pix = pagandoPix();
-  grupoParcelas.classList.toggle("oculto", pix);
+  grupoParcelas.classList.toggle("oculto", pix || ehMercado());
   if (pix) {
     campoParcelas.value = "";
     if (typeof limparErro === "function") limparErro(campoParcelas);
   }
+  // Mercado não tem parcelas: fica "Sem parcelas" sem perguntar
+  if (ehMercado()) campoParcelas.value = "avista";
+  atualizarBanco();
+  atualizarRotuloBanco();
   atualizarVencimento();
 }
 
@@ -135,7 +172,10 @@ function atualizarCategoria() {
   if (!boleto) campoTipoBoleto.value = "";
   atualizarBoleto();
   atualizarForma();
-  grupoParcelas.classList.toggle("oculto", boleto || pagandoPix());
+  grupoParcelas.classList.toggle("oculto", boleto || pagandoPix() || ehMercado());
+
+  // Mercado já vem com a data de hoje
+  if (ehMercado() && !document.getElementById("data").value) document.getElementById("data").value = hojeEmTexto();
 }
 
 campoCategoria.addEventListener("change", atualizarCategoria);
@@ -180,7 +220,7 @@ form.addEventListener("submit", async function (evento) {
     data: document.getElementById("data").value,
     valor: parseFloat(document.getElementById("valor").value),
     vencimento: semVencimento ? null : Number(campoVencimento.value),
-    banco: boleto ? "Boleto" : document.getElementById("banco").value
+    banco: boleto ? "Boleto" : (ehMercado() && pagandoPix()) ? "Pix" : document.getElementById("banco").value
   };
 
   // "Outro": usa o nome que a pessoa digitou (se for de um banco da lista, usa o nome da lista)
@@ -425,13 +465,27 @@ form.addEventListener("reset", function () {
 mostrarBanco();
 atualizarCategoria();
 
-// Coloca na lista as categorias que a pessoa já criou
-buscarCategoriasUsadas().then(function (usadas) {
-  categoriasPersonalizadas(usadas).forEach(function (nome) {
-    if (!personalizadas.includes(nome)) {
-      personalizadas.push(nome);
-      adicionarOpcaoCategoria(nome);
-    }
+// No espaço compartilhado só valem Boleto, Assinatura e Mercado; no lado pessoal, as categorias da pessoa
+escopoAtual().then(function (espaco) {
+  if (espaco) {
+    campoCategoria.innerHTML =
+      '<option value="" disabled selected>Escolha</option>' +
+      CATEGORIAS_ESPACO.map(function (nome) { return "<option>" + nome + "</option>"; }).join("");
+    atualizarCategoria();
+
+    const subtitulo = document.querySelector(".topo-centralizado p");
+    if (subtitulo) subtitulo.textContent = "Adicionando no espaço " + espaco.nome + " (todos os membros veem)";
+    return;
+  }
+
+  // Coloca na lista as categorias que a pessoa já criou
+  return buscarCategoriasUsadas().then(function (usadas) {
+    categoriasPersonalizadas(usadas).forEach(function (nome) {
+      if (!personalizadas.includes(nome)) {
+        personalizadas.push(nome);
+        adicionarOpcaoCategoria(nome);
+      }
+    });
   });
 }).catch(function (falha) {
   console.error(falha);
