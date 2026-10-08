@@ -4726,3 +4726,52 @@ a.linha {
   color: #ff6b6b;
   background: rgba(255, 107, 107, 0.12);
 }
+
+/* Total do mês na lista do espaço */
+.feed-total {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-color: color-mix(in srgb, var(--destaque) 45%, var(--borda));
+  background:
+    radial-gradient(ellipse 90% 140% at 0% 0%, color-mix(in srgb, var(--destaque) 22%, transparent), transparent 70%),
+    var(--painel);
+}
+
+.feed-total-rotulo {
+  font-size: 13px;
+  color: var(--texto-suave);
+  text-transform: capitalize;
+}
+
+.feed-total-valor {
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.feed-total-tipos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--borda);
+}
+
+.feed-total-tipo {
+  display: flex;
+  flex-direction: column;
+  padding: 7px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--destaque) 14%, transparent);
+}
+
+.feed-total-tipo small {
+  font-size: 11px;
+  color: var(--texto-suave);
+}
+
+.feed-total-tipo b {
+  font-size: 14px;
+}

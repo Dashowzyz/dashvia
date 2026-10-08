@@ -896,6 +896,35 @@ function linhaDoFeed(g) {
   return li;
 }
 
+// Quanto o espaço gasta neste mês (mesma conta do Dashboard), com a divisão por tipo
+function cartaoTotalDoMes() {
+  const agora = new Date();
+  const total = { geral: 0, categorias: {} };
+
+  gastos.forEach(function (g) {
+    const valor = valorNoMes(g, agora.getFullYear(), agora.getMonth());
+    if (valor <= 0) return;
+    total.geral += valor;
+    total.categorias[g.categoria] = (total.categorias[g.categoria] || 0) + valor;
+  });
+
+  const mes = agora.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  const cartao = novoEl("div", "bloco feed-total");
+  cartao.append(novoEl("span", "feed-total-rotulo", "Gastos de " + mes));
+  cartao.append(novoEl("strong", "feed-total-valor", formatarMoeda(total.geral)));
+
+  const tipos = Object.keys(total.categorias).sort(function (a, b) { return total.categorias[b] - total.categorias[a]; });
+  if (tipos.length > 0) {
+    const fichas = novoEl("div", "feed-total-tipos");
+    tipos.forEach(function (nome) {
+      const ficha = novoEl("span", "feed-total-tipo");
+      ficha.append(novoEl("small", "", nome), novoEl("b", "", formatarMoeda(total.categorias[nome])));
+      fichas.append(ficha);
+    });
+    cartao.append(fichas);
+  }
+  return cartao;
+}
 function renderizarEspaco() {
   if (!espacoDaTela) return;
 
@@ -904,6 +933,8 @@ function renderizarEspaco() {
 
   const feed = document.getElementById("feed-espaco");
   feed.textContent = "";
+
+  if (gastos.length > 0) feed.append(cartaoTotalDoMes());
 
   if (gastos.length === 0) {
     const vazio = novoEl("div", "bloco esp-vazio");

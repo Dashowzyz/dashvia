@@ -76,3 +76,48 @@ function listarParcelas(g) {
   }
   return parcelas;
 }
+
+// De quantos em quantos meses cada periodicidade de assinatura se repete
+const passoAssinatura = { mensal: 1, trimestral: 3, anual: 12 };
+
+// Diz se o gasto cai em determinado mês (mes: 0 a 11).
+// Gasto comum cai só no mês da compra; assinatura se repete até ser cancelada.
+function cobraNoMes(g, ano, mes) {
+  const [anoCompra, mesCompra] = g.data.split("-").map(Number);
+  const inicio = anoCompra * 12 + (mesCompra - 1);
+  const alvo = ano * 12 + mes;
+
+  // Assinatura e boleto residencial se repetem; o resto cai só no mês da compra
+  const passo = ehBoletoRecorrente(g) ? 1 : (g.categoria === "Assinatura" ? passoAssinatura[g.parcelas] : 0);
+  if (!passo) {
+    return alvo === inicio;
+  }
+
+  if (alvo < inicio) return false;
+
+  // Quando existir o cancelamento (canceladoEm: "AAAA-MM-DD"), para de contar a partir daquele mês
+  if (g.canceladoEm) {
+    const [anoCancel, mesCancel] = g.canceladoEm.split("-").map(Number);
+    if (alvo >= anoCancel * 12 + (mesCancel - 1)) return false;
+  }
+
+  return (alvo - inicio) % passo === 0;
+}
+
+// Quanto o gasto pesa no mês indicado (mes: 0 a 11). Retorna 0 se ele não cai naquele mês.
+// - Compra parcelada: cada parcela conta no mês em que vence (veja parcelamento.js).
+// - Parcela que a pessoa já pagou adiantada, em um mês que ainda não chegou, deixa de contar lá.
+// - Os outros gastos (Pix, sem parcelas e assinaturas) seguem a regra de cobraNoMes.
+function valorNoMes(g, ano, mes) {
+  if (!ehParcelado(g)) return cobraNoMes(g, ano, mes) ? g.valor : 0;
+
+  const alvo = ano * 12 + mes;
+  const agora = new Date();
+  const atual = agora.getFullYear() * 12 + agora.getMonth();
+
+  return listarParcelas(g).reduce(function (soma, p) {
+    if (p.data.getFullYear() * 12 + p.data.getMonth() !== alvo) return soma;
+    if (parcelaMarcadaPaga(g, p.numero) && alvo > atual) return soma;
+    return soma + p.valor;
+  }, 0);
+}
