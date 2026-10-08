@@ -1,4 +1,4 @@
-// Gastos e perfil vêm do banco de dados (Neon), carregados em iniciar() no fim do arquivo
+// Gastos e perfil vêm do banco de dados (Supabase), carregados em iniciar() no fim do arquivo
 let gastos = [];
 let perfilAtual = null;
 

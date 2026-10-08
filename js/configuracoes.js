@@ -1,4 +1,4 @@
-// Perfil e conta vêm do banco de dados (Neon)
+// Perfil e conta vêm do banco de dados (Supabase)
 let perfil = { nome: "", email: "", foto: "" };
 
 const toast = document.getElementById("toast");
@@ -218,7 +218,7 @@ document.getElementById("painel-senha").addEventListener("submit", async functio
     return;
   }
 
-  // O próprio Neon confere a senha atual
+  // alterarSenha() confere a senha atual antes de trocar
   const { error } = await alterarSenha(atual, nova);
   if (error) {
     if (error.tipo === "credenciais") {

@@ -4,9 +4,10 @@ const campoNova = document.getElementById("nova");
 const campoConfirmar = document.getElementById("confirmar");
 const botao = form.querySelector('button[type="submit"]');
 
-// O Neon manda a pessoa de volta para esta página com ?token=... (ou ?error=... se o link não vale mais)
-const parametros = new URLSearchParams(window.location.search);
-const token = parametros.get("error") ? null : parametros.get("token");
+// O Supabase manda a pessoa de volta para esta página já com uma sessão temporária de recuperação
+// (os dados vêm depois do "#" do endereço). Se o link não vale mais, vem "#error=..." no lugar.
+const parametros = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+const linkComErro = !!parametros.get("error") || !!parametros.get("error_code");
 
 // Só números
 [campoNova, campoConfirmar].forEach(function (campo) {
@@ -30,14 +31,15 @@ form.addEventListener("submit", async function (evento) {
     return;
   }
 
-  // O link do e-mail traz um código (token) no endereço da página
-  if (!token) {
+  // Sem a sessão de recuperação do link do e-mail, não dá para trocar a senha
+  const recuperacao = linkComErro ? null : await usuarioAtual();
+  if (!recuperacao) {
     mensagem.textContent = "Esse link expirou. Peça um novo em \"Esqueci minha senha\".";
     return;
   }
 
   botao.disabled = true;
-  const { error } = await redefinirSenha(token, nova);
+  const { error } = await redefinirSenha(nova);
   botao.disabled = false;
 
   if (error) {

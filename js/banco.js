@@ -1,11 +1,11 @@
-// Conexão com o Neon (banco de dados + login)
-// O arquivo neon.bundle.js (gerado por "npm run build") cria window.dashviaNeon.
+// Conexão com o Supabase (banco de dados + login)
+// O arquivo supabase.bundle.js (gerado por "npm run build" na pasta ferramentas) cria window.dashviaDb.
 // Quem protege os dados são as regras do banco (Row Level Security), não este arquivo.
-const db = window.dashviaNeon;
+const db = window.dashviaDb;
 
 // ---------- Senha ----------
-// O Dashvia pede 6 números, mas o login do Neon exige no mínimo 8 caracteres.
-// Por isso o PIN ganha um sufixo fixo antes de ir para o Neon. A tela continua com 6 números.
+// O Dashvia pede 6 números. O PIN ganha um sufixo fixo antes de ir para o login, para a senha
+// ficar mais longa que 6 caracteres. A tela continua com 6 números.
 // ATENÇÃO: não mude este sufixo depois de ter usuários, ou ninguém consegue mais entrar.
 const SUFIXO_SENHA = "-dashvia";
 
@@ -13,17 +13,16 @@ function senhaDoPin(pin) {
   return pin + SUFIXO_SENHA;
 }
 
-// Traduz os erros do login do Neon para tipos simples que as páginas entendem
+// Traduz os erros do login do Supabase para tipos simples que as páginas entendem
 function tipoDoErro(erro) {
-  const codigo = String((erro && erro.code) || "").toUpperCase();
+  const codigo = String((erro && (erro.code || erro.error_code)) || "").toLowerCase();
   const msg = String((erro && erro.message) || "").toLowerCase();
 
-  if (codigo.includes("EMAIL_NOT_VERIFIED") || msg.includes("not verified")) return "nao_confirmado";
-  if (codigo.includes("INVALID_EMAIL_OR_PASSWORD") || codigo.includes("INVALID_PASSWORD") ||
-      msg.includes("invalid email or password") || msg.includes("invalid password")) return "credenciais";
-  if (codigo.includes("USER_ALREADY_EXISTS") || msg.includes("already exists")) return "ja_cadastrado";
-  if (erro && erro.status === 429) return "muitas_tentativas";
-  if (codigo.includes("TOKEN") || msg.includes("token")) return "link_invalido";
+  if (codigo === "email_not_confirmed" || msg.includes("not confirmed")) return "nao_confirmado";
+  if (codigo === "invalid_credentials" || msg.includes("invalid login credentials")) return "credenciais";
+  if (codigo === "user_already_exists" || codigo === "email_exists" || msg.includes("already registered")) return "ja_cadastrado";
+  if ((erro && erro.status === 429) || codigo.startsWith("over_") || msg.includes("rate limit")) return "muitas_tentativas";
+  if (codigo === "otp_expired" || codigo === "bad_jwt" || msg.includes("expired") || msg.includes("invalid token")) return "link_invalido";
   return "outro";
 }
 
@@ -43,7 +42,7 @@ async function usuarioAtual() {
   if (!sessaoEmAndamento) {
     sessaoEmAndamento = db.auth.getSession().then(function (resposta) {
       const dados = resposta && resposta.data;
-      const usuario = (dados && (dados.user || (dados.session && dados.session.user))) || null;
+      const usuario = (dados && dados.session && dados.session.user) || null;
       // Só guarda quando há login: quem ainda vai entrar precisa de uma resposta nova
       if (!usuario) sessaoEmAndamento = null;
       return usuario;
@@ -76,7 +75,7 @@ function esquecerTour() {
 
 async function entrar(email, pin) {
   esquecerTour();
-  return resultado(await db.auth.signIn.email({ email: email, password: senhaDoPin(pin) }));
+  return resultado(await db.auth.signInWithPassword({ email: email, password: senhaDoPin(pin) }));
 }
 
 async function sair() {
@@ -98,12 +97,19 @@ function chavePendente(email) {
 }
 
 async function cadastrar(nome, usuario, email, pin) {
-  const criada = resultado(await db.auth.signUp.email({
+  const criada = resultado(await db.auth.signUp({
     email: email,
     password: senhaDoPin(pin),
-    name: nome
+    options: { data: { name: nome } }
   }));
   if (criada.error) return criada;
+
+  // Com confirmação de e-mail ligada, o Supabase não dá erro para um e-mail que já existe:
+  // devolve um usuário "vazio" (sem identidades). É assim que dá para perceber.
+  const novo = criada.data && criada.data.user;
+  if (novo && Array.isArray(novo.identities) && novo.identities.length === 0) {
+    return { error: { tipo: "ja_cadastrado", original: null }, data: null };
+  }
 
   try {
     localStorage.setItem(chavePendente(email), JSON.stringify({ nome: nome, usuario: usuario }));
@@ -120,30 +126,41 @@ async function cadastrar(nome, usuario, email, pin) {
 }
 
 async function pedirRecuperacao(email, enderecoDaPagina) {
-  return resultado(await db.auth.requestPasswordReset({ email: email, redirectTo: enderecoDaPagina }));
+  return resultado(await db.auth.resetPasswordForEmail(email, { redirectTo: enderecoDaPagina }));
 }
 
-// "token" vem no endereço da página de redefinição (?token=...)
-async function redefinirSenha(token, pin) {
-  return resultado(await db.auth.resetPassword({ newPassword: senhaDoPin(pin), token: token }));
+// O link do e-mail abre a página de redefinição já com uma sessão temporária de recuperação.
+// Por isso basta gravar a senha nova para quem está nela.
+async function redefinirSenha(pin) {
+  const resposta = resultado(await db.auth.updateUser({ password: senhaDoPin(pin) }));
+  if (resposta.error) return resposta;
+  // Encerra a sessão temporária: a pessoa entra de novo com a senha nova
+  try {
+    await db.auth.signOut();
+  } catch (falha) {
+    console.error(falha);
+  }
+  return resposta;
 }
 
+// O Supabase não confere a senha atual sozinho: entra de novo com ela antes de trocar
 async function alterarSenha(pinAtual, pinNovo) {
-  return resultado(await db.auth.changePassword({
-    currentPassword: senhaDoPin(pinAtual),
-    newPassword: senhaDoPin(pinNovo),
-    revokeOtherSessions: false
-  }));
+  const usuario = await usuarioAtual();
+  if (!usuario) return { error: { tipo: "outro", original: null }, data: null };
+
+  const conferencia = resultado(await db.auth.signInWithPassword({ email: usuario.email, password: senhaDoPin(pinAtual) }));
+  if (conferencia.error) return conferencia;
+
+  return resultado(await db.auth.updateUser({ password: senhaDoPin(pinNovo) }));
 }
 
 async function alterarEmail(novoEmail) {
   try {
-    return resultado(await db.auth.changeEmail({
-      newEmail: novoEmail,
-      callbackURL: new URL("login.html", window.location.href).href
-    }));
+    return resultado(await db.auth.updateUser(
+      { email: novoEmail },
+      { emailRedirectTo: new URL("login.html", window.location.href).href }
+    ));
   } catch (falha) {
-    // o Neon às vezes lança o erro em vez de devolvê-lo
     return resultado({ error: falha });
   }
 }
@@ -285,7 +302,7 @@ async function buscarPerfil(forcar) {
 
   let linha = data;
 
-  // No Supabase um gatilho criava o perfil no cadastro. Aqui ele é criado no primeiro acesso.
+  // O perfil é criado no primeiro acesso (não há gatilho no banco para isso).
   if (!linha) {
     let pendente = {};
     try {
@@ -296,7 +313,7 @@ async function buscarPerfil(forcar) {
 
     const novo = {
       id: usuario.id,
-      nome: pendente.nome || usuario.name || "",
+      nome: pendente.nome || (usuario.user_metadata && usuario.user_metadata.name) || "",
       usuario: pendente.usuario || ""
     };
     const criado = await db.from("perfis").upsert(novo);

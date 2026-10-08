@@ -1,13 +1,14 @@
-{
+﻿{
   "name": "dashvia",
   "private": true,
   "scripts": {
-    "build": "esbuild neon-entry.js --bundle --format=iife --minify --outfile=../js/neon.bundle.js"
-  },
-  "dependencies": {
-    "@neondatabase/neon-js": "latest"
+    "build": "esbuild supabase-entry.js --bundle --format=iife --minify --outfile=../js/supabase.bundle.js"
   },
   "devDependencies": {
     "esbuild": "latest"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.3"
   }
 }
+
