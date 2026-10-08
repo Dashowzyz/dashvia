@@ -882,6 +882,27 @@ function botaoEditarDoEspaco(g) {
   return b;
 }
 
+function botaoRemoverDoEspaco(g) {
+  const remover = novoEl("button", "feed-remover", "✕");
+  remover.type = "button";
+  remover.title = "Remover gasto";
+  remover.setAttribute("aria-label", "Remover " + g.plataforma);
+  remover.addEventListener("click", async function () {
+    if (!await confirmar("Remover " + g.plataforma + " do espaço? Isso fica registrado no histórico.", "Remover")) return;
+    try {
+      await removerGasto(g.id);
+    } catch (falha) {
+      console.error(falha);
+      alert("Não foi possível remover. Tente de novo.");
+      return;
+    }
+    gastos = gastos.filter(function (x) { return x.id !== g.id; });
+    desenhar();
+    renderizarEspaco();
+  });
+  return remover;
+}
+
 function linhaDoFeed(g) {
   const li = novoEl("li", "feed-item");
   li.append(avatarDaPessoa(g.autorId, g.autorNome));
@@ -901,24 +922,7 @@ function linhaDoFeed(g) {
 
   if (g.categoria !== "Boleto" || ehBoletoRecorrente(g)) li.append(botaoEditarDoEspaco(g));
 
-  const remover = novoEl("button", "feed-remover", "✕");
-  remover.type = "button";
-  remover.title = "Remover gasto";
-  remover.setAttribute("aria-label", "Remover " + g.plataforma);
-  remover.addEventListener("click", async function () {
-    if (!await confirmar("Remover " + g.plataforma + " do espaço? Isso fica registrado no histórico.", "Remover")) return;
-    try {
-      await removerGasto(g.id);
-    } catch (falha) {
-      console.error(falha);
-      alert("Não foi possível remover. Tente de novo.");
-      return;
-    }
-    gastos = gastos.filter(function (x) { return x.id !== g.id; });
-    desenhar();
-    renderizarEspaco();
-  });
-  li.append(remover);
+  li.append(botaoRemoverDoEspaco(g));
   return li;
 }
 
@@ -1117,13 +1121,11 @@ function renderizarAssinaturasDoEspaco() {
     if (item.proxima) direita.append(novoEl("small", "", item.proxima.toLocaleDateString("pt-BR")));
     li.append(direita);
     li.append(botaoEditarDoEspaco(g));
+    li.append(botaoRemoverDoEspaco(g));
     lista.append(li);
   });
   caixa.append(lista);
 
-  const gerenciar = novoEl("a", "atalho-espaco", "Editar ou cancelar assinaturas");
-  gerenciar.href = "assinaturas.html";
-  caixa.append(gerenciar);
 }
 
 function mostrarAbaEspaco(aba) {

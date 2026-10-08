@@ -1,4 +1,6 @@
-// As assinaturas são os gastos da categoria "Assinatura" (vêm do banco de dados)
+// As assinaturas são os gastos da categoria "Assinatura" (vêm do banco de dados).
+// Esta página é só do lado pessoal; as assinaturas do espaço ficam em Gastos do espaço, na aba Assinaturas.
+window.dashviaEscopoFixo = "pessoal";
 let gastos = [];
 
 // De quantos em quantos meses cada periodicidade se repete

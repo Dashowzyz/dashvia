@@ -432,6 +432,8 @@ function esquecerEspaco() {
 }
 
 function escopoEscolhido() {
+  // Há páginas que só existem no lado pessoal (Assinaturas): elas fixam o lado antes de buscar os gastos
+  if (window.dashviaEscopoFixo) return window.dashviaEscopoFixo === "espaco";
   try {
     return localStorage.getItem(CHAVE_ESCOPO) === "espaco";
   } catch (falha) {
@@ -611,7 +613,7 @@ async function montarSeletorEscopo() {
   if (!cabecalho || document.getElementById("seletor-escopo")) return;
 
   const pagina = (location.pathname.split("/").pop() || "dashboard").replace(/\.html$/, "");
-  if (pagina === "configuracoes" || pagina === "espaco" || pagina === "historico") return;
+  if (pagina === "configuracoes" || pagina === "espaco" || pagina === "historico" || pagina === "assinaturas") return;
 
   const espaco = await meuEspaco();
   if (!espaco || document.getElementById("seletor-escopo")) return;

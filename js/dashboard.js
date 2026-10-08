@@ -303,7 +303,7 @@ function mostrarHistorico() {
         <span>${formatarMoeda(g.valor)}</span>
         <span class="tag">${g.categoria === "Boleto" && g.parcelas === "1" ? "Único" : textoParcelas(g.parcelas)}</span>
         <div class="acoes">
-          ${g.categoria === "Assinatura"
+          ${g.categoria === "Assinatura" && !g.espacoId
             ? `<a class="editar" href="assinaturas.html" title="Ver nas assinaturas" aria-label="Ver nas assinaturas"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></a>`
             : g.categoria === "Boleto" ? ""
             : `<button class="editar" data-id="${g.id}" title="Editar gasto"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>`}
@@ -399,7 +399,7 @@ document.getElementById("historico").addEventListener("click", async function (e
 
   const id = Number(botao.dataset.id);
   const gasto = gastos.find(function (g) { return g.id === id; });
-  if (gasto && gasto.categoria !== "Assinatura") {
+  if (gasto && (gasto.categoria !== "Assinatura" || gasto.espacoId)) {
     const opcoes = await categoriasParaEditar(gastos);
     abrirEdicao(gasto, Object.assign({ aoSalvar: atualizarTela }, opcoes));
   }
