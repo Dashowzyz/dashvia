@@ -390,8 +390,14 @@ async function salvarBancoFavorito(banco) {
 // ---------- Atualizar ao voltar para a aba ----------
 // Se a pessoa ficou fora da aba por um tempo (ou mexeu em outro aparelho), busca os dados de novo.
 // Não atualiza no meio de algo: modal aberto, tour em andamento ou campo sendo preenchido.
-function recarregarAoVoltar(recarregar) {
+function recarregarAoVoltar(recarregarSemAnimacao) {
   const ESPERA = 30 * 1000;
+  // Quando os dados chegam de novo, os valores em R$ que mudaram sobem (ou descem) até o novo total
+  const recarregar = async function () {
+    const antes = valoresDaTela();
+    await recarregarSemAnimacao();
+    animarValores(antes);
+  };
   let saiuEm = null;
 
   document.addEventListener("visibilitychange", async function () {
@@ -416,8 +422,70 @@ function recarregarAoVoltar(recarregar) {
   ouvirMudancasDosGastos(recarregar);
 }
 
-// Tempo real: quando outra pessoa do espaço (ou outro aparelho seu) mexe nos gastos, a tela atualiza sozinha.
-// Precisa do arquivo ferramentas/supabase-tempo-real.sql rodado uma vez; sem ele, nada quebra, só não chega o aviso.
+// ---------- Valores que sobem ao atualizar ----------
+// Valores em R$ soltos num elemento ("R$ 1.241,35" ou "Total R$ 656,29"). Linhas de lista ficam de fora:
+// lá a posição muda quando entra um gasto novo, e a animação sairia do valor errado.
+const PADRAO_VALOR_VIVO = /^(Total\s+)?R\$\s*([\d.]+,\d{2})$/;
+
+function caminhoDoElemento(el) {
+  const partes = [];
+  while (el && el !== document.body) {
+    if (el.id) {
+      partes.unshift("#" + el.id);
+      break;
+    }
+    const irmaos = Array.prototype.filter.call(el.parentNode.children, function (i) { return i.tagName === el.tagName; });
+    partes.unshift(el.tagName + ":" + irmaos.indexOf(el));
+    el = el.parentNode;
+  }
+  return partes.join(">");
+}
+
+function elementosDeValor() {
+  return Array.prototype.filter.call(document.querySelectorAll("main *"), function (el) {
+    return el.children.length === 0 && !el.closest("li, .item-parcela, .assinatura") && PADRAO_VALOR_VIVO.test(el.textContent.trim());
+  });
+}
+
+function valoresDaTela() {
+  const mapa = {};
+  elementosDeValor().forEach(function (el) {
+    mapa[caminhoDoElemento(el)] = Number(el.textContent.trim().match(PADRAO_VALOR_VIVO)[2].replace(/\./g, "").replace(",", "."));
+  });
+  return mapa;
+}
+
+function animarValores(antes) {
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const DURACAO = 900;
+
+  elementosDeValor().forEach(function (el) {
+    const caminho = caminhoDoElemento(el);
+    if (!(caminho in antes)) return;
+    const textoFinal = el.textContent;
+    const partes = textoFinal.trim().match(PADRAO_VALOR_VIVO);
+    const prefixo = partes[1] || "";
+    const destino = Number(partes[2].replace(/\./g, "").replace(",", "."));
+    const origem = antes[caminho];
+    if (origem === destino || !isFinite(origem) || !isFinite(destino)) return;
+
+    const inicio = performance.now();
+    function passo(agora) {
+      if (!el.isConnected) return;
+      const andamento = Math.min((agora - inicio) / DURACAO, 1);
+      const suave = 1 - Math.pow(1 - andamento, 3); // começa rápido e vai desacelerando até o valor
+      el.textContent = andamento >= 1
+        ? textoFinal
+        : prefixo + (origem + (destino - origem) * suave).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      if (andamento < 1) requestAnimationFrame(passo);
+    }
+    requestAnimationFrame(passo);
+  });
+}
+
+// Tempo real: quando outra pessoa do espaço (ou outro aparelho seu) mexe nos gastos, entra, sai ou muda algo
+// no espaço, a tela atualiza sozinha. Precisa do arquivo ferramentas/supabase-tempo-real.sql rodado uma vez;
+// sem ele, nada quebra, só não chega o aviso.
 function ouvirMudancasDosGastos(recarregar) {
   let espera = null;
 
@@ -441,11 +509,20 @@ function ouvirMudancasDosGastos(recarregar) {
     }
   }
 
-  db.channel("gastos-ao-vivo-" + Math.random().toString(36).slice(2))
-    .on("postgres_changes", { event: "*", schema: "public", table: "gastos" }, function () {
+  function avisar(esquecer) {
+    return function () {
+      // entrou ou saiu alguém: o espaço (membros, nomes, fotos) precisa ser buscado de novo
+      if (esquecer) esquecerEspaco();
       if (espera) clearTimeout(espera);
       espera = setTimeout(atualizar, 400); // junta várias mudanças seguidas numa só atualização
-    })
+    };
+  }
+
+  db.channel("gastos-ao-vivo-" + Math.random().toString(36).slice(2))
+    .on("postgres_changes", { event: "*", schema: "public", table: "gastos" }, avisar(false))
+    .on("postgres_changes", { event: "*", schema: "public", table: "historico_espaco" }, avisar(false))
+    .on("postgres_changes", { event: "*", schema: "public", table: "membros" }, avisar(true))
+    .on("postgres_changes", { event: "*", schema: "public", table: "espacos" }, avisar(true))
     .subscribe();
 }
 

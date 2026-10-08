@@ -88,3 +88,6 @@ async function iniciar() {
 }
 
 iniciar();
+
+// Cada ação nova nos gastos do espaço aparece aqui sem recarregar
+recarregarAoVoltar(iniciar);

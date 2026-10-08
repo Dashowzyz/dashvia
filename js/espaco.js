@@ -159,9 +159,16 @@ function mostrarSemEspaco() {
 }
 
 // ---------- Com espaço ----------
+// O código de convite gerado fica aqui para sobreviver às atualizações em tempo real da tela
+let codigoMostrado = null;
+let totalDeMembrosAntes = null;
+
 async function mostrarEspaco() {
   try {
     membros = await listarMembros();
+    // alguém entrou ou saiu: o código mostrado já pode ter sido usado
+    if (totalDeMembrosAntes !== null && membros.length !== totalDeMembrosAntes) codigoMostrado = null;
+    totalDeMembrosAntes = membros.length;
   } catch (falha) {
     console.error(falha);
     area.textContent = "";
@@ -263,7 +270,11 @@ function mostrarMembros(painel) {
       gerar.disabled = false;
       resultado.textContent = "";
       if (error) { resultado.append(criar("p", "esp-aviso", textoDoErroEspaco(error))); return; }
-
+      codigoMostrado = data;
+      desenharCodigo(data);
+    });
+    function desenharCodigo(data) {
+      resultado.textContent = "";
       const blocos = criar("div", "esp-codigo-blocos");
       String(data).split("").forEach(function (letra) { blocos.append(criar("span", "", letra)); });
 
@@ -293,7 +304,8 @@ function mostrarMembros(painel) {
       }
 
       resultado.append(blocos, acoes, comIcone("small", "esp-validade", "relogio", "Vale por 7 dias e serve para uma pessoa só.", 13));
-    });
+    }
+    if (codigoMostrado) desenharCodigo(codigoMostrado);
     gerar.disabled = cheio;
     convite.append(gerar, resultado);
     painel.append(convite);
@@ -337,3 +349,7 @@ async function iniciar() {
 }
 
 iniciar();
+
+
+// Entrou ou saiu alguém, ou o espaço mudou: a tela atualiza sozinha
+recarregarAoVoltar(iniciar);
