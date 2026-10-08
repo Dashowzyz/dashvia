@@ -4172,3 +4172,24 @@ a.linha {
 .grupo-destaque .linha-valor:empty {
   display: none;
 }
+
+/* Botão de voltar no topo de páginas internas */
+.voltar-pagina {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  margin-bottom: -8px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 999px;
+  color: var(--texto-suave);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.voltar-pagina:hover {
+  color: var(--texto);
+  background: color-mix(in srgb, var(--destaque) 14%, transparent);
+  text-decoration: none;
+}
