@@ -412,6 +412,41 @@ function recarregarAoVoltar(recarregar) {
       console.error(falha); // sem internet, por exemplo: a tela continua como estava
     }
   });
+
+  ouvirMudancasDosGastos(recarregar);
+}
+
+// Tempo real: quando outra pessoa do espaço (ou outro aparelho seu) mexe nos gastos, a tela atualiza sozinha.
+// Precisa do arquivo ferramentas/supabase-tempo-real.sql rodado uma vez; sem ele, nada quebra, só não chega o aviso.
+function ouvirMudancasDosGastos(recarregar) {
+  let espera = null;
+
+  function emUso() {
+    const campo = document.activeElement;
+    const digitando = !!campo && /^(INPUT|TEXTAREA|SELECT)$/.test(campo.tagName);
+    return digitando || !!document.querySelector(".modal-fundo, .tour-balao") || tourDeExemploAtivo();
+  }
+
+  async function atualizar() {
+    espera = null;
+    if (document.hidden) return; // ao voltar para a aba, recarregarAoVoltar cuida
+    if (emUso()) {
+      espera = setTimeout(atualizar, 2000); // não atualiza no meio de algo: tenta de novo daqui a pouco
+      return;
+    }
+    try {
+      await recarregar();
+    } catch (falha) {
+      console.error(falha);
+    }
+  }
+
+  db.channel("gastos-ao-vivo-" + Math.random().toString(36).slice(2))
+    .on("postgres_changes", { event: "*", schema: "public", table: "gastos" }, function () {
+      if (espera) clearTimeout(espera);
+      espera = setTimeout(atualizar, 400); // junta várias mudanças seguidas numa só atualização
+    })
+    .subscribe();
 }
 
 // ---------- Espaço compartilhado ----------
