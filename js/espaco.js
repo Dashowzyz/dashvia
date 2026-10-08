@@ -4,7 +4,6 @@ const resumo = document.getElementById("resumo-espaco");
 
 let espaco = null;
 let membros = [];
-let abaAtual = location.hash === "#historico" ? "historico" : "membros";
 
 // ---------- Ícones ----------
 const ICONES = {
@@ -196,26 +195,10 @@ async function mostrarEspaco() {
   hero.append(vagas);
   area.append(hero);
 
-  const abas = criar("div", "esp-abas");
-  abas.setAttribute("role", "tablist");
-  [["membros", "Membros", "pessoas"], ["historico", "Histórico", "relogio"]].forEach(function (a) {
-    const b = comIcone("button", "esp-aba" + (abaAtual === a[0] ? " ativa" : ""), a[2], a[1], 16);
-    b.type = "button";
-    b.setAttribute("role", "tab");
-    b.setAttribute("aria-selected", String(abaAtual === a[0]));
-    b.addEventListener("click", function () {
-      abaAtual = a[0];
-      mostrarEspaco();
-    });
-    abas.append(b);
-  });
-  area.append(abas);
-
   const painel = criar("div", "esp-painel");
   area.append(painel);
 
-  if (abaAtual === "historico") await mostrarHistorico(painel);
-  else mostrarMembros(painel);
+  mostrarMembros(painel);
 }
 
 function mostrarMembros(painel) {
@@ -338,56 +321,6 @@ function mostrarMembros(painel) {
   painel.append(rodape);
 }
 
-const VERBOS = {
-  adicionou: "adicionou",
-  editou: "editou",
-  apagou: "apagou",
-  pagamento: "registrou pagamento em"
-};
-
-const ICONE_DA_ACAO = { adicionou: "mais", editou: "lapis", apagou: "lixeira", pagamento: "certo" };
-
-async function mostrarHistorico(painel) {
-  let linhas;
-  try {
-    linhas = await buscarHistoricoDoEspaco();
-  } catch (falha) {
-    console.error(falha);
-    painel.append(criar("p", "vazio", "Não foi possível carregar o histórico. Atualize a página."));
-    return;
-  }
-
-  painel.append(comIcone("p", "esp-nota", "relogio", "Mostra os últimos 30 dias. Depois disso, o registro é apagado sozinho.", 14));
-
-  if (linhas.length === 0) {
-    const vazio = criar("div", "bloco esp-vazio");
-    vazio.append(comIcone("div", "esp-hero-icone", "relogio", "", 26));
-    vazio.append(criar("p", "", "Nada aconteceu nos gastos do espaço ainda. Quando alguém adicionar, editar, pagar ou apagar um gasto, aparece aqui."));
-    painel.append(vazio);
-    return;
-  }
-
-  const lista = criar("ul", "bloco esp-historico");
-  linhas.forEach(function (h) {
-    const li = criar("li", "esp-hist-item " + h.acao);
-    li.append(comIcone("span", "esp-hist-icone", ICONE_DA_ACAO[h.acao] || "lapis", "", 16));
-
-    const texto = criar("div", "esp-hist-texto");
-    const frase = criar("p");
-    frase.append(
-      criar("strong", "", h.nome_pessoa || "Alguém"),
-      document.createTextNode(" " + (VERBOS[h.acao] || h.acao) + " "),
-      criar("strong", "", h.plataforma || "um gasto")
-    );
-    texto.append(frase);
-    texto.append(criar("small", "", [h.categoria, h.valor != null ? moeda(h.valor) : "", tempoAtras(h.quando)].filter(Boolean).join(" · ")));
-
-    li.append(texto);
-    lista.append(li);
-  });
-  painel.append(lista);
-}
-
 // ---------- Início ----------
 async function iniciar() {
   const usuario = await exigirLogin();
@@ -397,7 +330,6 @@ async function iniciar() {
   espaco = await meuEspaco();
 
   if (!espaco) {
-    abaAtual = "membros";
     mostrarSemEspaco();
   } else {
     await mostrarEspaco();

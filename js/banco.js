@@ -610,7 +610,7 @@ async function montarSeletorEscopo() {
   if (!cabecalho || document.getElementById("seletor-escopo")) return;
 
   const pagina = (location.pathname.split("/").pop() || "dashboard").replace(/\.html$/, "");
-  if (pagina === "configuracoes" || pagina === "espaco") return;
+  if (pagina === "configuracoes" || pagina === "espaco" || pagina === "historico") return;
 
   const espaco = await meuEspaco();
   if (!espaco || document.getElementById("seletor-escopo")) return;

@@ -1120,7 +1120,7 @@ async function montarEspaco() {
   if (!document.getElementById("abas-espaco")) {
     // O histórico fica separado: um atalho para a tela do espaço, já na aba Histórico
     const historico = novoEl("a", "atalho-espaco atalho-historico", "Ver histórico do espaço (últimos 30 dias)");
-    historico.href = "espaco.html#historico";
+    historico.href = "historico.html";
 
     const abas = novoEl("div", "esp-abas");
     abas.id = "abas-espaco";

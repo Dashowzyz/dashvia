@@ -4,7 +4,7 @@ const paginaAtual = (location.pathname.split("/").pop() || "dashboard").replace(
 
 document.querySelectorAll(".menu nav a").forEach(function (link) {
   const destino = link.getAttribute("href");
-  link.classList.toggle("ativo", destino === paginaAtual || (paginaAtual === "espaco.html" && destino === "configuracoes.html"));
+  link.classList.toggle("ativo", destino === paginaAtual || (paginaAtual === "espaco.html" && destino === "configuracoes.html") || (paginaAtual === "historico.html" && destino === "parcelas.html"));
 });
 
 // Caixa de confirmação no estilo do Dashvia (substitui o confirm() do navegador)
