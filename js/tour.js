@@ -61,6 +61,11 @@
       texto: "Netflix, Spotify e outras cobranças recorrentes ficam aqui, com a próxima cobrança e o gasto em 12 meses."
     },
     {
+      pagina: "configuracoes.html", alvo: "#link-espaco",
+      titulo: "Divida gastos com outras pessoas",
+      texto: "No Espaço compartilhado, até 6 pessoas veem e cuidam juntas dos boletos, assinaturas, mercado e compras da casa. Quem cria o espaço convida os outros por um código, e o histórico mostra quem mudou o quê. Depois de entrar, o seletor no topo das páginas troca entre o lado Pessoal e o do espaço. Seus gastos pessoais continuam só seus."
+    },
+    {
       pagina: "configuracoes.html", alvo: "#btn-temas",
       titulo: "Deixe com a sua cara",
       texto: "Troque foto, nome, senha e as cores do site. Você também pode escolher um tema pronto."

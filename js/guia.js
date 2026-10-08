@@ -53,6 +53,10 @@ const PASSOS_GUIA = [
     texto: "Em " + pagina("Adicionar gasto", "gastos") + ", escolha a categoria Assinatura (Netflix, Spotify...). Ela se repete sozinha todo mês, trimestre ou ano e aparece na página " + pagina("Assinaturas", "assinatura") + ", que mostra também em qual cartão ela está."
   },
   {
+    titulo: "Divida gastos no espaço",
+    texto: "Em " + pagina("Configurações", "configuracao") + ", abra Espaço compartilhado para criar um espaço ou entrar em um com o código de convite. Até 6 pessoas veem e editam juntas os gastos de Boleto, Assinatura, Mercado e Compras, e o histórico mostra o que cada uma fez nos últimos 30 dias. Depois de entrar, aparece no topo das páginas o seletor Pessoal | nome do espaço: escolha o lado que quer ver. Em Parcelas futuras, o lado do espaço tem as abas Tudo, Parcelas e Histórico. Os gastos pessoais de cada um continuam privados."
+  },
+  {
     titulo: "Deixe do seu jeito",
     texto: "Em " + pagina("Configurações", "configuracao") + " você troca foto (ou remove), nome, senha e as cores do site. O olho ao lado do nome esconde seus dados quando você quiser. Veja o que mudou em Novidades, refaça o tour quando quiser e, se achar algo errado, use Reportar um problema."
   }
