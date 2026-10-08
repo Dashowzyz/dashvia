@@ -47,6 +47,8 @@ const grupoParcelasBoleto = document.getElementById("grupo-parcelas-boleto");
 const campoParcelasBoleto = document.getElementById("parcelas-boleto");
 const grupoBanco = document.getElementById("grupo-banco");
 const rotuloPlataforma = document.getElementById("rotulo-plataforma");
+const rotuloBanco = document.getElementById("rotulo-banco");
+const rotuloOutroBanco = document.querySelector('label[for="outro-banco"]');
 const campoPlataforma = document.getElementById("plataforma");
 const rotuloData = document.getElementById("rotulo-data");
 const rotuloValor = document.getElementById("rotulo-valor");
@@ -69,8 +71,12 @@ function atualizarBoleto() {
 
   grupoBanco.classList.toggle("oculto", boleto);
 
-  rotuloPlataforma.textContent = boleto ? "Nome do boleto" : "Plataforma ou loja";
-  campoPlataforma.placeholder = boleto ? (compras ? "Ex: Geladeira" : "Ex: Conta de luz") : "Ex: iFood, Amazon, Magalu";
+  // Assinatura: o nome é o do serviço e o banco é o cartão em que ela é cobrada
+  const assinatura = campoCategoria.value === "Assinatura";
+  rotuloPlataforma.textContent = boleto ? "Nome do boleto" : assinatura ? "Nome da assinatura" : "Plataforma ou loja";
+  campoPlataforma.placeholder = boleto ? (compras ? "Ex: Geladeira" : "Ex: Conta de luz") : assinatura ? "Ex: Netflix, Spotify, Disney+" : "Ex: iFood, Amazon, Magalu";
+  rotuloBanco.textContent = assinatura ? "Cartão da assinatura" : "Banco";
+  rotuloOutroBanco.textContent = assinatura ? "Nome do cartão ou banco" : "Nome do banco";
   rotuloData.textContent = boleto ? (compras ? "Vencimento da 1ª parcela" : "Vencimento (se repete todo mês)") : "Data da compra";
   rotuloValor.textContent = compras ? "Valor total (R$)" : "Valor (R$)";
 }
