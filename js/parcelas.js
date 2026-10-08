@@ -816,15 +816,6 @@ let espacoDaTela = null;
 let pessoasDoEspaco = {};
 let abaEspaco = "tudo";
 
-const ICONES_HISTORICO = {
-  adicionou: '<path d="M5 12h14"/><path d="M12 5v14"/>',
-  editou: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
-  apagou: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>',
-  pagamento: '<polyline points="20 6 9 17 4 12"/>'
-};
-
-const VERBOS_HISTORICO = { adicionou: "adicionou", editou: "editou", apagou: "apagou", pagamento: "registrou pagamento em" };
-
 function novoEl(tag, classe, texto) {
   const e = document.createElement(tag);
   if (classe) e.className = classe;
@@ -996,51 +987,108 @@ function renderizarEspaco() {
     feed.append(lista);
   }
 
-  if (abaEspaco === "historico") mostrarHistoricoDoEspaco();
+  renderizarAssinaturasDoEspaco();
 }
 
-async function mostrarHistoricoDoEspaco() {
-  const caixa = document.getElementById("historico-espaco");
+// ----- Aba Assinaturas do espaço -----
+const PASSOS_ASSINATURA = { mensal: 1, trimestral: 3, anual: 12 };
+const NOMES_PERIODO = { mensal: "Mensal", trimestral: "Trimestral", anual: "Anual" };
+
+// Próxima cobrança: a primeira data depois de hoje (mesma regra da página de Assinaturas)
+function proximaCobrancaAssinatura(g) {
+  const passo = PASSOS_ASSINATURA[g.parcelas];
+  if (!passo) return null;
+
+  const [ano, mes, dia] = g.data.split("-").map(Number);
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+
+  const primeira = new Date(ano, mes - 1, dia);
+  if (primeira > hoje) return primeira;
+
+  let k = 1;
+  let data = somarMeses(ano, mes - 1, dia, passo);
+  while (data <= hoje && k < 5000) {
+    k++;
+    data = somarMeses(ano, mes - 1, dia, passo * k);
+  }
+  return data;
+}
+
+function prazoDaCobranca(data) {
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const dias = Math.round((data - hoje) / 86400000);
+  if (dias <= 0) return "hoje";
+  if (dias === 1) return "amanhã";
+  return "em " + dias + " dias";
+}
+
+function renderizarAssinaturasDoEspaco() {
+  const caixa = document.getElementById("assinaturas-espaco");
+  if (!caixa) return;
   caixa.textContent = "";
 
-  let linhas;
-  try {
-    linhas = await buscarHistoricoDoEspaco();
-  } catch (falha) {
-    console.error(falha);
-    caixa.append(novoEl("p", "vazio", "Não foi possível carregar o histórico. Atualize a página."));
-    return;
-  }
+  const itens = gastos
+    .filter(function (g) { return g.categoria === "Assinatura" && !g.canceladoEm; })
+    .map(function (g) { return { g: g, proxima: proximaCobrancaAssinatura(g) }; })
+    .sort(function (a, b) {
+      if (!a.proxima) return 1;
+      if (!b.proxima) return -1;
+      return a.proxima - b.proxima;
+    });
 
-  caixa.append(novoEl("p", "esp-nota", "Mostra os últimos 30 dias. Depois disso, o registro é apagado sozinho."));
-
-  if (linhas.length === 0) {
+  if (itens.length === 0) {
     const vazio = novoEl("div", "bloco esp-vazio");
-    vazio.append(novoEl("p", "", "Nada aconteceu nos gastos do espaço ainda."));
+    vazio.append(novoEl("p", "", "Nenhuma assinatura no espaço ainda. Em Adicionar gasto, com o seletor em " + espacoDaTela.nome + ", escolha a categoria Assinatura."));
     caixa.append(vazio);
     return;
   }
 
-  const lista = novoEl("ul", "bloco esp-historico");
-  linhas.forEach(function (h) {
-    const li = novoEl("li", "esp-hist-item " + h.acao);
-    const icone = novoEl("span", "esp-hist-icone");
-    icone.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONES_HISTORICO[h.acao] || ICONES_HISTORICO.editou) + "</svg>";
-    li.append(icone);
+  let porMes = 0;
+  itens.forEach(function (item) {
+    const passo = PASSOS_ASSINATURA[item.g.parcelas];
+    if (passo) porMes += item.g.valor / passo;
+  });
 
-    const texto = novoEl("div", "esp-hist-texto");
-    const frase = novoEl("p");
-    frase.append(
-      novoEl("strong", "", h.nome_pessoa || "Alguém"),
-      document.createTextNode(" " + (VERBOS_HISTORICO[h.acao] || h.acao) + " "),
-      novoEl("strong", "", h.plataforma || "um gasto")
+  const resumoCartao = novoEl("div", "bloco feed-total");
+  resumoCartao.append(novoEl("span", "feed-total-rotulo", "Assinaturas do espaço"));
+  resumoCartao.append(novoEl("strong", "feed-total-valor", formatarMoeda(porMes) + " /mês"));
+  const fichas = novoEl("div", "feed-total-tipos");
+  [["Em 12 meses", formatarMoeda(porMes * 12)], ["Assinaturas", String(itens.length)]].forEach(function (par) {
+    const ficha = novoEl("span", "feed-total-tipo");
+    ficha.append(novoEl("small", "", par[0]), novoEl("b", "", par[1]));
+    fichas.append(ficha);
+  });
+  resumoCartao.append(fichas);
+  caixa.append(resumoCartao);
+
+  const lista = novoEl("ul", "bloco feed-lista");
+  itens.forEach(function (item) {
+    const g = item.g;
+    const li = novoEl("li", "feed-item");
+    li.append(avatarDaPessoa(g.autorId, g.autorNome));
+
+    const corpo = novoEl("div", "feed-corpo");
+    const quem = primeiroNome(g.autorNome || (pessoasDoEspaco[g.autorId] || {}).nome) || "Alguém";
+    corpo.append(
+      novoEl("strong", "", g.plataforma),
+      novoEl("small", "", (NOMES_PERIODO[g.parcelas] || "Assinatura") + " · " + (g.banco || "Cartão")),
+      novoEl("small", "feed-autor", "por " + quem + (item.proxima ? " · próxima cobrança " + prazoDaCobranca(item.proxima) : ""))
     );
-    texto.append(frase);
-    texto.append(novoEl("small", "", [h.categoria, h.valor != null ? formatarMoeda(Number(h.valor)) : "", tempoDecorrido(h.quando)].filter(Boolean).join(" · ")));
-    li.append(texto);
+    li.append(corpo);
+
+    const direita = novoEl("div", "feed-direita");
+    direita.append(novoEl("strong", "", formatarMoeda(g.valor)));
+    if (item.proxima) direita.append(novoEl("small", "", item.proxima.toLocaleDateString("pt-BR")));
+    li.append(direita);
     lista.append(li);
   });
   caixa.append(lista);
+
+  const gerenciar = novoEl("a", "atalho-espaco", "Editar ou cancelar assinaturas");
+  gerenciar.href = "assinaturas.html";
+  caixa.append(gerenciar);
 }
 
 function mostrarAbaEspaco(aba) {
@@ -1052,7 +1100,7 @@ function mostrarAbaEspaco(aba) {
   });
 
   document.getElementById("feed-espaco").style.display = aba === "tudo" ? "" : "none";
-  document.getElementById("historico-espaco").style.display = aba === "historico" ? "" : "none";
+  document.getElementById("assinaturas-espaco").style.display = aba === "assinaturas" ? "" : "none";
   areaParcelas.style.display = aba === "parcelas" ? "" : "none";
 
   if (aba === "parcelas") desenhar();
@@ -1070,10 +1118,14 @@ async function montarEspaco() {
   }
 
   if (!document.getElementById("abas-espaco")) {
+    // O histórico fica separado: um atalho para a tela do espaço, já na aba Histórico
+    const historico = novoEl("a", "atalho-espaco atalho-historico", "Ver histórico do espaço (últimos 30 dias)");
+    historico.href = "espaco.html#historico";
+
     const abas = novoEl("div", "esp-abas");
     abas.id = "abas-espaco";
     abas.setAttribute("role", "tablist");
-    [["tudo", "Tudo"], ["parcelas", "Parcelas"], ["historico", "Histórico"]].forEach(function (a) {
+    [["tudo", "Tudo"], ["parcelas", "Parcelas"], ["assinaturas", "Assinaturas"]].forEach(function (a) {
       const b = novoEl("button", "esp-aba", a[1]);
       b.type = "button";
       b.dataset.aba = a[0];
@@ -1084,9 +1136,9 @@ async function montarEspaco() {
 
     const feed = novoEl("div");
     feed.id = "feed-espaco";
-    const historico = novoEl("div");
-    historico.id = "historico-espaco";
-    areaParcelas.before(abas, feed, historico);
+    const assinaturas = novoEl("div");
+    assinaturas.id = "assinaturas-espaco";
+    areaParcelas.before(historico, abas, feed, assinaturas);
   }
 
   mostrarAbaEspaco(abaEspaco);

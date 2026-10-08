@@ -4,7 +4,7 @@ const resumo = document.getElementById("resumo-espaco");
 
 let espaco = null;
 let membros = [];
-let abaAtual = "membros";
+let abaAtual = location.hash === "#historico" ? "historico" : "membros";
 
 // ---------- Ícones ----------
 const ICONES = {

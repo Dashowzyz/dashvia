@@ -4815,3 +4815,35 @@ a.linha {
   color: var(--texto-suave);
   font-size: 13px;
 }
+
+/* Atalhos em forma de faixa (histórico do espaço, gerenciar assinaturas) */
+.atalho-espaco {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 16px;
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  background: var(--painel);
+  color: var(--texto-suave);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.atalho-espaco::after {
+  content: "›";
+  font-size: 18px;
+  line-height: 1;
+}
+
+.atalho-espaco:hover {
+  border-color: var(--destaque);
+  color: var(--texto);
+  text-decoration: none;
+}
+
+#assinaturas-espaco .atalho-espaco {
+  margin-top: 16px;
+}
