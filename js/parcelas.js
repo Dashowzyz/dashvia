@@ -903,7 +903,38 @@ function botaoRemoverDoEspaco(g) {
   return remover;
 }
 
-function linhaDoFeed(g) {
+// O gasto visto no mês escolhido: quanto pesa nele, em que dia cai e, se for parcelado, qual parcela é.
+// Devolve null quando o gasto não cai naquele mês (mesma conta do total e do Dashboard).
+function gastoNoMes(g, ano, mes) {
+  const valor = valorNoMes(g, ano, mes);
+  if (valor <= 0) return null;
+
+  const alvo = ano * 12 + mes;
+  let data = null;
+  let nota = "";
+
+  if (ehBoletoRecorrente(g)) {
+    const cobranca = boletoDoMes(g, ano, mes);
+    if (cobranca) data = cobranca.data;
+  } else if (ehParcelado(g)) {
+    const todas = listarParcelas(g);
+    const parcela = todas.find(function (x) { return x.data.getFullYear() * 12 + x.data.getMonth() === alvo; });
+    if (parcela) {
+      data = parcela.data;
+      nota = "Parcela " + parcela.numero + "/" + todas.length;
+    }
+  } else if (g.categoria === "Assinatura") {
+    data = somarMeses(ano, mes, Number(g.data.split("-")[2]), 0);
+  } else {
+    const partes = g.data.split("-").map(Number);
+    data = new Date(partes[0], partes[1] - 1, partes[2]);
+  }
+
+  return { g: g, valor: valor, data: data || new Date(ano, mes, 1), nota: nota };
+}
+
+function linhaDoFeed(item) {
+  const g = item.g;
   const li = novoEl("li", "feed-item");
   li.append(avatarDaPessoa(g.autorId, g.autorNome));
 
@@ -917,7 +948,10 @@ function linhaDoFeed(g) {
   li.append(corpo);
 
   const direita = novoEl("div", "feed-direita");
-  direita.append(novoEl("strong", "", formatarMoeda(g.valor)), novoEl("small", "", dataBr(g.data)));
+  direita.append(
+    novoEl("strong", "", formatarMoeda(item.valor)),
+    novoEl("small", "", (item.nota ? item.nota + " · " : "") + item.data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }))
+  );
   li.append(direita);
 
   if (g.categoria !== "Boleto" || ehBoletoRecorrente(g)) li.append(botaoEditarDoEspaco(g));
@@ -1006,7 +1040,13 @@ function renderizarEspaco() {
   const titulo = document.querySelector(".conteudo header h1");
   titulo.textContent = "Gastos " + espacoDaTela.nome;
   titulo.classList.add("titulo-uma-linha");
-  textoResumo.textContent = gastos.length + (gastos.length === 1 ? " gasto" : " gastos") + " no espaço compartilhado";
+  const escolhido = mesAtualDoTotal();
+  const itens = gastos
+    .map(function (g) { return gastoNoMes(g, escolhido.ano, escolhido.mes); })
+    .filter(Boolean)
+    .sort(function (a, b) { return (b.data - a.data) || (b.g.id - a.g.id); });
+  const nomeDoMes = new Date(escolhido.ano, escolhido.mes, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  textoResumo.textContent = itens.length + (itens.length === 1 ? " gasto" : " gastos") + " em " + nomeDoMes;
 
   const feed = document.getElementById("feed-espaco");
   feed.textContent = "";
@@ -1017,10 +1057,10 @@ function renderizarEspaco() {
     const vazio = novoEl("div", "bloco esp-vazio");
     vazio.append(novoEl("p", "", "Nada foi adicionado ainda. Em Adicionar gasto, com o seletor em " + espacoDaTela.nome + ", o que você lançar aparece aqui para todo mundo."));
     feed.append(vazio);
-  } else {
+  } else if (itens.length > 0) {
     const lista = novoEl("ul", "bloco feed-lista");
-    gastos.slice().sort(function (a, b) { return b.id - a.id; }).forEach(function (g) {
-      lista.append(linhaDoFeed(g));
+    itens.forEach(function (item) {
+      lista.append(linhaDoFeed(item));
     });
     feed.append(lista);
   }
