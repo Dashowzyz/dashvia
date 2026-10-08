@@ -67,6 +67,14 @@ function semBanco() {
   return ehBoleto() || (ehMercado() && pagandoPix());
 }
 
+// "Banco" vira "Cartão" quando a compra é no cartão (ou é uma assinatura, que sempre é cobrada no cartão)
+function atualizarRotuloBanco() {
+  const assinatura = campoCategoria.value === "Assinatura";
+  const cartao = assinatura || campoForma.value === "cartao";
+  rotuloBanco.textContent = assinatura ? "Cartão da assinatura" : cartao ? (ehMercado() ? "Cartão usado" : "Cartão") : "Banco";
+  rotuloOutroBanco.textContent = cartao ? "Nome do cartão" : "Nome do banco";
+}
+
 function atualizarBanco() {
   grupoBanco.classList.toggle("oculto", semBanco());
 }
@@ -95,8 +103,7 @@ function atualizarBoleto() {
   const mercado = ehMercado();
   rotuloPlataforma.textContent = boleto ? "Nome do boleto" : assinatura ? "Nome da assinatura" : mercado ? "Nome do mercado" : "Plataforma ou loja";
   campoPlataforma.placeholder = boleto ? (compras ? "Ex: Geladeira" : "Ex: Conta de luz") : assinatura ? "Ex: Netflix, Spotify, Disney+" : mercado ? "Ex: Carrefour, Assaí, Atacadão" : "Ex: iFood, Amazon, Magalu";
-  rotuloBanco.textContent = assinatura ? "Cartão da assinatura" : mercado ? "Cartão usado" : "Banco";
-  rotuloOutroBanco.textContent = assinatura || mercado ? "Nome do cartão ou banco" : "Nome do banco";
+  atualizarRotuloBanco();
   rotuloData.textContent = boleto ? (compras ? "Vencimento da 1ª parcela" : "Vencimento (se repete todo mês)") : "Data da compra";
   rotuloValor.textContent = compras ? "Valor total (R$)" : "Valor (R$)";
 }
@@ -135,6 +142,7 @@ function atualizarForma() {
   // Mercado não tem parcelas: fica "Sem parcelas" sem perguntar
   if (ehMercado()) campoParcelas.value = "avista";
   atualizarBanco();
+  atualizarRotuloBanco();
   atualizarVencimento();
 }
 
