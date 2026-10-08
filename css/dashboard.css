@@ -4645,3 +4645,84 @@ a.linha {
   transform: rotate(-12deg);
   pointer-events: none;
 }
+
+/* ===== Lista do espaço (Parcelas futuras no lado Casa) ===== */
+.feed-lista {
+  list-style: none;
+  padding: 4px 16px;
+}
+
+.feed-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--borda);
+}
+
+.feed-item:first-child {
+  border-top: none;
+}
+
+.feed-avatar {
+  width: 46px;
+  height: 46px;
+}
+
+.feed-corpo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.feed-corpo strong {
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.feed-corpo small,
+.feed-direita small {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.feed-corpo small.feed-autor {
+  color: var(--destaque);
+  font-weight: 600;
+}
+
+.feed-direita {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  text-align: right;
+}
+
+.feed-direita strong {
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+.feed-remover {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--texto-suave);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.feed-remover:hover {
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.12);
+}

@@ -805,12 +805,225 @@ async function iniciar() {
   bancoFavorito = (perfil && perfil.bancoFavorito) || null;
 
   desenhar();
+  await montarEspaco();
 }
 
+// ---------- Lado "espaço compartilhado": lista de tudo que o grupo adicionou ----------
+// No lado Casa esta página vira três abas: Tudo (lista com a foto de quem lançou), Parcelas (a tela de sempre) e Histórico.
+let espacoDaTela = null;
+let pessoasDoEspaco = {};
+let abaEspaco = "tudo";
+
+const ICONES_HISTORICO = {
+  adicionou: '<path d="M5 12h14"/><path d="M12 5v14"/>',
+  editou: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  apagou: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/>',
+  pagamento: '<polyline points="20 6 9 17 4 12"/>'
+};
+
+const VERBOS_HISTORICO = { adicionou: "adicionou", editou: "editou", apagou: "apagou", pagamento: "registrou pagamento em" };
+
+function novoEl(tag, classe, texto) {
+  const e = document.createElement(tag);
+  if (classe) e.className = classe;
+  if (texto !== undefined) e.textContent = texto;
+  return e;
+}
+
+function dataBr(texto) {
+  const partes = String(texto).split("-");
+  return partes.length === 3 ? partes[2] + "/" + partes[1] + "/" + partes[0] : String(texto);
+}
+
+// Foto (ou inicial) de quem lançou o gasto
+function avatarDaPessoa(id, nomeAlternativo) {
+  const pessoa = pessoasDoEspaco[id] || {};
+  const nome = pessoa.nome || nomeAlternativo || "?";
+  const a = novoEl("div", "esp-avatar feed-avatar", nome.trim().charAt(0).toUpperCase() || "?");
+  if (pessoa.foto) {
+    a.textContent = "";
+    a.style.backgroundImage = 'url("' + String(pessoa.foto).replace(/"/g, "%22") + '")';
+  }
+  a.title = nome;
+  return a;
+}
+
+function descricaoDoGasto(g) {
+  if (g.categoria === "Boleto") {
+    return g.parcelas === "mensal" ? "Boleto · todo mês" : g.parcelas === "1" ? "Boleto único" : "Boleto · " + g.parcelas + " parcelas";
+  }
+  if (g.categoria === "Assinatura") {
+    return "Assinatura · " + ({ mensal: "mensal", trimestral: "trimestral", anual: "anual" }[g.parcelas] || "");
+  }
+  return g.categoria + " · " + (g.parcelas === "pix" ? "Pix" : (g.banco || "Cartão"));
+}
+
+function linhaDoFeed(g) {
+  const li = novoEl("li", "feed-item");
+  li.append(avatarDaPessoa(g.autorId, g.autorNome));
+
+  const corpo = novoEl("div", "feed-corpo");
+  const quem = primeiroNome(g.autorNome || (pessoasDoEspaco[g.autorId] || {}).nome) || "Alguém";
+  corpo.append(
+    novoEl("strong", "", g.plataforma),
+    novoEl("small", "", descricaoDoGasto(g)),
+    novoEl("small", "feed-autor", "por " + quem + (g.criadoEm ? " · " + tempoDecorrido(g.criadoEm) : ""))
+  );
+  li.append(corpo);
+
+  const direita = novoEl("div", "feed-direita");
+  direita.append(novoEl("strong", "", formatarMoeda(g.valor)), novoEl("small", "", dataBr(g.data)));
+  li.append(direita);
+
+  const remover = novoEl("button", "feed-remover", "✕");
+  remover.type = "button";
+  remover.title = "Remover gasto";
+  remover.setAttribute("aria-label", "Remover " + g.plataforma);
+  remover.addEventListener("click", async function () {
+    if (!await confirmar("Remover " + g.plataforma + " do espaço? Isso fica registrado no histórico.", "Remover")) return;
+    try {
+      await removerGasto(g.id);
+    } catch (falha) {
+      console.error(falha);
+      alert("Não foi possível remover. Tente de novo.");
+      return;
+    }
+    gastos = gastos.filter(function (x) { return x.id !== g.id; });
+    desenhar();
+    renderizarEspaco();
+  });
+  li.append(remover);
+  return li;
+}
+
+function renderizarEspaco() {
+  if (!espacoDaTela) return;
+
+  document.querySelector(".conteudo header h1").textContent = "Gastos do espaço";
+  textoResumo.textContent = espacoDaTela.nome + " · " + gastos.length + (gastos.length === 1 ? " gasto" : " gastos");
+
+  const feed = document.getElementById("feed-espaco");
+  feed.textContent = "";
+
+  if (gastos.length === 0) {
+    const vazio = novoEl("div", "bloco esp-vazio");
+    vazio.append(novoEl("p", "", "Nada foi adicionado ainda. Em Adicionar gasto, com o seletor em " + espacoDaTela.nome + ", o que você lançar aparece aqui para todo mundo."));
+    feed.append(vazio);
+  } else {
+    const lista = novoEl("ul", "bloco feed-lista");
+    gastos.slice().sort(function (a, b) { return b.id - a.id; }).forEach(function (g) {
+      lista.append(linhaDoFeed(g));
+    });
+    feed.append(lista);
+  }
+
+  if (abaEspaco === "historico") mostrarHistoricoDoEspaco();
+}
+
+async function mostrarHistoricoDoEspaco() {
+  const caixa = document.getElementById("historico-espaco");
+  caixa.textContent = "";
+
+  let linhas;
+  try {
+    linhas = await buscarHistoricoDoEspaco();
+  } catch (falha) {
+    console.error(falha);
+    caixa.append(novoEl("p", "vazio", "Não foi possível carregar o histórico. Atualize a página."));
+    return;
+  }
+
+  caixa.append(novoEl("p", "esp-nota", "Mostra os últimos 30 dias. Depois disso, o registro é apagado sozinho."));
+
+  if (linhas.length === 0) {
+    const vazio = novoEl("div", "bloco esp-vazio");
+    vazio.append(novoEl("p", "", "Nada aconteceu nos gastos do espaço ainda."));
+    caixa.append(vazio);
+    return;
+  }
+
+  const lista = novoEl("ul", "bloco esp-historico");
+  linhas.forEach(function (h) {
+    const li = novoEl("li", "esp-hist-item " + h.acao);
+    const icone = novoEl("span", "esp-hist-icone");
+    icone.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONES_HISTORICO[h.acao] || ICONES_HISTORICO.editou) + "</svg>";
+    li.append(icone);
+
+    const texto = novoEl("div", "esp-hist-texto");
+    const frase = novoEl("p");
+    frase.append(
+      novoEl("strong", "", h.nome_pessoa || "Alguém"),
+      document.createTextNode(" " + (VERBOS_HISTORICO[h.acao] || h.acao) + " "),
+      novoEl("strong", "", h.plataforma || "um gasto")
+    );
+    texto.append(frase);
+    texto.append(novoEl("small", "", [h.categoria, h.valor != null ? formatarMoeda(Number(h.valor)) : "", tempoDecorrido(h.quando)].filter(Boolean).join(" · ")));
+    li.append(texto);
+    lista.append(li);
+  });
+  caixa.append(lista);
+}
+
+function mostrarAbaEspaco(aba) {
+  abaEspaco = aba;
+  document.querySelectorAll("#abas-espaco .esp-aba").forEach(function (b) {
+    const ativa = b.dataset.aba === aba;
+    b.classList.toggle("ativa", ativa);
+    b.setAttribute("aria-selected", String(ativa));
+  });
+
+  document.getElementById("feed-espaco").style.display = aba === "tudo" ? "" : "none";
+  document.getElementById("historico-espaco").style.display = aba === "historico" ? "" : "none";
+  areaParcelas.style.display = aba === "parcelas" ? "" : "none";
+
+  if (aba === "parcelas") desenhar();
+  else renderizarEspaco();
+}
+
+async function montarEspaco() {
+  espacoDaTela = await escopoAtual();
+  if (!espacoDaTela) return;
+
+  try {
+    (await listarMembros()).forEach(function (m) { pessoasDoEspaco[m.id] = m; });
+  } catch (falha) {
+    console.error(falha);
+  }
+
+  if (!document.getElementById("abas-espaco")) {
+    const abas = novoEl("div", "esp-abas");
+    abas.id = "abas-espaco";
+    abas.setAttribute("role", "tablist");
+    [["tudo", "Tudo"], ["parcelas", "Parcelas"], ["historico", "Histórico"]].forEach(function (a) {
+      const b = novoEl("button", "esp-aba", a[1]);
+      b.type = "button";
+      b.dataset.aba = a[0];
+      b.setAttribute("role", "tab");
+      b.addEventListener("click", function () { mostrarAbaEspaco(a[0]); });
+      abas.append(b);
+    });
+
+    const feed = novoEl("div");
+    feed.id = "feed-espaco";
+    const historico = novoEl("div");
+    historico.id = "historico-espaco";
+    areaParcelas.before(abas, feed, historico);
+  }
+
+  mostrarAbaEspaco(abaEspaco);
+}
 iniciar();
 
 // Ao voltar para a aba depois de um tempo, busca os gastos de novo
 recarregarAoVoltar(async function () {
   gastos = await buscarGastos();
   desenhar();
+  if (espacoDaTela) {
+    try {
+      (await listarMembros()).forEach(function (m) { pessoasDoEspaco[m.id] = m; });
+    } catch (falha) {
+      console.error(falha);
+    }
+    mostrarAbaEspaco(abaEspaco);
+  }
 });

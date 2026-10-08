@@ -192,6 +192,7 @@ function doBanco(linha, nomes) {
   return {
     id: linha.id,
     espacoId: linha.espaco_id || null, // vazio = gasto individual
+    criadoEm: linha.criado_em || null, // quando foi lançado
     autorId: linha.user_id || null,
     autorNome: (nomes && linha.user_id && nomes[linha.user_id]) || "",
     plataforma: linha.plataforma,
@@ -641,3 +642,15 @@ async function montarSeletorEscopo() {
 }
 
 montarSeletorEscopo();
+
+// "agora", "há 5 min", "há 3 h" ou a data, para mostrar quando algo aconteceu
+function tempoDecorrido(texto) {
+  const data = new Date(texto);
+  if (isNaN(data.getTime())) return "";
+  const minutos = Math.max(0, Math.round((Date.now() - data.getTime()) / 60000));
+  if (minutos < 1) return "agora";
+  if (minutos < 60) return "há " + minutos + " min";
+  const horas = Math.round(minutos / 60);
+  if (horas < 24) return "há " + horas + " h";
+  return data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+}
