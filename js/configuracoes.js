@@ -378,6 +378,8 @@ function abrirExclusao() {
     if (error) {
       if (error.tipo === "credenciais") {
         erro.textContent = "Senha incorreta.";
+      } else if (error.tipo === "lider") {
+        erro.textContent = "Você lidera um espaço compartilhado. Passe a liderança para outra pessoa antes de excluir a conta.";
       } else {
         console.error(error.original);
         erro.textContent = "Não foi possível excluir. Tente de novo.";
@@ -536,6 +538,12 @@ async function iniciar() {
 
   mostrarPerfil();
   mostrarCores();
+
+  // Mostra o nome do espaço compartilhado (ou que ainda não participa de nenhum)
+  meuEspaco().then(function (espaco) {
+    const valor = document.getElementById("valor-espaco");
+    if (valor) valor.textContent = espaco ? espaco.nome : "Criar ou entrar";
+  });
 }
 
 iniciar();

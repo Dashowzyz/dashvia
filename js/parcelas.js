@@ -169,7 +169,7 @@ function itemBoletoMensal(c) {
       <li class="item-parcela">
         <div class="item-inicial">${escapar(c.g.plataforma.trim().charAt(0).toUpperCase())}</div>
         <div class="item-info">
-          <strong>${escapar(c.g.plataforma)}</strong>
+          <strong>${escapar(c.g.plataforma)}</strong>${autorHtml(c.g)}
           <small style="display:flex;flex-wrap:wrap;gap:0 8px"><span style="white-space:nowrap">${c.g.canceladoEm ? "Encerra após este mês" : "Todo mês"}</span><span style="white-space:nowrap">vence ${formatarData(o.data)}</span></small>
           <span class="status-boleto ${classe}">${status}</span>
           <div class="acoes-boleto">
@@ -201,7 +201,7 @@ function mostrarLista() {
       <li class="item-parcela">
         <div class="item-inicial">${escapar(c.g.plataforma.trim().charAt(0).toUpperCase())}</div>
         <div class="item-info">
-          <strong>${escapar(c.g.plataforma)}</strong>
+          <strong>${escapar(c.g.plataforma)}</strong>${autorHtml(c.g)}
           <small style="display:flex;flex-wrap:wrap;gap:0 8px"><span style="white-space:nowrap">${c.total === 1 ? "Boleto" : "Parcela " + c.proxima.numero + "/" + c.total}</span><span style="white-space:nowrap">vence ${formatarData(c.proxima.data)}</span></small>
           <div class="item-barra"><i style="width:${porcentagem}%"></i></div>
         </div>

@@ -130,7 +130,7 @@ function desenhar() {
         <div class="assinatura-topo">
           <span class="assinatura-inicial" style="background:${corDoNome(g.plataforma)}" aria-hidden="true">${escapar(g.plataforma.trim().charAt(0).toUpperCase() || "?")}</span>
           <div class="assinatura-nome">
-            <h3>${escapar(g.plataforma)}</h3>
+            <h3>${escapar(g.plataforma)}</h3>${autorHtml(g)}
             <span class="tag">${nomePeriodo || "Sem periodicidade"}</span>
           </div>
           <strong class="assinatura-valor">${formatarMoeda(g.valor)}</strong>

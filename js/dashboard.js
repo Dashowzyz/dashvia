@@ -341,7 +341,7 @@ function mostrarHistorico() {
   lista.innerHTML = ultimos.map(function (g) {
     return `
       <li>
-        <span>${escapar(g.plataforma)}</span>
+        <span>${escapar(g.plataforma)}${autorHtml(g)}</span>
         <span>${escapar(g.categoria)}</span>
         <span>${formatarData(g.data)}</span>
         <span>${formatarMoeda(g.valor)}</span>

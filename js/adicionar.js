@@ -425,13 +425,27 @@ form.addEventListener("reset", function () {
 mostrarBanco();
 atualizarCategoria();
 
-// Coloca na lista as categorias que a pessoa já criou
-buscarCategoriasUsadas().then(function (usadas) {
-  categoriasPersonalizadas(usadas).forEach(function (nome) {
-    if (!personalizadas.includes(nome)) {
-      personalizadas.push(nome);
-      adicionarOpcaoCategoria(nome);
-    }
+// No espaço compartilhado só valem Boleto, Assinatura e Mercado; no lado pessoal, as categorias da pessoa
+escopoAtual().then(function (espaco) {
+  if (espaco) {
+    campoCategoria.innerHTML =
+      '<option value="" disabled selected>Escolha</option>' +
+      CATEGORIAS_ESPACO.map(function (nome) { return "<option>" + nome + "</option>"; }).join("");
+    atualizarCategoria();
+
+    const subtitulo = document.querySelector(".topo-centralizado p");
+    if (subtitulo) subtitulo.textContent = "Adicionando no espaço " + espaco.nome + " (todos os membros veem)";
+    return;
+  }
+
+  // Coloca na lista as categorias que a pessoa já criou
+  return buscarCategoriasUsadas().then(function (usadas) {
+    categoriasPersonalizadas(usadas).forEach(function (nome) {
+      if (!personalizadas.includes(nome)) {
+        personalizadas.push(nome);
+        adicionarOpcaoCategoria(nome);
+      }
+    });
   });
 }).catch(function (falha) {
   console.error(falha);
