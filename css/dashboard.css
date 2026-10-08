@@ -4847,3 +4847,10 @@ a.linha {
 #assinaturas-espaco .atalho-espaco {
   margin-top: 16px;
 }
+
+/* Título que nunca quebra de linha: se for longo demais, termina com "…" */
+.titulo-uma-linha {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

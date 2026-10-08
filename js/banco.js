@@ -420,6 +420,7 @@ function recarregarAoVoltar(recarregar) {
 const CHAVE_ESCOPO = "dashvia:escopo";
 const CATEGORIAS_ESPACO = ["Compras", "Mercado", "Boleto", "Assinatura"];
 const MAXIMO_MEMBROS = 6;
+const NOME_MAXIMO_ESPACO = 14; // cabe numa linha no título "Gastos <nome>" no celular
 
 let espacoEmAndamento = null;
 let nomesEmAndamento = null;

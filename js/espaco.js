@@ -122,11 +122,11 @@ function mostrarSemEspaco() {
   // Criar
   const cartaoCriar = criar("div", "bloco esp-cartao");
   cartaoCriar.append(cabecalhoCartao("mais", "Criar um espaço", "Você vira o líder."));
-  const nome = campo("Nome do espaço", "esp-nome", { maxLength: 30, placeholder: "Ex: Casa" });
+  const nome = campo("Nome do espaço", "esp-nome", { maxLength: NOME_MAXIMO_ESPACO, placeholder: "Ex: Casa" });
   const avisoCriar = criar("p", "esp-aviso");
   const btnCriar = botao("Criar espaço", "esp-botao", async function () {
     const texto = nome.input.value.trim();
-    if (texto.length < 2) { aviso(avisoCriar, "Use um nome de 2 a 30 letras."); return; }
+    if (texto.length < 2 || texto.length > NOME_MAXIMO_ESPACO) { aviso(avisoCriar, "Use um nome de 2 a " + NOME_MAXIMO_ESPACO + " letras."); return; }
     btnCriar.disabled = true;
     const { error } = await criarEspaco(texto);
     btnCriar.disabled = false;

@@ -967,7 +967,9 @@ function cartaoTotalDoMes() {
 function renderizarEspaco() {
   if (!espacoDaTela) return;
 
-  document.querySelector(".conteudo header h1").textContent = "Gastos " + espacoDaTela.nome;
+  const titulo = document.querySelector(".conteudo header h1");
+  titulo.textContent = "Gastos " + espacoDaTela.nome;
+  titulo.classList.add("titulo-uma-linha");
   textoResumo.textContent = gastos.length + (gastos.length === 1 ? " gasto" : " gastos") + " no espaço compartilhado";
 
   const feed = document.getElementById("feed-espaco");
