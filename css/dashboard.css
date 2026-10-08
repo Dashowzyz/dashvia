@@ -4785,29 +4785,31 @@ a.linha {
 
 .feed-total-seta {
   flex: none;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid var(--borda);
+  border: 1px solid color-mix(in srgb, var(--destaque) 55%, var(--borda));
   border-radius: 50%;
-  background: transparent;
+  background: var(--painel);
   color: var(--texto);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
   cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
 }
 
 .feed-total-seta:hover:not(:disabled) {
-  border-color: var(--destaque);
-  color: var(--destaque);
+  background: var(--destaque);
+  color: var(--texto-destaque);
+  transform: scale(1.08);
 }
 
+/* Sem mês para ir naquela direção: a seta some, mas guarda o lugar para o título continuar centralizado */
 .feed-total-seta:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+  visibility: hidden;
 }
-
 .feed-total-vazio {
   margin-top: 8px;
   color: var(--texto-suave);
