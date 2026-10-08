@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 
 // Dados públicos do projeto no Supabase (não são segredo; quem protege os dados são as regras do banco).
 // Use a chave "anon" / "publishable". NUNCA coloque aqui a chave "service_role" / "secret".
-const URL_DO_PROJETO = "COLE_AQUI_A_URL_DO_PROJETO";
-const CHAVE_PUBLICA = "COLE_AQUI_A_CHAVE_PUBLICA";
+const URL_DO_PROJETO = "https://ztlalhziwxijnlvhfhpp.supabase.co";
+const CHAVE_PUBLICA = "sb_publishable_jQO74I6_ohkiJZfHZKCsiw_6FDrxHj9";
 
 window.dashviaDb = createClient(URL_DO_PROJETO, CHAVE_PUBLICA);
