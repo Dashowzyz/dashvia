@@ -57,6 +57,25 @@ function ehBoleto() {
   return campoCategoria.value === "Boleto";
 }
 
+// Mercado: compra do dia a dia, quase nunca parcelada
+function ehMercado() {
+  return campoCategoria.value === "Mercado";
+}
+
+// Mercado pago no Pix não usa banco: o campo some e o gasto fica como Pix
+function semBanco() {
+  return ehBoleto() || (ehMercado() && pagandoPix());
+}
+
+function atualizarBanco() {
+  grupoBanco.classList.toggle("oculto", semBanco());
+}
+
+function hojeEmTexto() {
+  const agora = new Date();
+  return agora.getFullYear() + "-" + String(agora.getMonth() + 1).padStart(2, "0") + "-" + String(agora.getDate()).padStart(2, "0");
+}
+
 // Textos do formulário conforme o boleto escolhido
 function atualizarBoleto() {
   const boleto = ehBoleto();
@@ -69,14 +88,15 @@ function atualizarBoleto() {
   if (!compras) campoParcelasBoleto.value = "";
   if (typeof limparErro === "function") limparErro(campoParcelasBoleto);
 
-  grupoBanco.classList.toggle("oculto", boleto);
+  atualizarBanco();
 
   // Assinatura: o nome é o do serviço e o banco é o cartão em que ela é cobrada
   const assinatura = campoCategoria.value === "Assinatura";
-  rotuloPlataforma.textContent = boleto ? "Nome do boleto" : assinatura ? "Nome da assinatura" : "Plataforma ou loja";
-  campoPlataforma.placeholder = boleto ? (compras ? "Ex: Geladeira" : "Ex: Conta de luz") : assinatura ? "Ex: Netflix, Spotify, Disney+" : "Ex: iFood, Amazon, Magalu";
-  rotuloBanco.textContent = assinatura ? "Cartão da assinatura" : "Banco";
-  rotuloOutroBanco.textContent = assinatura ? "Nome do cartão ou banco" : "Nome do banco";
+  const mercado = ehMercado();
+  rotuloPlataforma.textContent = boleto ? "Nome do boleto" : assinatura ? "Nome da assinatura" : mercado ? "Nome do mercado" : "Plataforma ou loja";
+  campoPlataforma.placeholder = boleto ? (compras ? "Ex: Geladeira" : "Ex: Conta de luz") : assinatura ? "Ex: Netflix, Spotify, Disney+" : mercado ? "Ex: Carrefour, Assaí, Atacadão" : "Ex: iFood, Amazon, Magalu";
+  rotuloBanco.textContent = assinatura ? "Cartão da assinatura" : mercado ? "Cartão usado" : "Banco";
+  rotuloOutroBanco.textContent = assinatura || mercado ? "Nome do cartão ou banco" : "Nome do banco";
   rotuloData.textContent = boleto ? (compras ? "Vencimento da 1ª parcela" : "Vencimento (se repete todo mês)") : "Data da compra";
   rotuloValor.textContent = compras ? "Valor total (R$)" : "Valor (R$)";
 }
@@ -107,11 +127,14 @@ campoParcelas.addEventListener("change", atualizarVencimento);
 // Escolhendo Pix, o campo Parcelas some
 function atualizarForma() {
   const pix = pagandoPix();
-  grupoParcelas.classList.toggle("oculto", pix);
+  grupoParcelas.classList.toggle("oculto", pix || ehMercado());
   if (pix) {
     campoParcelas.value = "";
     if (typeof limparErro === "function") limparErro(campoParcelas);
   }
+  // Mercado não tem parcelas: fica "Sem parcelas" sem perguntar
+  if (ehMercado()) campoParcelas.value = "avista";
+  atualizarBanco();
   atualizarVencimento();
 }
 
@@ -141,7 +164,10 @@ function atualizarCategoria() {
   if (!boleto) campoTipoBoleto.value = "";
   atualizarBoleto();
   atualizarForma();
-  grupoParcelas.classList.toggle("oculto", boleto || pagandoPix());
+  grupoParcelas.classList.toggle("oculto", boleto || pagandoPix() || ehMercado());
+
+  // Mercado já vem com a data de hoje
+  if (ehMercado() && !document.getElementById("data").value) document.getElementById("data").value = hojeEmTexto();
 }
 
 campoCategoria.addEventListener("change", atualizarCategoria);
@@ -186,7 +212,7 @@ form.addEventListener("submit", async function (evento) {
     data: document.getElementById("data").value,
     valor: parseFloat(document.getElementById("valor").value),
     vencimento: semVencimento ? null : Number(campoVencimento.value),
-    banco: boleto ? "Boleto" : document.getElementById("banco").value
+    banco: boleto ? "Boleto" : (ehMercado() && pagandoPix()) ? "Pix" : document.getElementById("banco").value
   };
 
   // "Outro": usa o nome que a pessoa digitou (se for de um banco da lista, usa o nome da lista)
