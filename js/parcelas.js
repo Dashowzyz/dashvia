@@ -483,7 +483,7 @@ function abrirEdicaoBoleto(compra) {
       <h3 class="modal-titulo">Editar boleto</h3>
       <form id="form-boleto" class="formulario" novalidate>
         <label for="eb-nome">Nome do boleto</label>
-        <input type="text" id="eb-nome" maxlength="60">
+        <input type="text" id="eb-nome" maxlength="60" autocomplete="off">
 
         <label for="eb-valor">Valor (R$)</label>
         <input type="number" id="eb-valor" step="0.01" min="0.01">

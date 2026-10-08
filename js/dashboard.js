@@ -472,7 +472,7 @@ function abrirEdicao(g) {
       <h3 class="modal-titulo">Editar gasto</h3>
       <form id="form-editar" class="formulario" novalidate>
         <label for="ed-plataforma">Plataforma ou loja</label>
-        <input type="text" id="ed-plataforma">
+        <input type="text" id="ed-plataforma" autocomplete="off">
 
         <label for="ed-categoria">Categoria</label>
         <select id="ed-categoria">${montarOpcoes(categoriasDoGasto.concat([[NOVA_CATEGORIA, "+ Nova categoria"]]), g.categoria)}</select>

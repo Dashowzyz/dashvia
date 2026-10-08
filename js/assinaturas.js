@@ -176,7 +176,7 @@ function abrirEdicao(g) {
       <h3 class="modal-titulo">Editar assinatura</h3>
       <form id="form-editar" class="formulario" novalidate>
         <label for="ed-nome">Nome da assinatura</label>
-        <input type="text" id="ed-nome">
+        <input type="text" id="ed-nome" autocomplete="off">
 
         <label for="ed-valor">Valor (R$)</label>
         <input type="number" id="ed-valor" step="0.01" min="0.01">
