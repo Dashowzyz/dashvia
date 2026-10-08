@@ -4500,3 +4500,148 @@ a.linha {
   background: color-mix(in srgb, var(--destaque) 14%, transparent);
   text-decoration: none;
 }
+
+/* ===== Visual de boleto (Parcelas futuras → grupo Boleto) ===== */
+/* Cartão do topo: recortes nas laterais e código de barras embaixo */
+.cartao-banco.cartao-boleto {
+  padding-bottom: 46px;
+  -webkit-mask:
+    radial-gradient(circle 11px at 0 66%, #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 11px at 100% 66%, #0000 97%, #000) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle 11px at 0 66%, #0000 97%, #000) left / 51% 100% no-repeat,
+    radial-gradient(circle 11px at 100% 66%, #0000 97%, #000) right / 51% 100% no-repeat;
+}
+
+.cartao-boleto .cartao-rodape {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 2px dashed rgba(255, 255, 255, 0.32);
+}
+
+.cartao-boleto::after {
+  content: "";
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 14px;
+  height: 20px;
+  opacity: 0.6;
+  background: repeating-linear-gradient(
+    90deg,
+    #ffffff 0 2px, transparent 2px 4px,
+    #ffffff 4px 5px, transparent 5px 8px,
+    #ffffff 8px 11px, transparent 11px 13px,
+    #ffffff 13px 14px, transparent 14px 17px
+  );
+}
+
+/* Cada boleto da lista: ficha com canhoto, na cor do tema */
+.item-parcela.item-boleto {
+  position: relative;
+  overflow: hidden;
+  margin-top: 12px;
+  padding: 14px 12px 36px 16px;
+  gap: 0;
+  border: 1px solid var(--borda);
+  border-left: 5px solid var(--destaque);
+  border-radius: 14px;
+  background: var(--fundo);
+}
+
+.item-parcela.item-boleto:first-child {
+  margin-top: 0;
+  border-top: 1px solid var(--borda);
+}
+
+.item-parcela.item-boleto.st-vencido {
+  border-left-color: #ff6b6b;
+}
+
+.item-parcela.item-boleto.st-pago {
+  border-left-color: #4cd98a;
+}
+
+.item-boleto .item-inicial {
+  display: none;
+}
+
+.boleto-rotulo {
+  display: block;
+  margin-bottom: 1px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+/* Canhoto: linha pontilhada com os recortes em cima e embaixo */
+.item-boleto .item-valores {
+  position: relative;
+  align-self: stretch;
+  justify-content: center;
+  margin: -14px 0 -36px 12px;
+  padding: 14px 12px 36px 14px;
+  border-left: 2px dashed var(--borda);
+}
+
+.item-boleto .item-valores::before,
+.item-boleto .item-valores::after {
+  content: "";
+  position: absolute;
+  left: -9px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--painel);
+  border: 1px solid var(--borda);
+}
+
+.item-boleto .item-valores::before {
+  top: -9px;
+}
+
+.item-boleto .item-valores::after {
+  bottom: -9px;
+}
+
+.item-boleto .item-pagar {
+  margin-left: 12px;
+}
+
+/* Código de barras decorativo no rodapé da ficha */
+.item-boleto::after {
+  content: "";
+  position: absolute;
+  left: 16px;
+  right: 12px;
+  bottom: 10px;
+  height: 14px;
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--texto-suave) 55%, transparent) 0 2px, transparent 2px 4px,
+    color-mix(in srgb, var(--texto-suave) 55%, transparent) 4px 5px, transparent 5px 8px,
+    color-mix(in srgb, var(--texto-suave) 55%, transparent) 8px 11px, transparent 11px 13px,
+    color-mix(in srgb, var(--texto-suave) 55%, transparent) 13px 14px, transparent 14px 17px
+  );
+  pointer-events: none;
+}
+
+/* Carimbo quando o boleto do mês está pago */
+.item-boleto.st-pago::before {
+  content: "PAGO";
+  position: absolute;
+  left: 34%;
+  top: 38%;
+  padding: 1px 12px;
+  border: 3px solid #4cd98a;
+  border-radius: 8px;
+  color: #4cd98a;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  opacity: 0.55;
+  transform: rotate(-12deg);
+  pointer-events: none;
+}

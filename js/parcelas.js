@@ -138,7 +138,7 @@ function desenharCartoes() {
   faixa.innerHTML = grupos.map(function (gr) {
     const proxima = gr.proxima.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
     return `
-      <div class="cartao-banco" data-banco="${escapar(gr.banco)}">
+      <div class="cartao-banco${gr.banco === "Boleto" ? " cartao-boleto" : ""}" data-banco="${escapar(gr.banco)}">
         <button type="button" class="cartao-favorito${gr.banco === bancoFavorito ? " ativo" : ""}" aria-pressed="${gr.banco === bancoFavorito}" aria-label="Favoritar ${escapar(gr.banco)}" title="${gr.banco === bancoFavorito ? "Favorito: abre primeiro" : "Favoritar: abrir este cartão primeiro"}">${ICONE_ESTRELA}</button>
         <span class="cartao-nome">${iconeBanco(gr.banco)}${escapar(gr.banco)}</span>
         <span class="cartao-rotulo">Falta pagar</span>
@@ -155,6 +155,24 @@ function desenharCartoes() {
     : "";
 }
 
+// No grupo Boleto, cada item ganha o visual de boleto (ficha com canhoto), pintado com as cores do tema
+function classeItemBoleto(c) {
+  if (bancoSelecionado !== "Boleto") return "";
+  const dia = new Date();
+  dia.setHours(0, 0, 0, 0);
+  let estado = "aberto";
+  if (c.recorrente) {
+    const o = c.ocorrencia;
+    estado = o.paga ? "pago" : o.data < dia ? "vencido" : "aberto";
+  } else if (c.proxima && c.proxima.data < dia) {
+    estado = "vencido";
+  }
+  return " item-boleto st-" + estado;
+}
+
+function rotuloBoleto(texto) {
+  return bancoSelecionado === "Boleto" ? '<span class="boleto-rotulo">' + texto + "</span>" : "";
+}
 // Boleto que se repete todo mês: a cobrança do mês com o status (Pago, Em aberto ou Vencido)
 function itemBoletoMensal(c) {
   const o = c.ocorrencia;
@@ -166,10 +184,10 @@ function itemBoletoMensal(c) {
   const nomeBotao = o.paga ? "Desfazer pagamento de " : "Marcar como pago: ";
 
   return `
-      <li class="item-parcela">
+      <li class="item-parcela${classeItemBoleto(c)}">
         <div class="item-inicial">${escapar(c.g.plataforma.trim().charAt(0).toUpperCase())}</div>
         <div class="item-info">
-          <strong>${escapar(c.g.plataforma)}</strong>${autorHtml(c.g)}
+          ${rotuloBoleto("Beneficiário")}<strong>${escapar(c.g.plataforma)}</strong>${autorHtml(c.g)}
           <small style="display:flex;flex-wrap:wrap;gap:0 8px"><span style="white-space:nowrap">${c.g.canceladoEm ? "Encerra após este mês" : "Todo mês"}</span><span style="white-space:nowrap">vence ${formatarData(o.data)}</span></small>
           <span class="status-boleto ${classe}">${status}</span>
           <div class="acoes-boleto">
@@ -178,6 +196,7 @@ function itemBoletoMensal(c) {
           </div>
         </div>
         <div class="item-valores">
+          ${rotuloBoleto("Valor")}
           <strong>${formatarMoeda(o.valor)}</strong>
           <small>${o.paga ? "Mês pago" : "Deste mês"}</small>
         </div>
@@ -198,14 +217,15 @@ function mostrarLista() {
     const porcentagem = Math.round((c.pagas / c.total) * 100);
     const faltam = c.total - c.pagas;
     return `
-      <li class="item-parcela">
+      <li class="item-parcela${classeItemBoleto(c)}">
         <div class="item-inicial">${escapar(c.g.plataforma.trim().charAt(0).toUpperCase())}</div>
         <div class="item-info">
-          <strong>${escapar(c.g.plataforma)}</strong>${autorHtml(c.g)}
+          ${rotuloBoleto("Beneficiário")}<strong>${escapar(c.g.plataforma)}</strong>${autorHtml(c.g)}
           <small style="display:flex;flex-wrap:wrap;gap:0 8px"><span style="white-space:nowrap">${c.total === 1 ? "Boleto" : "Parcela " + c.proxima.numero + "/" + c.total}</span><span style="white-space:nowrap">vence ${formatarData(c.proxima.data)}</span></small>
           <div class="item-barra"><i style="width:${porcentagem}%"></i></div>
         </div>
         <div class="item-valores">
+          ${rotuloBoleto("Valor")}
           <strong>${formatarMoeda(c.proxima.valor)}</strong>
           <small>${c.total === 1 ? "Pagamento único" : faltam === 1 ? "Última parcela" : "Faltam " + formatarMoeda(c.restante)}</small>
         </div>
