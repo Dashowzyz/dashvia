@@ -967,8 +967,8 @@ function cartaoTotalDoMes() {
 function renderizarEspaco() {
   if (!espacoDaTela) return;
 
-  document.querySelector(".conteudo header h1").textContent = "Gastos do espaço";
-  textoResumo.textContent = espacoDaTela.nome + " · " + gastos.length + (gastos.length === 1 ? " gasto" : " gastos");
+  document.querySelector(".conteudo header h1").textContent = "Gastos " + espacoDaTela.nome;
+  textoResumo.textContent = gastos.length + (gastos.length === 1 ? " gasto" : " gastos") + " no espaço compartilhado";
 
   const feed = document.getElementById("feed-espaco");
   feed.textContent = "";
@@ -1119,7 +1119,7 @@ async function montarEspaco() {
 
   if (!document.getElementById("abas-espaco")) {
     // O histórico fica separado: um atalho para a tela do espaço, já na aba Histórico
-    const historico = novoEl("a", "atalho-espaco atalho-historico", "Ver histórico do espaço (últimos 30 dias)");
+    const historico = novoEl("a", "atalho-espaco atalho-historico", "Ver histórico do espaço");
     historico.href = "historico.html";
 
     const abas = novoEl("div", "esp-abas");
