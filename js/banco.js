@@ -366,3 +366,31 @@ async function salvarBancoFavorito(banco) {
     // sem cópia guardada: na próxima página o perfil é buscado de novo
   }
 }
+
+
+// ---------- Atualizar ao voltar para a aba ----------
+// Se a pessoa ficou fora da aba por um tempo (ou mexeu em outro aparelho), busca os dados de novo.
+// Não atualiza no meio de algo: modal aberto, tour em andamento ou campo sendo preenchido.
+function recarregarAoVoltar(recarregar) {
+  const ESPERA = 30 * 1000;
+  let saiuEm = null;
+
+  document.addEventListener("visibilitychange", async function () {
+    if (document.hidden) {
+      saiuEm = Date.now();
+      return;
+    }
+    if (saiuEm === null || Date.now() - saiuEm < ESPERA) return;
+    saiuEm = null;
+
+    const campo = document.activeElement;
+    const digitando = !!campo && /^(INPUT|TEXTAREA|SELECT)$/.test(campo.tagName);
+    if (digitando || document.querySelector(".modal-fundo, .tour-balao") || tourDeExemploAtivo()) return;
+
+    try {
+      await recarregar();
+    } catch (falha) {
+      console.error(falha); // sem internet, por exemplo: a tela continua como estava
+    }
+  });
+}

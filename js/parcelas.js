@@ -788,3 +788,9 @@ async function iniciar() {
 }
 
 iniciar();
+
+// Ao voltar para a aba depois de um tempo, busca os gastos de novo
+recarregarAoVoltar(async function () {
+  gastos = await buscarGastos();
+  desenhar();
+});
