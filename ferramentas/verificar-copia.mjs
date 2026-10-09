@@ -2,10 +2,11 @@
 import { readFileSync } from "node:fs";
 import { gerarCopia, DESTINO } from "./gerar-parcelamento.mjs";
 
-const esperado = gerarCopia(readFileSync(new URL("../js/parcelamento.js", import.meta.url), "utf8"));
+const esperado = gerarCopia(readFileSync(new URL("../js/parcelamento.js", import.meta.url), "utf8").replace(/\r\n/g, "\n"));
 let atual = "";
 try {
-  atual = readFileSync(DESTINO, "utf8");
+  // o Git no Windows pode trocar o fim de linha ao baixar; isso não conta como diferença
+  atual = readFileSync(DESTINO, "utf8").replace(/\r\n/g, "\n");
 } catch (falha) {
   // arquivo ainda não existe
 }

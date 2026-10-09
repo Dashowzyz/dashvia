@@ -16,7 +16,8 @@ test("gerarCopia mantém o original inteiro e exporta os 6 nomes", () => {
 });
 
 test("o arquivo gerado commitado é igual ao que o gerador produz", () => {
-  assert.equal(readFileSync(copiaPath, "utf8"), gerarCopia(original));
+  const lf = (t) => t.replace(/\r\n/g, "\n");
+  assert.equal(lf(readFileSync(copiaPath, "utf8")), gerarCopia(lf(original)));
 });
 
 test("a cópia funciona: parcela 2 de vencimento 31 cai em 28/02/2026", async () => {
