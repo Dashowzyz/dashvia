@@ -9,6 +9,8 @@ self.addEventListener("activate", function (evento) {
 });
 
 self.addEventListener("fetch", function (evento) {
+  // Só repassa o que é do próprio site; fontes, analytics e afins o navegador busca sozinho (sem passar pela CSP do service worker)
+  if (new URL(evento.request.url).origin !== self.location.origin) return;
   evento.respondWith(fetch(evento.request));
 });
 
