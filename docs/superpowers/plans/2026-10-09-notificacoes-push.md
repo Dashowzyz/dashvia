@@ -105,7 +105,7 @@
 - Consumes: `Aviso` (Task 2).
 - Produces: `type Notificacao = { titulo: string, corpo: string, url: string, tag: string }`; `montarNotificacao(avisos: Aviso[]): Notificacao | null`.
 
-- [ ] **Step 1: Tests:** lista vazia → `null`; 1 boleto a 1... usar `dias:3` → `titulo` `"Boleto Enel vence em 3 dias"`, `corpo` `"15/10/2026 · R$ 120,00 · parcela 3/6"`, `url` `"parcelas.html"`; `dias:0` → `"Boleto Enel vence hoje"`; boleto mensal → corpo termina com `"todo mês"`; parcela de cartão → título começa com `"Parcela Magalu"`; 3 avisos → `titulo` `"3 vencimentos esta semana"` e `corpo` com os nomes (máx. 3; com 4 ou mais, os 3 primeiros e `"…"`).
+- [ ] **Step 1: Tests:** lista vazia → `null`; 1 boleto com `dias:3` → `titulo` `"Boleto Enel vence em 3 dias"`, `corpo` `"15/10/2026 · R$ 120,00 · parcela 3/6"`, `url` `"parcelas.html"`; `dias:0` → `"Boleto Enel vence hoje"`; boleto mensal → corpo termina com `"todo mês"`; parcela de cartão → título começa com `"Parcela Magalu"`; 3 avisos → `titulo` `"3 vencimentos esta semana"` e `corpo` com os nomes (máx. 3; com 4 ou mais, os 3 primeiros e `"…"`).
 - [ ] **Step 2:** FAIL.
 - [ ] **Step 3:** Implementar `montarNotificacao` (formatar data e moeda em `pt-BR`; `tag` fixa `"vencimentos"` para a notificação nova substituir a anterior).
 - [ ] **Step 4:** PASS.
@@ -159,7 +159,7 @@
 **Interfaces:**
 - Produces: tabelas `public.push_inscricoes (id bigint identity PK, user_id uuid default auth.uid() references auth.users on delete cascade, endpoint text unique not null, p256dh text not null, auth text not null, criado_em timestamptz default now())`, `public.avisos_enviados (user_id uuid references auth.users on delete cascade, chave text, enviado_em timestamptz default now(), PK (user_id, chave))`, `public.estado_envio (chave text PK, valor text not null)`.
 
-- [ ] **Step 1:** Escrever o SQL no padrão de `ferramentas/supabase-seguranca.sql` (idempotente, comentários em português): RLS ligado nas 3 tabelas; `push_inscricoes` com políticas `select/insert/delete` só do próprio `user_id` e sem `update`; `avisos_enviados` e `estado_envio` sem política e sem grant para `anon`/`authenticated`; `revoke all ... from anon`; limites de tamanho em `endpoint`, `p256dh`, `auth` (`not valid`); `insert` do cliente via `upsert` no `endpoint` exige política de `update`, então o cliente apaga e reinsere (decisão: sem política de update).
+- [ ] **Step 1:** Escrever o SQL no padrão de `ferramentas/supabase-seguranca.sql` (idempotente, comentários em português): RLS ligado nas 3 tabelas; `push_inscricoes` com políticas `select/insert/delete` só do próprio `user_id` e sem `update`; `avisos_enviados` e `estado_envio` sem política e sem grant para `anon`/`authenticated`; `revoke all ... from anon`; limites de tamanho em `endpoint`, `p256dh`, `auth` (`not valid`); como não há política de `update`, o cliente que reativa apaga a inscrição antiga do mesmo `endpoint` e insere de novo.
 - [ ] **Step 2:** O dono roda no SQL Editor. Verificar com a conta de teste, no navegador (`db` global): inserir inscrição própria funciona; inserir com `user_id` de outro falha; inserir o mesmo `endpoint` duas vezes falha com violação de unicidade (Review Focus 5); `select` em `avisos_enviados` e `estado_envio` falha ou volta vazio; `anon` não lê nada.
 - [ ] **Step 3:** Commit "tabelas e seguranca das notificacoes push".
 
