@@ -1,8 +1,11 @@
-﻿{
+{
   "name": "dashvia",
   "private": true,
   "scripts": {
-    "build": "esbuild supabase-entry.js --bundle --format=iife --minify --outfile=../js/supabase.bundle.js"
+    "build": "esbuild supabase-entry.js --bundle --format=iife --minify --outfile=../js/supabase.bundle.js",
+    "test": "node --test \"testes/*.test.mjs\"",
+    "gerar": "node gerar-parcelamento.mjs",
+    "verificar-copia": "node verificar-copia.mjs"
   },
   "devDependencies": {
     "esbuild": "latest"
@@ -11,4 +14,3 @@
     "@supabase/supabase-js": "^2.117.3"
   }
 }
-
