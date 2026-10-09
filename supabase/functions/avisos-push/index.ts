@@ -145,6 +145,31 @@ Deno.serve(async (req: Request) => {
       return resposta({ ...resultado, aparelhos: (inscricoes || []).length, ultimoErro });
     }
 
+    // Diagnóstico (só com o segredo do agendamento): tenta enviar um teste a cada aparelho e devolve o resultado de cada um,
+    // mais o tamanho dos segredos de VAPID (nunca o valor da chave privada)
+    if (modo === "diagnostico") {
+      if (!iguais(req.headers.get("x-cron-secret") || "", CRON_SECRET)) return resposta({ erro: "não autorizado" }, 401);
+      const { data: inscricoes, error } = await banco.from("push_inscricoes").select("id, user_id, endpoint, p256dh, auth");
+      falhar(error);
+      const resultados = [];
+      for (const i of inscricoes || []) {
+        ultimoErro = null;
+        const r = await deps.enviar(i, { titulo: "Teste do Dashvia", corpo: "Diagnóstico das notificações.", url: "dashboard.html", tag: "diagnostico" });
+        resultados.push({ id: i.id, r, erro: ultimoErro });
+      }
+      const publica = Deno.env.get("VAPID_PUBLIC_KEY") || "";
+      return resposta({
+        resultados,
+        vapid: {
+          publica_tamanho: publica.length,
+          publica_inicio: publica.slice(0, 8),
+          privada_tamanho: (Deno.env.get("VAPID_PRIVATE_KEY") || "").length,
+          assunto_inicio: (Deno.env.get("VAPID_SUBJECT") || "").slice(0, 7),
+          site_url: SITE_URL
+        }
+      });
+    }
+
     if (modo === "vencimentos" || modo === "novidades") {
       if (!iguais(req.headers.get("x-cron-secret") || "", CRON_SECRET)) return resposta({ erro: "não autorizado" }, 401);
       const resultado = modo === "vencimentos" ? await executarVencimentos(deps, new Date()) : await executarNovidades(deps, new Date());
