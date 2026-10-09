@@ -50,9 +50,8 @@ async function ativarNotificacoes() {
   });
   const dados = inscricao.toJSON();
 
-  // Sem política de "editar": apaga a inscrição antiga do mesmo aparelho e cria de novo
-  await db.from("push_inscricoes").delete().eq("endpoint", dados.endpoint);
-  const { error } = await db.from("push_inscricoes").insert({ endpoint: dados.endpoint, p256dh: dados.keys.p256dh, auth: dados.keys.auth });
+  // O banco troca de dono se este aparelho ainda estava ligado a outra conta (função registrar_push)
+  const { error } = await db.rpc("registrar_push", { p_endpoint: dados.endpoint, p_p256dh: dados.keys.p256dh, p_auth: dados.keys.auth });
   if (error) throw error;
 }
 

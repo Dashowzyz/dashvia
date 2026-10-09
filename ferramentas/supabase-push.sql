@@ -37,16 +37,13 @@ alter table public.push_inscricoes enable row level security;
 alter table public.avisos_enviados enable row level security;
 alter table public.estado_envio enable row level security;
 
--- Cada pessoa vê, cria e apaga só os próprios aparelhos (não há "editar": para reativar, apaga e cria de novo)
+-- Cada pessoa vê e apaga só os próprios aparelhos. Quem cria é a função registrar_push (abaixo), nunca o site direto.
 drop policy if exists "push: ver os proprios" on public.push_inscricoes;
 create policy "push: ver os proprios" on public.push_inscricoes
   for select to authenticated
   using ((select auth.uid()) = user_id);
 
 drop policy if exists "push: criar os proprios" on public.push_inscricoes;
-create policy "push: criar os proprios" on public.push_inscricoes
-  for insert to authenticated
-  with check ((select auth.uid()) = user_id);
 
 drop policy if exists "push: apagar os proprios" on public.push_inscricoes;
 create policy "push: apagar os proprios" on public.push_inscricoes
@@ -55,7 +52,26 @@ create policy "push: apagar os proprios" on public.push_inscricoes
 
 -- avisos_enviados e estado_envio ficam sem política: o site não enxerga nada, só o robô (chave de serviço)
 revoke all on public.push_inscricoes, public.avisos_enviados, public.estado_envio from anon, authenticated;
-grant select, insert, delete on public.push_inscricoes to authenticated;
-grant usage, select on all sequences in schema public to authenticated;
+grant select, delete on public.push_inscricoes to authenticated;
+revoke insert on public.push_inscricoes from authenticated;
+
+-- Registra o aparelho da pessoa logada. Se o mesmo aparelho (endpoint) ainda estava ligado a outra conta
+-- (a pessoa anterior não saiu direito), a ligação antiga é desfeita: assim os avisos de uma conta
+-- nunca chegam no aparelho de quem entrou depois.
+create or replace function public.registrar_push(p_endpoint text, p_p256dh text, p_auth text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is null then raise exception 'NAO_AUTENTICADO'; end if;
+  delete from public.push_inscricoes where endpoint = p_endpoint;
+  insert into public.push_inscricoes (user_id, endpoint, p256dh, auth) values (auth.uid(), p_endpoint, p_p256dh, p_auth);
+end;
+$$;
+
+revoke all on function public.registrar_push(text, text, text) from public, anon;
+grant execute on function public.registrar_push(text, text, text) to authenticated;
 
 notify pgrst, 'reload schema';

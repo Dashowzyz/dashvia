@@ -203,6 +203,8 @@
 
 ### Task 9: Publicação e verificação ponta a ponta (com o dono)
 
+> Ajuste da execução: a inscrição agora é criada pela função `registrar_push` (troca o dono do aparelho se ele ainda estava ligado a outra conta); o site não tem mais permissão de `insert` em `push_inscricoes`. Na verificação do banco, conferir que `insert` direto falha e que `registrar_push` com o mesmo `endpoint` em outra conta move o aparelho.
+
 **Files:** nenhum novo (verificação). Ajustes só se algo falhar.
 
 - [ ] **Step 1:** Rodar tudo: `node --test ferramentas/testes/` e `node ferramentas/verificar-copia.mjs` — esperado: tudo passa.
