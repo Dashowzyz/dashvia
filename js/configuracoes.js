@@ -213,6 +213,10 @@ document.getElementById("painel-senha").addEventListener("submit", async functio
     mostrarAviso("A nova senha precisa ter exatamente 6 números.", "erro");
     return;
   }
+  if (senhaFraca(nova)) {
+    mostrarAviso(TEXTO_SENHA_FRACA, "erro");
+    return;
+  }
   if (nova !== confirmar) {
     mostrarAviso("As senhas não são iguais.", "erro");
     return;

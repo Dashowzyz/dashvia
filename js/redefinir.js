@@ -26,6 +26,11 @@ form.addEventListener("submit", async function (evento) {
     mensagem.textContent = "A senha precisa ter exatamente 6 números.";
     return;
   }
+
+  if (senhaFraca(nova)) {
+    mensagem.textContent = TEXTO_SENHA_FRACA;
+    return;
+  }
   if (nova !== campoConfirmar.value) {
     mensagem.textContent = "As senhas não são iguais.";
     return;

@@ -26,6 +26,11 @@ form.addEventListener("submit", async function (evento) {
     return;
   }
 
+  if (senhaFraca(senha)) {
+    mensagem.textContent = TEXTO_SENHA_FRACA;
+    return;
+  }
+
   if (senha !== confirmar) {
     mensagem.textContent = "As senhas não são iguais.";
     return;

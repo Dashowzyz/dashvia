@@ -6,3 +6,5 @@ node_modules
 ferramentas
 *.sql
 README.md
+
+CLAUDE.md

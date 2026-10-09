@@ -639,7 +639,7 @@ function autorHtml(gasto) {
 // ----- Ações do espaço (as regras ficam no banco; aqui só chamamos e traduzimos o erro) -----
 const CODIGOS_ERRO_ESPACO = [
   "NOME_INVALIDO", "JA_TEM_ESPACO", "CODIGO_INVALIDO", "ESPACO_CHEIO", "SO_LIDER", "USE_SAIR",
-  "NAO_E_MEMBRO", "JA_E_LIDER", "SEM_ESPACO", "PASSE_LIDERANCA", "USE_EXCLUIR_ESPACO", "REMOVA_MEMBROS"
+  "NAO_E_MEMBRO", "JA_E_LIDER", "SEM_ESPACO", "PASSE_LIDERANCA", "USE_EXCLUIR_ESPACO", "REMOVA_MEMBROS", "CONVITES_DEMAIS"
 ];
 
 const TEXTOS_ERRO_ESPACO = {
@@ -654,7 +654,8 @@ const TEXTOS_ERRO_ESPACO = {
   SEM_ESPACO: "Você não está em nenhum espaço.",
   PASSE_LIDERANCA: "Você é o líder. Passe a liderança para outra pessoa antes de sair.",
   USE_EXCLUIR_ESPACO: "Você é a única pessoa aqui. Use \"Excluir espaço\".",
-  REMOVA_MEMBROS: "Remova os outros membros antes de excluir o espaço."
+  REMOVA_MEMBROS: "Remova os outros membros antes de excluir o espaço.",
+  CONVITES_DEMAIS: "Você já tem 10 convites ativos. Use ou espere vencer antes de gerar outro."
 };
 
 function textoDoErroEspaco(erro) {
@@ -769,3 +770,29 @@ function tempoDecorrido(texto) {
   if (horas < 24) return "há " + horas + " h";
   return data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
 }
+
+// ----- Senha fraca: bloqueia as senhas de 6 números mais óbvias -----
+const SENHAS_COMUNS = [
+  "123456", "654321", "123123", "321321", "112233", "121212", "101010", "202020", "102030", "123321",
+  "159753", "159357", "147258", "147852", "123654", "123789", "456789", "789456", "987654", "246810",
+  "135790", "142536", "121314", "111222", "696969", "007007", "520520", "654123", "741852", "963852",
+  "123457", "123450", "012345", "543210", "100000", "200000", "010101", "020202", "131313", "151515"
+];
+
+function senhaFraca(senha) {
+  const s = String(senha);
+  if (SENHAS_COMUNS.includes(s)) return true;
+  if (/^(\d)\1+$/.test(s)) return true;              // 000000, 111111...
+  if (/^(\d\d)\1\1$/.test(s)) return true;           // 121212, 454545...
+  if (/^(\d\d\d)\1$/.test(s)) return true;           // 123123, 456456...
+  if (/^(\d)\1(\d)\2(\d)\3$/.test(s)) return true;   // 112233, 445566...
+  if (/^(\d)(\d)(\d)\3\2\1$/.test(s)) return true;   // 123321, 456654...
+  const passos = [];
+  for (let i = 1; i < s.length; i++) passos.push(Number(s[i]) - Number(s[i - 1]));
+  // sequência que sobe ou desce de 1 em 1 (123456, 345678, 876543...), incluindo a volta 9 -> 0
+  if (passos.every(function (p) { return p === 1 || p === -9; })) return true;
+  if (passos.every(function (p) { return p === -1 || p === 9; })) return true;
+  return false;
+}
+
+const TEXTO_SENHA_FRACA = "Essa senha é muito fácil de adivinhar (como 123456 ou 111111). Escolha outra.";
