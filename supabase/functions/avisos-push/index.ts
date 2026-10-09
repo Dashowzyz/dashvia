@@ -26,6 +26,9 @@ function falhar(erro: any) {
   if (erro) throw new Error(erro.message || String(erro));
 }
 
+// Último erro de envio (só código e mensagem curta, sem segredos): o modo "teste" devolve isso para ajudar a diagnosticar
+let ultimoErro: { status?: number, mensagem: string } | null = null;
+
 const deps = {
   async listarInscricoes() {
     const { data, error } = await banco.from("push_inscricoes").select("id, user_id, endpoint, p256dh, auth");
@@ -93,7 +96,8 @@ const deps = {
     } catch (erro) {
       // deno-lint-ignore no-explicit-any
       const status = (erro as any)?.statusCode;
-      console.error("falha no envio", inscricao.id, status);
+      ultimoErro = { status, mensagem: String((erro as any)?.body || (erro as any)?.message || erro).slice(0, 200) };
+      console.error("falha no envio", inscricao.id, status, ultimoErro.mensagem);
       return status === 404 || status === 410 ? "gone" : "erro";
     }
   }
@@ -129,6 +133,7 @@ Deno.serve(async (req: Request) => {
       const { data } = await banco.auth.getUser(jwt);
       if (!data?.user) return resposta({ erro: "não autorizado" }, 401);
 
+      ultimoErro = null;
       const { data: inscricoes, error } = await banco.from("push_inscricoes").select("id, user_id, endpoint, p256dh, auth").eq("user_id", data.user.id);
       falhar(error);
       const resultado = await enviarParaUsuario(deps, inscricoes || [], {
@@ -137,7 +142,7 @@ Deno.serve(async (req: Request) => {
         url: "dashboard.html",
         tag: "teste"
       });
-      return resposta({ ...resultado, aparelhos: (inscricoes || []).length });
+      return resposta({ ...resultado, aparelhos: (inscricoes || []).length, ultimoErro });
     }
 
     if (modo === "vencimentos" || modo === "novidades") {
