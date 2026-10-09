@@ -4902,3 +4902,33 @@ a.linha {
   line-height: 1.4;
   color: var(--texto-suave);
 }
+
+/* Avatar do tour: aparece ao lado do título de cada passo */
+.tour-cabeca {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--destaque) 35%, var(--borda));
+}
+
+.tour-cabeca > div {
+  align-self: center;
+  padding-bottom: 6px;
+}
+
+.tour-cabeca .tour-contador {
+  margin-bottom: 2px;
+}
+
+.tour-cabeca .tour-titulo {
+  margin-bottom: 0;
+}
+
+.tour-avatar {
+  flex-shrink: 0;
+  width: 112px;
+  height: 93px;
+  object-fit: contain;
+  object-position: bottom;
+}

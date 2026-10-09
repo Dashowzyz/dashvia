@@ -9,6 +9,7 @@
     {
       pagina: "dashboard.html", alvo: ".menu",
       titulo: "Navegue pelo menu",
+      avatar: "pose-01",
       texto: "Por aqui você troca de página: Dashboard, Parcelas futuras, Adicionar gasto, Assinaturas e Configurações."
     },
     {
@@ -17,12 +18,14 @@
       animarValores: true, // os valores em R$ sobem de zero até o total
       revelar: "#cards .card", // os blocos aparecem subindo, um depois do outro
       titulo: "Seus gastos do mês",
+      avatar: "pose-07",
       texto: "Estes blocos somam o que você gastou no mês: cartão de crédito, Pix e cada categoria. Para ver outro mês, escolha um dos meses no Resumo, mais abaixo."
     },
     {
       pagina: "dashboard.html", alvo: "#btn-personalizar",
       demo: "personalizar", // mostra, em miniatura, os blocos sendo marcados e desmarcados
       titulo: "Escolha o que ver",
+      avatar: "pose-03",
       texto: "Em Personalizar você decide quais blocos aparecem no topo. Pode mudar quando quiser."
     },
     {
@@ -30,6 +33,7 @@
       animarValores: true,
       revelar: "#historico li",
       titulo: "Seu histórico",
+      avatar: "pose-09",
       texto: "Os últimos gastos aparecem aqui. Use o lápis para corrigir um gasto e o ✕ para apagar."
     },
     {
@@ -37,11 +41,13 @@
       animarValores: true,
       revelar: "#grafico .mes",
       titulo: "Os próximos 12 meses",
+      avatar: "pose-02",
       texto: "O Resumo mostra quanto você vai gastar em cada mês, separado por banco e Pix. Boletos e parcelas já entram na conta."
     },
     {
       pagina: "adicionar.html", alvo: ".formulario",
       titulo: "Registre seus gastos",
+      avatar: "pose-05",
       texto: "Escolha a categoria primeiro. Boleto e Assinatura têm campos próprios, o Pix não tem parcelas e os boletos residenciais se repetem todo mês. Preenchemos um exemplo para você ver como fica.",
       aoMostrar: preencherExemplo,
       aoSair: limparExemplo
@@ -51,6 +57,7 @@
       animarValores: true,
       revelar: ".cartao-banco, .item-parcela",
       titulo: "Parcelas e boletos por banco",
+      avatar: "pose-12",
       texto: "Veja o que falta pagar em cada banco, marque parcelas e boletos como pagos e acompanhe os próximos vencimentos."
     },
     {
@@ -58,21 +65,25 @@
       animarValores: true,
       revelar: ".assinatura",
       titulo: "Suas assinaturas",
+      avatar: "pose-04",
       texto: "Netflix, Spotify e outras cobranças recorrentes ficam aqui, com a próxima cobrança e o gasto em 12 meses."
     },
     {
       pagina: "configuracoes.html", alvo: "#link-espaco",
       titulo: "Divida gastos com outras pessoas",
+      avatar: "pose-10",
       texto: "No Espaço compartilhado, até 6 pessoas veem e cuidam juntas dos boletos, assinaturas, mercado e compras da casa. Quem cria o espaço convida os outros por um código, e o histórico mostra quem mudou o quê. Depois de entrar, o seletor no topo das páginas troca entre o lado Pessoal e o do espaço. Seus gastos pessoais continuam só seus."
     },
     {
       pagina: "configuracoes.html", alvo: "#btn-temas",
       titulo: "Deixe com a sua cara",
+      avatar: "pose-08",
       texto: "Troque foto, nome, senha e as cores do site. Você também pode escolher um tema pronto."
     },
     {
       pagina: "configuracoes.html", alvo: "#btn-guia",
       titulo: "Precisa de ajuda?",
+      avatar: "pose-06",
       texto: "Aqui você revê o guia de uso e refaz este tour quando quiser. Agora é só começar. Boas finanças!"
     }
   ];
@@ -500,8 +511,13 @@
     }).join("");
 
     camadas.balao.innerHTML =
-      '<p class="tour-contador">Passo ' + (passo + 1) + " de " + PASSOS.length + "</p>" +
-      '<h3 class="tour-titulo"></h3>' +
+      '<div class="tour-cabeca">' +
+        '<img class="tour-avatar" src="img/avatar/' + p.avatar + '.webp" alt="" width="112" height="93" decoding="async">' +
+        "<div>" +
+          '<p class="tour-contador">Passo ' + (passo + 1) + " de " + PASSOS.length + "</p>" +
+          '<h3 class="tour-titulo"></h3>' +
+        "</div>" +
+      "</div>" +
       '<p class="tour-texto"></p>' +
       '<div class="tour-pontos">' + pontos + "</div>" +
       '<div class="tour-botoes">' +
@@ -512,6 +528,8 @@
       "</div>";
 
     camadas.balao.querySelector(".tour-titulo").textContent = p.titulo;
+    // se a imagem do avatar não carregar, o balão segue sem ela
+    camadas.balao.querySelector(".tour-avatar").addEventListener("error", function (e) { e.target.remove(); });
     camadas.balao.querySelector(".tour-texto").textContent = p.texto;
     if (p.demo === "personalizar") {
       camadas.balao.querySelector(".tour-texto").insertAdjacentHTML("afterend", htmlDaDemo());
