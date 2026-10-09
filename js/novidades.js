@@ -5,15 +5,6 @@
 
 const NOVIDADES = [
   {
-    versao: "Teste das notificações",
-    data: "2026-10-09",
-    etiqueta: "Teste",
-    resumo: "Isto é só um teste dos avisos no aparelho. Pode ignorar.",
-    itens: [
-      "Agora o Dashvia avisa no aparelho quando um boleto ou parcela está perto de vencer e quando sai novidade."
-    ]
-  },
-  {
     versao: "Início do beta teste",
     data: "2026-10-05",
     etiqueta: "Beta",

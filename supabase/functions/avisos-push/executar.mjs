@@ -75,6 +75,12 @@ export async function executarNovidades(deps, agora, opcoes = {}) {
   }
   if (ultima === novidade.id) return { enviou: false, motivo: "sem-novidade" };
 
+  // Mais antiga que a última já enviada (um bloco foi removido do novidades.js): não é novidade, só acerta o registro
+  if (novidade.data < ultima.split("|")[0]) {
+    await deps.gravarEstado(CHAVE_ULTIMA_NOVIDADE, novidade.id);
+    return { enviou: false, motivo: "sem-novidade" };
+  }
+
   const hora = horaEmBrasilia(agora);
   if (!opcoes.ignorarHorario && (hora < HORA_INICIAL || hora >= HORA_FINAL)) return { enviou: false, motivo: "fora-do-horario" };
 

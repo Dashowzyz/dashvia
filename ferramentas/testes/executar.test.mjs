@@ -125,3 +125,14 @@ test("novidades: com ignorarHorario envia mesmo às 22:00 de Brasília", async (
   assert.deepEqual(r, { enviou: true, motivo: "ok" });
   assert.equal(log.enviados.length, 1);
 });
+
+test("novidades: uma novidade mais antiga que a última enviada (bloco removido) não avisa, só atualiza o registro", async () => {
+  const { deps, log } = fabricarDeps({
+    inscricoes: [inscricao(1, "u1")],
+    novidadesJs: 'const NOVIDADES = [ { versao: "V1", data: "2026-10-05", resumo: "velha" } ];',
+    estado: { ultima_novidade: "2026-10-09|Teste" }
+  });
+  assert.deepEqual(await executarNovidades(deps, AGORA), { enviou: false, motivo: "sem-novidade" });
+  assert.equal(log.enviados.length, 0);
+  assert.equal(log.estado.ultima_novidade, "2026-10-05|V1");
+});
