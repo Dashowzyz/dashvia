@@ -78,9 +78,24 @@ async function entrar(email, pin) {
   return resultado(await db.auth.signInWithPassword({ email: email, password: senhaDoPin(pin) }));
 }
 
+// Notificações push: apaga a inscrição DESTE aparelho (ao sair da conta ou desativar), para a próxima pessoa não receber os avisos
+async function apagarInscricaoDesteAparelho() {
+  try {
+    if (!("serviceWorker" in navigator)) return;
+    const registro = await navigator.serviceWorker.getRegistration();
+    const inscricao = registro ? await registro.pushManager.getSubscription() : null;
+    if (!inscricao) return;
+    await db.from("push_inscricoes").delete().eq("endpoint", inscricao.endpoint);
+    await inscricao.unsubscribe();
+  } catch (falha) {
+    console.error(falha); // melhor esforço: sair da conta não pode travar por isso
+  }
+}
+
 async function sair() {
   esquecerTour();
   sessaoEmAndamento = null;
+  await apagarInscricaoDesteAparelho();
   try {
     await db.auth.signOut();
   } catch (falha) {

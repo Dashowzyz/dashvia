@@ -13,7 +13,7 @@
   <title>Configurações - Dashvia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/dashboard.css?v=20261009s3">
+  <link rel="stylesheet" href="css/dashboard.css?v=20261009p1">
   <script src="js/tema.js?v=20261009z"></script>
 </head>
 <body>
@@ -93,6 +93,18 @@
           </a>
         </div>
       </div>
+      <div class="grupo oculto" id="grupo-notificacoes">
+        <p class="grupo-titulo">Notificações</p>
+        <div class="lista-opcoes">
+          <button type="button" class="linha" id="btn-push">
+            <span class="linha-icone"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span><span class="linha-texto">Notificações no aparelho</span><span class="linha-valor" id="valor-push"></span>
+          </button>
+          <button type="button" class="linha oculto" id="btn-push-teste">
+            <span class="linha-icone"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg></span><span class="linha-texto">Enviar notificação de teste</span>
+          </button>
+        </div>
+        <p class="dica-push oculto" id="dica-push"></p>
+      </div>
       <div class="grupo">
         <p class="grupo-titulo">Aparência</p>
 
@@ -169,14 +181,15 @@
   <div id="toast" class="toast" role="status"></div>
 
   <script src="js/supabase.bundle.js?v=20261009z"></script>
-  <script src="js/banco.js?v=20261009s3"></script>
+  <script src="js/banco.js?v=20261009s4"></script>
   <script src="js/validacao.js?v=20261009z"></script>
   <script src="js/configuracoes.js?v=20261009s2"></script>
+  <script src="js/notificacoes-push.js?v=20261009p1"></script>
   <script src="js/temas.js?v=20261009z"></script>
   <script src="js/guia.js?v=20261009z"></script>
   <script src="js/novidades.js?v=20261009z"></script>
   <script src="js/parcelamento.js?v=20261009z"></script>
-  <script src="js/menu.js?v=20261009z"></script>
+  <script src="js/menu.js?v=20261009p1"></script>
   <script src="js/tour.js?v=20261009z"></script>
 </body>
 </html>

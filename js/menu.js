@@ -212,7 +212,11 @@ if (cabecalhoSino) {
   sino.addEventListener("click", abrirNotificacoes);
   cabecalhoSino.appendChild(sino);
 
-  carregarNovidades(atualizarSino);
+  carregarNovidades(function () {
+    atualizarSino();
+    // Tocar na notificação de novidade abre a página com ?novidades=1
+    if (new URLSearchParams(location.search).get("novidades") === "1" && typeof abrirNovidades === "function") abrirNovidades();
+  });
   carregarAvisosBoleto();
 }
 
