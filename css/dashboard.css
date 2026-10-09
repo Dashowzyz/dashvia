@@ -4874,3 +4874,24 @@ a.linha {
   color: var(--destaque);
   background: color-mix(in srgb, var(--destaque) 14%, transparent);
 }
+
+/* Troca Pessoal <-> espaço: o conteúdo some e o novo entra com fade */
+@media (prefers-reduced-motion: no-preference) {
+  .conteudo > :not(header) {
+    transition: opacity 0.18s ease, transform 0.18s ease;
+  }
+
+  html.saindo-escopo .conteudo > :not(header) {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  html.entrando-escopo .conteudo > :not(header) {
+    animation: escopo-entra 0.35s ease both;
+  }
+}
+
+@keyframes escopo-entra {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}

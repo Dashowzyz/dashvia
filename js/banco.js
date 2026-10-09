@@ -747,15 +747,37 @@ async function montarSeletorEscopo() {
     botao.className = ativo ? "ativo" : "";
     botao.setAttribute("aria-pressed", String(ativo));
     botao.addEventListener("click", function () {
-      if (ativo) return;
+      if (ativo || caixa.dataset.trocando) return;
+      caixa.dataset.trocando = "1";
       escolherEscopo(opcao[0]);
-      window.location.reload();
+
+      // o destaque troca de botão e o conteúdo some com um fade antes de recarregar
+      caixa.querySelectorAll("button").forEach(function (b) {
+        const agora = b === botao;
+        b.classList.toggle("ativo", agora);
+        b.setAttribute("aria-pressed", String(agora));
+      });
+      const movimentoReduzido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!movimentoReduzido) {
+        try { sessionStorage.setItem("dashvia:troca-escopo", "1"); } catch (e) {}
+        document.documentElement.classList.add("saindo-escopo");
+      }
+      setTimeout(function () { window.location.reload(); }, movimentoReduzido ? 0 : 200);
     });
     caixa.appendChild(botao);
   });
 
   cabecalho.appendChild(caixa);
 }
+
+// depois de trocar Pessoal <-> espaço, o conteúdo da página nova entra com fade
+try {
+  if (sessionStorage.getItem("dashvia:troca-escopo")) {
+    sessionStorage.removeItem("dashvia:troca-escopo");
+    document.documentElement.classList.add("entrando-escopo");
+    setTimeout(function () { document.documentElement.classList.remove("entrando-escopo"); }, 600);
+  }
+} catch (e) {}
 
 montarSeletorEscopo();
 
