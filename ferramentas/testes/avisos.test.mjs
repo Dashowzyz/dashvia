@@ -83,3 +83,42 @@ test("gastoDoBanco converte tipos e nomes de coluna", () => {
   const g = gastoDoBanco({ id: 7, plataforma: "X", categoria: "Boleto", parcelas: "3", data: "2026-10-17", valor: "120.50", vencimento: null, cancelado_em: null, pagas_ate: null, pagas_fim: 1, espaco_id: "e1" });
   assert.deepEqual(g, { id: 7, plataforma: "X", categoria: "Boleto", parcelas: "3", data: "2026-10-17", valor: 120.5, vencimento: null, canceladoEm: null, pagasAte: 0, pagasFim: 1, espacoId: "e1" });
 });
+
+import { montarNotificacao } from "../../supabase/functions/avisos-push/avisos.mjs";
+
+function aviso(extra) {
+  return { chave: "1:3:3", dias: 3, tipo: "Boleto", plataforma: "Enel", valor: 120, data: new Date(2026, 9, 15), numero: 3, total: 6, ...extra };
+}
+
+test("sem avisos não há notificação", () => {
+  assert.equal(montarNotificacao([]), null);
+});
+
+test("um boleto parcelado mostra o detalhe", () => {
+  assert.deepEqual(montarNotificacao([aviso({})]), {
+    titulo: "Boleto Enel vence em 3 dias",
+    corpo: "15/10/2026 · R$ 120,00 · parcela 3/6",
+    url: "parcelas.html",
+    tag: "vencimentos"
+  });
+});
+
+test("vence hoje e vence em 7 dias", () => {
+  assert.equal(montarNotificacao([aviso({ dias: 0 })]).titulo, "Boleto Enel vence hoje");
+  assert.equal(montarNotificacao([aviso({ dias: 7 })]).titulo, "Boleto Enel vence em 7 dias");
+});
+
+test("boleto mensal termina com 'todo mês' e parcela de cartão começa com Parcela", () => {
+  assert.ok(montarNotificacao([aviso({ total: 0 })]).corpo.endsWith("todo mês"));
+  assert.ok(montarNotificacao([aviso({ tipo: "Parcela", plataforma: "Magalu" })]).titulo.startsWith("Parcela Magalu"));
+});
+
+test("vários avisos viram um resumo com até 3 nomes", () => {
+  const tres = ["Enel", "Nubank", "Claro"].map((p) => aviso({ plataforma: p }));
+  const n = montarNotificacao(tres);
+  assert.equal(n.titulo, "3 vencimentos esta semana");
+  assert.equal(n.corpo, "Enel, Nubank, Claro");
+  const quatro = montarNotificacao([...tres, aviso({ plataforma: "Vivo" })]);
+  assert.equal(quatro.titulo, "4 vencimentos esta semana");
+  assert.equal(quatro.corpo, "Enel, Nubank, Claro…");
+});

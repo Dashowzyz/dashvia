@@ -68,3 +68,28 @@ export function calcularAvisos(gastos, hoje) {
   }
   return avisos.sort((a, b) => a.dias - b.dias || a.plataforma.localeCompare(b.plataforma, "pt-BR"));
 }
+
+// ---------- Texto da notificação ----------
+
+const moeda = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
+function quando(dias) {
+  return dias === 0 ? "vence hoje" : "vence em " + dias + " dias";
+}
+
+function detalhe(a) {
+  const data = a.data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+  const parcela = a.total === 0 ? " · todo mês" : a.total > 1 ? " · parcela " + a.numero + "/" + a.total : "";
+  return data + " · " + moeda.format(a.valor).replace(/ /g, " ") + parcela;
+}
+
+// No máximo uma notificação de vencimento por pessoa por dia: um item mostra o detalhe, vários viram resumo
+export function montarNotificacao(avisos) {
+  if (avisos.length === 0) return null;
+  if (avisos.length === 1) {
+    const a = avisos[0];
+    return { titulo: a.tipo + " " + a.plataforma + " " + quando(a.dias), corpo: detalhe(a), url: "parcelas.html", tag: "vencimentos" };
+  }
+  const nomes = avisos.slice(0, 3).map((a) => a.plataforma).join(", ") + (avisos.length > 3 ? "…" : "");
+  return { titulo: avisos.length + " vencimentos esta semana", corpo: nomes, url: "parcelas.html", tag: "vencimentos" };
+}
