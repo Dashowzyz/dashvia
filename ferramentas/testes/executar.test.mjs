@@ -118,3 +118,10 @@ test("novidades: texto inválido devolve formato", async () => {
   const { deps } = fabricarDeps({ novidadesJs: "<html>erro</html>" });
   assert.deepEqual(await executarNovidades(deps, AGORA), { enviou: false, motivo: "formato" });
 });
+
+test("novidades: com ignorarHorario envia mesmo às 22:00 de Brasília", async () => {
+  const { deps, log } = fabricarDeps({ inscricoes: [inscricao(1, "u1")], novidadesJs: NOVIDADES_JS, estado: { ultima_novidade: "2026-10-05|V1" } });
+  const r = await executarNovidades(deps, new Date("2026-10-11T01:00:00Z"), { ignorarHorario: true });
+  assert.deepEqual(r, { enviou: true, motivo: "ok" });
+  assert.equal(log.enviados.length, 1);
+});

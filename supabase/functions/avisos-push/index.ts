@@ -125,7 +125,7 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
   if (req.method !== "POST") return resposta({ erro: "método não permitido" }, 405);
 
-  const { modo } = await req.json().catch(() => ({ modo: "" }));
+  const { modo, forcar } = await req.json().catch(() => ({ modo: "", forcar: false }));
 
   try {
     if (modo === "teste") {
@@ -172,7 +172,7 @@ Deno.serve(async (req: Request) => {
 
     if (modo === "vencimentos" || modo === "novidades") {
       if (!iguais(req.headers.get("x-cron-secret") || "", CRON_SECRET)) return resposta({ erro: "não autorizado" }, 401);
-      const resultado = modo === "vencimentos" ? await executarVencimentos(deps, new Date()) : await executarNovidades(deps, new Date());
+      const resultado = modo === "vencimentos" ? await executarVencimentos(deps, new Date()) : await executarNovidades(deps, new Date(), { ignorarHorario: forcar === true });
       return resposta(resultado);
     }
 

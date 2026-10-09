@@ -63,7 +63,8 @@ export async function executarVencimentos(deps, agora) {
   return resumo;
 }
 
-export async function executarNovidades(deps, agora) {
+// opcoes.ignorarHorario: só para testes manuais (index.ts só aceita com o segredo do agendamento)
+export async function executarNovidades(deps, agora, opcoes = {}) {
   const novidade = lerNovidadeMaisRecente(await deps.buscarNovidadesJs());
   if (!novidade) return { enviou: false, motivo: "formato" };
 
@@ -75,7 +76,7 @@ export async function executarNovidades(deps, agora) {
   if (ultima === novidade.id) return { enviou: false, motivo: "sem-novidade" };
 
   const hora = horaEmBrasilia(agora);
-  if (hora < HORA_INICIAL || hora >= HORA_FINAL) return { enviou: false, motivo: "fora-do-horario" };
+  if (!opcoes.ignorarHorario && (hora < HORA_INICIAL || hora >= HORA_FINAL)) return { enviou: false, motivo: "fora-do-horario" };
 
   const notificacao = montarNotificacaoNovidade(novidade);
   const porUsuario = agruparPorUsuario(await deps.listarInscricoes());
