@@ -2,7 +2,7 @@
 // As funções puras (urlBase64ParaBytes, estadoDasNotificacoes) ficam no começo para poderem ser testadas sem navegador.
 
 // Chave pública VAPID (gerada por ferramentas/gerar-vapid.mjs). Vazia = recurso ainda não configurado: a linha não aparece.
-const CHAVE_VAPID_PUBLICA = "";
+const CHAVE_VAPID_PUBLICA = "BB2D9eRxjTIA1slHshkZV2QmgHJKrtRTBE2otD-6vkHrFx-H0_ladkxau4BNJ5tcjHp3Aijd1szBa2WQh67MaJg";
 const URL_AVISOS_PUSH = "https://xouwjsnfkhegwxhxtmeb.supabase.co/functions/v1/avisos-push";
 
 function urlBase64ParaBytes(texto) {
