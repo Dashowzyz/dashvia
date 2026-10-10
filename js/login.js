@@ -106,7 +106,7 @@ form.addEventListener("submit", async function (evento) {
     botaoEntrar.textContent = "Entrar";
 
     if (error.tipo === "nao_confirmado") {
-      mensagem.textContent = "Confirme seu e-mail antes de entrar.";
+      mensagem.textContent = "Confirme seu e-mail antes de entrar. Se não achar a mensagem, olhe a caixa de spam.";
     } else if (error.tipo === "credenciais") {
       mensagem.textContent = "E-mail ou senha incorretos.";
     } else {

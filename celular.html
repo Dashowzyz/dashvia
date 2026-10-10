@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Celular - Dashvia</title>
+  <style>
+    /* Esta página só serve para VER o seu site dentro de um celular. Ela não faz parte do site. */
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 10px 20px;
+      background: #1e1e24;
+      font-family: Arial, sans-serif;
+      color: #ffffff;
+    }
+
+    /* Barra do topo: escolher a página e recarregar */
+    .barra {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .barra label {
+      font-size: 14px;
+    }
+
+    .barra select,
+    .barra button {
+      padding: 8px 12px;
+      font-size: 14px;
+      border-radius: 8px;
+      border: 1px solid #555;
+      background: #2c2c34;
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    /* A moldura do iPhone: o corpo preto com cantos bem arredondados */
+    .iphone {
+      position: relative;
+      width: 454px;          /* 430 da tela + 12 de borda de cada lado */
+      height: 956px;         /* 932 da tela + 12 de borda em cima e embaixo */
+      padding: 12px;
+      border-radius: 67px;
+      background: #000000;
+      border: 2px solid #3a3a42;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    /* A tela: fica dentro da moldura, com cantos arredondados também */
+    .tela {
+      width: 430px;          /* iPhone 15 Pro Max: 430 x 932 */
+      height: 932px;
+      border: none;
+      border-radius: 55px;
+      background: #ffffff;
+      display: block;
+    }
+
+    /* A "ilha" preta no topo (Dynamic Island) */
+    .ilha {
+      position: absolute;
+      top: 23px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 37px;
+      border-radius: 20px;
+      background: #000000;
+      z-index: 2;
+      pointer-events: none;  /* o clique passa "por dentro" da ilha */
+    }
+  </style>
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="img/icone-192.png">
+</head>
+<body>
+
+  <!-- Barra do topo -->
+  <div class="barra">
+    <label for="paginas">Página:</label>
+    <select id="paginas">
+      <option value="index.html">Início (index)</option>
+      <option value="login.html">Login</option>
+      <option value="cadastro.html">Cadastro</option>
+      <option value="redefinir.html">Redefinir senha</option>
+      <option value="dashboard.html">Dashboard</option>
+      <option value="parcelas.html">Parcelas futuras</option>
+      <option value="adicionar.html">Adicionar gasto</option>
+      <option value="assinaturas.html">Assinaturas</option>
+      <option value="historico.html">Histórico</option>
+      <option value="espaco.html">Espaço compartilhado</option>
+      <option value="configuracoes.html">Configurações</option>
+      <option value="termos.html">Termos de uso</option>
+      <option value="privacidade.html">Privacidade</option>
+    </select>
+    <button type="button" id="recarregar">Recarregar</button>
+  </div>
+
+  <!-- O celular: moldura + ilha + tela (o iframe mostra o seu site) -->
+  <div class="iphone" id="iphone">
+    <div class="ilha"></div>
+    <iframe class="tela" id="tela" src="index.html" title="Seu site no celular"></iframe>
+  </div>
+
+  <script>
+    const seletor = document.getElementById("paginas");
+    const tela = document.getElementById("tela");
+    const iphone = document.getElementById("iphone");
+    const botao = document.getElementById("recarregar");
+
+    // Troca a página que aparece dentro do celular
+    function abrirPagina(nome) {
+      tela.src = nome;
+      // guarda a escolha neste navegador, para você voltar na mesma página depois
+      try {
+        localStorage.setItem("celular:pagina", nome);
+      } catch (erro) {
+        // se não der para guardar, tudo bem: só não lembra da escolha
+      }
+    }
+
+    seletor.addEventListener("change", function () {
+      abrirPagina(seletor.value);
+    });
+
+    // Recarrega só o celular (não a página inteira)
+    botao.addEventListener("click", function () {
+      tela.contentWindow.location.reload();
+    });
+
+    // Se você escolheu uma página antes, abre ela de novo
+    try {
+      const salva = localStorage.getItem("celular:pagina");
+      if (salva) {
+        seletor.value = salva;
+        if (seletor.value === salva) tela.src = salva;
+      }
+    } catch (erro) {
+      // sem problema
+    }
+
+    // Se a janela de visualização for pequena, diminui o celular para ele caber inteiro
+    function ajustarTamanho() {
+      const cabeNaAltura = (window.innerHeight - 90) / 956;
+      const cabeNaLargura = (window.innerWidth - 20) / 454;
+      iphone.style.zoom = Math.min(1, cabeNaAltura, cabeNaLargura);
+    }
+
+    window.addEventListener("resize", ajustarTamanho);
+    ajustarTamanho();
+  </script>
+</body>
+</html>

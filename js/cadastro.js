@@ -69,6 +69,11 @@ form.addEventListener("submit", async function (evento) {
   }
 
   mensagem.className = "mensagem ok";
-  mensagem.textContent = "Conta criada! Confirme seu e-mail para entrar.";
+  mensagem.textContent = "Conta criada!";
+  // Os e-mails de confirmação costumam cair no spam: o aviso diz isso e mostra para onde o link foi
+  document.getElementById("aviso-email-endereco").textContent = email;
+  const aviso = document.getElementById("aviso-email");
+  aviso.classList.remove("oculto");
+  aviso.scrollIntoView({ behavior: "smooth", block: "nearest" });
   form.reset();
 });

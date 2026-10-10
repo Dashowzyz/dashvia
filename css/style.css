@@ -222,6 +222,35 @@ a:hover {
   display: none;
 }
 
+/* Aviso depois de criar a conta: confirmar o e-mail (e olhar o spam) */
+.aviso-email {
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--destaque) 50%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--destaque) 14%, transparent);
+  color: var(--texto);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.aviso-email strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+/* só o endereço de e-mail pode quebrar no meio, e só se for comprido demais para a linha */
+#aviso-email-endereco {
+  overflow-wrap: anywhere;
+}
+
+.aviso-email-dica {
+  margin-top: 6px;
+  color: var(--texto-suave);
+}
+
 .linha-esqueci {
   text-align: center;
   margin: -6px 0 14px;
