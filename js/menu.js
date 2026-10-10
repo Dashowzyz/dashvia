@@ -159,12 +159,42 @@ function carregarAvisosBoleto() {
   });
 }
 
+// ---------- Agradecimento do começo dos testes ----------
+// Contas criadas há pouco ganham um aviso no sino, uma vez só (a marca fica guardada neste aparelho).
+let agradecimentoPendente = null; // { id } da conta, enquanto o aviso ainda não foi aberto
+const CHAVE_AGRADECIMENTO = "dashvia:agradecimento-visto:";
+
+function carregarAgradecimento() {
+  if (typeof usuarioAtual !== "function" || typeof deveAgradecer !== "function") return;
+  usuarioAtual().then(function (usuario) {
+    if (!deveAgradecer(usuario, Date.now())) return;
+    try {
+      if (localStorage.getItem(CHAVE_AGRADECIMENTO + usuario.id)) return;
+    } catch (falha) {
+      return; // sem armazenamento local não dá para lembrar que já viu: melhor não mostrar
+    }
+    agradecimentoPendente = { id: usuario.id };
+    atualizarSino();
+  }).catch(function (falha) {
+    console.error(falha);
+  });
+}
+
+function marcarAgradecimentoVisto() {
+  if (!agradecimentoPendente) return;
+  try {
+    localStorage.setItem(CHAVE_AGRADECIMENTO + agradecimentoPendente.id, "1");
+  } catch (falha) {
+    // sem armazenamento local: o aviso volta na próxima visita
+  }
+}
+
 // Liga ou desliga o aviso conforme as novidades e os boletos ainda não vistos
 function atualizarSino() {
   const sino = document.querySelector(".sino-topo");
   if (!sino) return;
 
-  const quantidade = (typeof novidadesNaoVistas === "function" ? novidadesNaoVistas().length : 0) + avisosBoletoNaoVistos().length;
+  const quantidade = (typeof novidadesNaoVistas === "function" ? novidadesNaoVistas().length : 0) + avisosBoletoNaoVistos().length + (agradecimentoPendente ? 1 : 0);
   sino.classList.toggle("tem-novas", quantidade > 0);
   sino.setAttribute("aria-label", quantidade > 0 ? "Notificações (" + quantidade + " nova" + (quantidade > 1 ? "s" : "") + ")" : "Notificações");
 
@@ -189,7 +219,7 @@ function carregarNovidades(depois) {
     return;
   }
   const script = document.createElement("script");
-  script.src = "js/novidades.js?v=20261008g";
+  script.src = "js/novidades.js?v=20261009n1";
   script.onload = depois;
   document.head.appendChild(script);
 }
@@ -218,6 +248,7 @@ if (cabecalhoSino) {
     if (new URLSearchParams(location.search).get("novidades") === "1" && typeof abrirNovidades === "function") abrirNovidades();
   });
   carregarAvisosBoleto();
+  carregarAgradecimento();
 }
 
 function abrirNotificacoes() {
@@ -227,14 +258,22 @@ function abrirNotificacoes() {
   const iconeBoleto = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" x2="4" y1="5" y2="19"/><line x1="8" x2="8" y1="5" y2="19"/><line x1="12" x2="12" y1="5" y2="19"/><line x1="16" x2="16" y1="5" y2="19"/><line x1="20" x2="20" y1="5" y2="19"/></svg>';
   const iconeNovidade = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 3v4"/><path d="M17 5h4"/></svg>';
 
-  const itens =
+  // Coração desenhado no mesmo estilo dos outros ícones do sino
+  const iconeAgradecimento = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+  const itensAgradecimento = agradecimentoPendente
+    ? ['<li class="notificacao"><span class="notificacao-icone">' + iconeAgradecimento + '</span>' +
+        '<div><strong>Obrigado por estar aqui desde o começo</strong>' +
+        '<small>O Dashvia está na fase de testes e você é uma das primeiras pessoas a usar. Sua opinião ajuda a construir o site.</small></div></li>']
+    : [];
+
+  const itens = itensAgradecimento.concat(
     avisosBoleto.map(function (a) {
       return '<li class="notificacao"><span class="notificacao-icone">' + iconeBoleto + '</span>' +
         '<div><strong>' + escaparNotificacao(a.titulo) + '</strong><small>' + escaparNotificacao(a.detalhe) + '</small></div></li>';
     }).concat(novas.map(function (n) {
       return '<li class="notificacao"><span class="notificacao-icone">' + iconeNovidade + '</span>' +
         '<div><strong>Tem coisa nova nas Novidades</strong><small>' + escaparNotificacao(n.versao) + '</small></div></li>';
-    }));
+    })));
 
   const conteudo = itens.length === 0
     ? '<p class="modal-nota">Você não tem notificações por enquanto.</p>'
@@ -249,6 +288,8 @@ function abrirNotificacoes() {
 
   // Abrir a lista conta como ter visto os avisos de boleto: o sino para de chamar atenção
   marcarAvisosBoletoVistos();
+  marcarAgradecimentoVisto();
+  agradecimentoPendente = null;
   atualizarSino();
   const fundo = document.createElement("div");
   fundo.className = "modal-fundo";

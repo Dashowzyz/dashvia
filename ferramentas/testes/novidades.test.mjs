@@ -8,8 +8,8 @@ const real = readFileSync(new URL("../../js/novidades.js", import.meta.url), "ut
 test("lê a novidade real do novidades.js", () => {
   const n = lerNovidadeMaisRecente(real);
   assert.equal(n.versao, "Início do beta teste");
-  assert.equal(n.data, "2026-10-05");
-  assert.equal(n.id, "2026-10-05|Início do beta teste");
+  assert.equal(n.data, "2026-10-09");
+  assert.equal(n.id, "2026-10-09|Início do beta teste");
   assert.ok(n.resumo.startsWith("O Dashvia começou a fase de testes."));
 });
 

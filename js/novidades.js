@@ -6,7 +6,7 @@
 const NOVIDADES = [
   {
     versao: "Início do beta teste",
-    data: "2026-10-05",
+    data: "2026-10-09",
     etiqueta: "Beta",
     resumo: "O Dashvia começou a fase de testes. Obrigado por fazer parte desde o início!",
     itens: [
@@ -96,3 +96,14 @@ function abrirNovidades() {
 // O botão só existe em Configurações; nas outras páginas este arquivo serve só para o aviso do sino
 const botaoNovidades = document.getElementById("btn-novidades");
 if (botaoNovidades) botaoNovidades.addEventListener("click", abrirNovidades);
+
+// ----- Agradecimento do começo dos testes -----
+// Quem cria a conta nesta fase ganha um aviso no sino agradecendo por estar aqui desde o começo.
+const DIAS_DO_AGRADECIMENTO = 7;
+
+// "usuario" é o da sessão do Supabase (created_at = quando a conta foi criada); "agora" em milissegundos
+function deveAgradecer(usuario, agora) {
+  if (!usuario || !usuario.created_at) return false;
+  const idade = agora - new Date(usuario.created_at).getTime();
+  return !isNaN(idade) && idade >= 0 && idade <= DIAS_DO_AGRADECIMENTO * 86400000;
+}
