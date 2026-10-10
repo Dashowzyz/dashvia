@@ -289,31 +289,40 @@ async function salvarTema() {
   }
 }
 
+// Valida a cor escolhida de verdade e salva
+async function confirmarCor(chave, valor) {
+  const r = resolverCor(chave, valor);
+
+  if (!r.ok) {
+    aplicarTema(tema);
+    mostrarCores();
+    mostrarAviso(r.motivo, "erro");
+    return;
+  }
+
+  tema = r.tema;
+  aplicarTema(tema);
+  mostrarCores();
+  mostrarAviso(r.ajustouLetras ? "Ajustei a cor das letras para continuar legível." : "Cores atualizadas!", "ok");
+  await salvarTema();
+}
+
+// Ao tocar numa linha de cor, abre o seletor do Dashvia (seletor-cor.js) no lugar da janela do aparelho
 Object.keys(camposCor).forEach(function (chave) {
   const campo = camposCor[chave];
 
-  // Enquanto a pessoa arrasta no seletor, mostra a cor ao vivo (só se for legível)
-  campo.addEventListener("input", function () {
-    const r = resolverCor(chave, campo.value);
-    if (r.ok) aplicarTema(r.tema);
-  });
-
-  // Ao confirmar, valida de verdade e salva
-  campo.addEventListener("change", async function () {
-    const r = resolverCor(chave, campo.value);
-
-    if (!r.ok) {
-      aplicarTema(tema);
-      mostrarCores();
-      mostrarAviso(r.motivo, "erro");
-      return;
-    }
-
-    tema = r.tema;
-    aplicarTema(tema);
-    mostrarCores();
-    mostrarAviso(r.ajustouLetras ? "Ajustei a cor das letras para continuar legível." : "Cores atualizadas!", "ok");
-    await salvarTema();
+  campo.addEventListener("click", function (e) {
+    e.preventDefault(); // não deixa abrir a janela de cor do Android/Chrome
+    abrirSeletorCor({
+      cor: campo.value,
+      // enquanto a pessoa arrasta a bolinha, mostra a cor ao vivo (só se for legível)
+      aoMudar: function (hex) {
+        const r = resolverCor(chave, hex);
+        if (r.ok) aplicarTema(r.tema);
+      },
+      aoConfirmar: function (hex) { confirmarCor(chave, hex); },
+      aoCancelar: function () { aplicarTema(tema); }
+    });
   });
 });
 
@@ -334,7 +343,8 @@ function abrirExclusao() {
   fundo.innerHTML = `
     <div class="modal modal-form">
       <h3 class="modal-titulo">Excluir conta</h3>
-      <p class="modal-texto">Isso apaga <strong>para sempre</strong> a sua conta, seus gastos e suas assinaturas. Não dá para desfazer.</p>
+      <p class="modal-texto">Isso apaga <strong>para sempre</strong> a sua conta e <strong>todos os seus dados</strong>: perfil e foto, cores do tema, gastos, parcelas, assinaturas e as notificações ativadas nos seus aparelhos. Não dá para desfazer.</p>
+      <p class="modal-nota">Se você participa de um espaço compartilhado, os gastos que você lançou nele continuam para as outras pessoas, sem o seu nome.</p>
       <div class="formulario">
         <label for="ex-senha">Digite sua senha para confirmar</label>
         <input type="password" id="ex-senha" inputmode="numeric" maxlength="6" placeholder="000000">
