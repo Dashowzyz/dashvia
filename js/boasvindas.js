@@ -28,7 +28,8 @@
   }
 
   // Conta antiga: não mostra, só marca para não conferir de novo
-  const criadaEm = new Date(usuario.createdAt);
+  // o Supabase entrega a data da conta como "created_at"
+  const criadaEm = new Date(usuario.created_at);
   if (isNaN(criadaEm.getTime()) || Date.now() - criadaEm.getTime() > DIAS_DE_CONTA_NOVA * 86400000) {
     marcarComoVista();
     return;
