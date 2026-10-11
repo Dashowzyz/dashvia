@@ -1,0 +1,500 @@
+/* Página inicial (index.html). Feita primeiro para o celular; no computador ganha duas colunas. */
+
+:root {
+  --fundo: #07050f;
+  --painel: #120d22;
+  --painel-2: #1a1330;
+  --borda: #241a3d;
+  --destaque: #7a4be0;
+  --destaque-claro: #a98bff;
+  --texto: #f2f0f8;
+  --texto-suave: #9b94b5;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Barra de rolagem fina e na cor de destaque, igual à do app (css/style.css) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--destaque) transparent;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 90% 50% at 50% -10%, color-mix(in srgb, var(--destaque) 30%, transparent), transparent 70%),
+    var(--fundo);
+  color: var(--texto);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  /* espaço para o botão fixo no celular */
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h1, h2, h3 {
+  font-family: "Poppins", "Inter", system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+/* ----- Botões ----- */
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 0 22px;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: 15px;
+  transition: filter 0.2s, background 0.2s;
+}
+
+.botao-cheio {
+  background: var(--destaque);
+  color: #ffffff;
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--destaque) 40%, transparent);
+}
+
+.botao-cheio:hover {
+  filter: brightness(1.1);
+}
+
+.botao-contorno {
+  border: 1px solid var(--borda);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.botao-contorno:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.botao-pequeno {
+  min-height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+/* ----- Topo ----- */
+.topo {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 18px;
+  padding-top: calc(12px + env(safe-area-inset-top));
+  background: color-mix(in srgb, var(--fundo) 75%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-size: 19px;
+}
+
+.marca img {
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--destaque) 45%, transparent);
+}
+
+/* ----- Abertura ----- */
+.hero {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 34px 20px 20px;
+}
+
+.selo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px;
+  border: 1px solid color-mix(in srgb, var(--destaque) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--destaque) 12%, transparent);
+  color: var(--destaque-claro);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.selo-ponto {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--destaque-claro);
+}
+
+.hero h1 {
+  margin-top: 18px;
+  font-size: clamp(32px, 9vw, 54px);
+  line-height: 1.12;
+  font-weight: 800;
+}
+
+.realce {
+  background: linear-gradient(90deg, var(--destaque-claro), var(--destaque));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-texto {
+  margin-top: 16px;
+  max-width: 560px;
+  color: var(--texto-suave);
+  font-size: 17px;
+}
+
+.hero-botoes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.hero-nota {
+  margin-top: 14px;
+  color: var(--texto-suave);
+  font-size: 13px;
+}
+
+/* ----- Celular com a tela real do app ----- */
+.celular {
+  margin: 40px auto 0;
+  width: min(290px, 78vw);
+}
+
+.celular-tela {
+  padding: 10px;
+  border-radius: 46px;
+  background: #000000;
+  border: 1px solid #2c2c36;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 60px color-mix(in srgb, var(--destaque) 18%, transparent);
+}
+
+/* a tela do celular: uma faixa no topo (onde fica a ilha) e o print logo abaixo */
+.celular-vidro {
+  position: relative;
+  overflow: hidden;
+  padding-top: 30px;
+  border-radius: 36px;
+  background: var(--fundo);
+}
+
+.celular-ilha {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 82px;
+  height: 22px;
+  margin-left: -41px;
+  border-radius: 14px;
+  background: #000000;
+}
+
+.celular-print {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.celular figcaption {
+  margin-top: 12px;
+  text-align: center;
+  color: var(--texto-suave);
+  font-size: 12px;
+}
+
+/* ----- Seções ----- */
+.secao {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 56px 20px 0;
+  scroll-margin-top: 70px;
+}
+
+.secao-rotulo {
+  color: var(--destaque-claro);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.secao h2 {
+  margin-top: 8px;
+  font-size: clamp(26px, 7vw, 38px);
+  line-height: 1.2;
+}
+
+.secao-texto {
+  margin-top: 12px;
+  max-width: 620px;
+  color: var(--texto-suave);
+}
+
+.secao-centro {
+  text-align: center;
+}
+
+.secao-centro .secao-texto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.secao-centro .selo {
+  margin-bottom: 6px;
+}
+
+.secao-centro .botao {
+  margin-top: 24px;
+}
+
+.cartoes {
+  display: grid;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+.cartao {
+  padding: 22px;
+  border: 1px solid var(--borda);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--painel) 85%, transparent);
+}
+
+.cartao-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--destaque) 16%, transparent);
+  color: var(--destaque-claro);
+}
+
+.cartao h3 {
+  margin-top: 14px;
+  font-size: 18px;
+}
+
+.cartao p {
+  margin-top: 6px;
+  color: var(--texto-suave);
+  font-size: 15px;
+}
+
+.passos {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.passo {
+  padding: 18px 20px;
+  border: 1px solid var(--borda);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.passo b {
+  font-family: "Poppins", sans-serif;
+}
+
+.passo p {
+  margin-top: 4px;
+  color: var(--texto-suave);
+  font-size: 15px;
+}
+
+.passo strong {
+  color: var(--texto);
+}
+
+.caixa-privacidade {
+  padding: 26px 22px;
+  border: 1px solid var(--borda);
+  border-radius: 26px;
+  background: linear-gradient(160deg, var(--painel-2), var(--painel));
+}
+
+.lista-check {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.lista-check li {
+  position: relative;
+  padding-left: 30px;
+  color: var(--texto-suave);
+  font-size: 15px;
+}
+
+.lista-check li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--destaque);
+}
+
+.lista-check li::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 6px;
+  width: 5px;
+  height: 9px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.lista-check b {
+  color: var(--texto);
+}
+
+/* ----- Rodapé ----- */
+.rodape {
+  max-width: 1080px;
+  margin: 64px auto 0;
+  padding: 28px 20px 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.rodape-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+  margin-top: 18px;
+  color: var(--texto-suave);
+  font-size: 14px;
+}
+
+.rodape-links a:hover {
+  color: var(--texto);
+}
+
+.rodape-aviso {
+  margin-top: 18px;
+  color: var(--texto-suave);
+  font-size: 12px;
+}
+
+/* ----- Botão fixo (celular) ----- */
+.barra-fixa {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, transparent, var(--fundo) 40%);
+}
+
+.barra-fixa .botao {
+  width: 100%;
+}
+
+/* ----- Telas maiores ----- */
+@media (min-width: 700px) {
+  .hero-botoes {
+    flex-direction: row;
+  }
+
+  .cartoes {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .passos {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .rodape-links {
+    grid-template-columns: repeat(4, auto);
+    justify-content: start;
+  }
+}
+
+@media (min-width: 960px) {
+  .secao-dupla {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .secao-dupla .celular {
+    margin-top: 0;
+  }
+
+  /* no computador o celular cabe inteiro na altura da tela, com a legenda */
+  .celular {
+    width: min(290px, calc((100vh - 170px) / 2.3));
+  }
+
+  body {
+    padding-bottom: 0;
+  }
+
+  .barra-fixa {
+    display: none;
+  }
+
+  .topo {
+    padding-left: max(24px, calc((100vw - 1080px) / 2 + 20px));
+    padding-right: max(24px, calc((100vw - 1080px) / 2 + 20px));
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    gap: 40px;
+    padding-top: 64px;
+  }
+
+  .celular {
+    margin-top: 0;
+  }
+
+  .cartoes {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
