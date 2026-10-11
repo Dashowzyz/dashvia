@@ -115,8 +115,7 @@ async function cadastrar(nome, usuario, email, pin) {
   const criada = resultado(await db.auth.signUp({
     email: email,
     password: senhaDoPin(pin),
-    // o link de confirmação do e-mail volta para o login (a raiz do site é a landing page)
-    options: { data: { name: nome }, emailRedirectTo: new URL("login.html", window.location.href).href }
+    options: { data: { name: nome } }
   }));
   if (criada.error) return criada;
 

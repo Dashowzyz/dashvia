@@ -5,13 +5,10 @@
     "build": "esbuild supabase-entry.js --bundle --format=iife --minify --outfile=../js/supabase.bundle.js",
     "test": "node --test \"testes/*.test.mjs\"",
     "gerar": "node gerar-parcelamento.mjs",
-    "verificar-copia": "node verificar-copia.mjs",
-    "css:landing": "tailwindcss -i landing.css -o ../css/landing.css --minify"
+    "verificar-copia": "node verificar-copia.mjs"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.3.3",
-    "esbuild": "latest",
-    "tailwindcss": "^4.3.3"
+    "esbuild": "latest"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.3"
