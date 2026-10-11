@@ -188,17 +188,13 @@ form.addEventListener("submit", async function (evento) {
 
   // Boleto de compras: o número de parcelas tem que ser inteiro de 1 a 60
   if (comprasBoleto) {
-    const n = Number(campoParcelasBoleto.value);
-    if (!Number.isInteger(n) || n < 1 || n > 60) {
+    if (parcelasDigitadas(campoParcelasBoleto.value) === null) {
       if (typeof limparErro === "function") limparErro(campoParcelasBoleto);
       if (typeof mostrarErro === "function") mostrarErro(campoParcelasBoleto, "Digite um número de 1 a 60.");
       campoParcelasBoleto.focus();
       return;
     }
   }
-
-  const parcelas = boleto ? (comprasBoleto ? String(Number(campoParcelasBoleto.value)) : "mensal") : valorParcelas();
-  const semVencimento = boleto || parcelas === "pix" || parcelas === "avista" || campoCategoria.value === "Assinatura";
 
   // Categoria: a da lista ou a nova que a pessoa digitou
   let categoria = campoCategoria.value;
@@ -213,15 +209,20 @@ form.addEventListener("submit", async function (evento) {
     categoria = resultado.nome;
   }
 
-  const gasto = {
-    plataforma: document.getElementById("plataforma").value.trim(),
+  // As regras do que é salvo ficam em gasto-formulario.js (testadas)
+  const gasto = montarGasto({
     categoria: categoria,
-    parcelas: parcelas,
+    forma: campoForma.value,
+    parcelas: campoParcelas.value,
+    tipoBoleto: campoTipoBoleto.value,
+    parcelasBoleto: campoParcelasBoleto.value,
+    plataforma: document.getElementById("plataforma").value,
     data: document.getElementById("data").value,
-    valor: parseFloat(document.getElementById("valor").value),
-    vencimento: semVencimento ? null : Number(campoVencimento.value),
-    banco: boleto ? "Boleto" : (ehMercado() && pagandoPix()) ? "Pix" : document.getElementById("banco").value
-  };
+    valor: document.getElementById("valor").value,
+    vencimento: campoVencimento.value,
+    banco: document.getElementById("banco").value
+  });
+  if (gasto.erro) return;
 
   // "Outro": usa o nome que a pessoa digitou (se for de um banco da lista, usa o nome da lista)
   if (gasto.banco === "Outro") {

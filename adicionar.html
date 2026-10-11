@@ -13,7 +13,7 @@
   <title>Adicionar gasto - Dashvia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/dashboard.css?v=20261009c1">
+  <link rel="stylesheet" href="css/dashboard.css?v=20261011f1">
   <script src="js/tema.js?v=20261009z"></script>
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
@@ -110,7 +110,7 @@
         </div>
 
         <label for="valor" id="rotulo-valor">Valor (R$)</label>
-        <input type="number" id="valor" step="0.01" min="0.01" placeholder="200,00" required>
+        <div class="campo-valor"><span aria-hidden="true">R$</span><input type="number" id="valor" step="0.01" min="0.01" placeholder="0,00" required></div>
 
         <div id="grupo-vencimento" class="oculto">
           <label for="vencimento">Dia do vencimento da parcela</label>
@@ -150,13 +150,15 @@
   </main>
 
   <script src="js/supabase.bundle.js?v=20261009z"></script>
-  <script src="js/banco.js?v=20261011m1"></script>
+  <script src="js/banco.js?v=20261011d1"></script>
   <script src="js/validacao.js?v=20261009z"></script>
-  <script src="js/bancos.js?v=20261009z"></script>
-  <script src="js/categorias.js?v=20261009z"></script>
-  <script src="js/adicionar.js?v=20261009z"></script>
+  <script src="js/bancos.js?v=20261011f1"></script>
+  <script src="js/categorias.js?v=20261011d1"></script>
+  <script src="js/gasto-formulario.js?v=20261011a1"></script>
+  <script src="js/adicionar.js?v=20261011a1"></script>
+  <script src="js/adicionar-botoes.js?v=20261011e1"></script>
   <script src="js/parcelamento.js?v=20261009z"></script>
-  <script src="js/menu.js?v=20261009n1"></script>
+  <script src="js/menu.js?v=20261011f1"></script>
   <script src="js/menu-animacao.js?v=20261009m1"></script>
   <script src="js/tour.js?v=20261009av2"></script>
 </body>

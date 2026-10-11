@@ -1,32 +1,32 @@
 // Bancos do Dashvia e o ícone de cada um.
 // Para incluir um banco novo, é só acrescentar uma linha na lista abaixo.
-// Os ícones são "selinhos" com a sigla e as cores do banco.
+// Os ícones são "selinhos" com a logo do banco (img/bancos/<logo>.svg) ou, sem logo, a sigla e as cores dele.
 
 const BANCOS = [
-  { nome: "Nubank", sigla: "Nu", cor: "#820ad1", texto: "#ffffff" },
-  { nome: "Itaú", sigla: "it", cor: "#ec7000", texto: "#ffffff" },
-  { nome: "Bradesco", sigla: "B", cor: "#cc092f", texto: "#ffffff" },
-  { nome: "Santander", sigla: "S", cor: "#ec0000", texto: "#ffffff" },
-  { nome: "Banco do Brasil", sigla: "BB", cor: "#fcf800", texto: "#0038a8" },
-  { nome: "Caixa", sigla: "C", cor: "#005ca9", texto: "#ffffff" },
-  { nome: "Inter", sigla: "in", cor: "#ff7a00", texto: "#ffffff" },
-  { nome: "C6 Bank", sigla: "C6", cor: "#242424", texto: "#ffffff" },
-  { nome: "BTG Pactual", sigla: "BTG", cor: "#001e62", texto: "#ffffff" },
-  { nome: "Mercado Pago", sigla: "MP", cor: "#00a1e4", texto: "#ffffff" },
-  { nome: "PicPay", sigla: "Pic", cor: "#11c76f", texto: "#ffffff" },
-  { nome: "PagBank", sigla: "PB", cor: "#3fae2a", texto: "#ffffff" },
-  { nome: "Neon", sigla: "Ne", cor: "#00e5ff", texto: "#003b44" },
+  { nome: "Nubank", logo: "nubank", sigla: "Nu", cor: "#820ad1", texto: "#ffffff" },
+  { nome: "Itaú", logo: "itau", sigla: "it", cor: "#ec7000", texto: "#ffffff" },
+  { nome: "Bradesco", logo: "bradesco", sigla: "B", cor: "#cc092f", texto: "#ffffff" },
+  { nome: "Santander", logo: "santander", sigla: "S", cor: "#ec0000", texto: "#ffffff" },
+  { nome: "Banco do Brasil", logo: "banco-do-brasil", sigla: "BB", cor: "#fcf800", texto: "#0038a8" },
+  { nome: "Caixa", logo: "caixa", sigla: "C", cor: "#005ca9", texto: "#ffffff" },
+  { nome: "Inter", logo: "inter", sigla: "in", cor: "#ff7a00", texto: "#ffffff" },
+  { nome: "C6 Bank", logo: "c6-bank", sigla: "C6", cor: "#242424", texto: "#ffffff" },
+  { nome: "BTG Pactual", logo: "btg-pactual", sigla: "BTG", cor: "#001e62", texto: "#ffffff" },
+  { nome: "Mercado Pago", logo: "mercado-pago", sigla: "MP", cor: "#00a1e4", texto: "#ffffff" },
+  { nome: "PicPay", logo: "picpay", sigla: "Pic", cor: "#11c76f", texto: "#ffffff" },
+  { nome: "PagBank", logo: "pagbank", sigla: "PB", cor: "#3fae2a", texto: "#ffffff" },
+  { nome: "Neon", logo: "neon", sigla: "Ne", cor: "#00e5ff", texto: "#003b44" },
   { nome: "Next", sigla: "N", cor: "#00ff5f", texto: "#003b1a" },
   { nome: "Original", sigla: "Or", cor: "#1d9a45", texto: "#ffffff" },
-  { nome: "Safra", sigla: "Sa", cor: "#002b5c", texto: "#ffffff" },
-  { nome: "Banrisul", sigla: "Ba", cor: "#0057a8", texto: "#ffffff" },
-  { nome: "Sicoob", sigla: "Si", cor: "#003641", texto: "#ffffff" },
-  { nome: "Sicredi", sigla: "Sc", cor: "#3fa535", texto: "#ffffff" },
-  { nome: "XP", sigla: "XP", cor: "#101010", texto: "#ffd400" },
-  { nome: "Agibank", sigla: "Ag", cor: "#00a859", texto: "#ffffff" },
-  { nome: "Pan", sigla: "Pn", cor: "#0079c1", texto: "#ffffff" },
-  { nome: "Digio", sigla: "Di", cor: "#0b3a8c", texto: "#ffffff" },
-  { nome: "BRB", sigla: "BRB", cor: "#0b4ea2", texto: "#ffffff" },
+  { nome: "Safra", logo: "safra", sigla: "Sa", cor: "#002b5c", texto: "#ffffff" },
+  { nome: "Banrisul", logo: "banrisul", sigla: "Ba", cor: "#0057a8", texto: "#ffffff" },
+  { nome: "Sicoob", logo: "sicoob", sigla: "Si", cor: "#003641", texto: "#ffffff" },
+  { nome: "Sicredi", logo: "sicredi", sigla: "Sc", cor: "#3fa535", texto: "#ffffff" },
+  { nome: "XP", logo: "xp", sigla: "XP", cor: "#101010", texto: "#ffd400" },
+  { nome: "Agibank", logo: "agibank", sigla: "Ag", cor: "#00a859", texto: "#ffffff" },
+  { nome: "Pan", logo: "pan", sigla: "Pn", cor: "#0079c1", texto: "#ffffff" },
+  { nome: "Digio", logo: "digio", sigla: "Di", cor: "#0b3a8c", texto: "#ffffff" },
+  { nome: "BRB", logo: "brb", sigla: "BRB", cor: "#0b4ea2", texto: "#ffffff" },
   { nome: "Outro", sigla: "", cor: "#6b6785", texto: "#ffffff" }
 ];
 
@@ -43,6 +43,9 @@ const ICONE_OUTRO_BANCO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentC
 // Devolve o HTML do selinho. Banco que não está na lista usa o ícone de "Outro".
 function iconeBanco(nome) {
   const banco = BANCOS.concat(OUTROS_ICONES).find(function (b) { return b.nome === nome; }) || BANCOS[BANCOS.length - 1];
+  if (banco.logo) {
+    return '<span class="banco-icone banco-logo" aria-hidden="true"><img src="img/bancos/' + banco.logo + '.svg" alt="" decoding="async"></span>';
+  }
   return '<span class="banco-icone" aria-hidden="true" style="background:' + banco.cor + ";color:" + banco.texto + '">' +
     (banco.sigla || ICONE_OUTRO_BANCO) + "</span>";
 }

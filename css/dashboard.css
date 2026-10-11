@@ -5110,3 +5110,348 @@ a.linha {
   background: var(--destaque);
   color: var(--texto-destaque, #ffffff);
 }
+
+/* ===== Adicionar gasto: botões no lugar das listas (js/adicionar-botoes.js) ===== */
+/* some da vista, mas o campo continua valendo para a validação do formulário */
+.visualmente-oculto {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.formulario .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+/* uma linha só, que rola para o lado (categorias e bancos) */
+.formulario .chips-rolagem {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-right: -4px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.formulario .chips-rolagem::-webkit-scrollbar {
+  display: none;
+}
+
+/* botões do mesmo tamanho, dividindo a largura (Hoje/Ontem, atalhos de loja) */
+.formulario .chips-iguais .chip {
+  flex: 1 1 0;
+  justify-content: center;
+}
+
+.formulario .chips .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  width: auto;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--borda);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--fundo) 70%, transparent);
+  color: var(--texto);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.formulario .chips .chip:hover {
+  background: color-mix(in srgb, var(--destaque) 10%, var(--fundo));
+}
+
+.formulario .chips .chip[aria-pressed="true"] {
+  border-color: var(--destaque);
+  background: color-mix(in srgb, var(--destaque) 26%, var(--fundo));
+  box-shadow: 0 0 0 1px var(--destaque), 0 6px 16px color-mix(in srgb, var(--destaque) 30%, transparent);
+}
+
+.formulario .chips .chip:focus-visible {
+  outline: 2px solid var(--destaque);
+  outline-offset: 2px;
+}
+
+.formulario .chip-icone {
+  display: inline-flex;
+  align-items: center;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.formulario .chip-icone .banco-icone {
+  width: 22px;
+  height: 22px;
+  font-size: 9px;
+}
+
+.formulario .parcelas-outra input {
+  margin-bottom: 16px;
+}
+
+.formulario .campo-valor {
+  position: relative;
+}
+
+.formulario .campo-valor span {
+  position: absolute;
+  left: 14px;
+  top: 12px;
+  color: var(--texto-suave);
+  font-size: 15px;
+  pointer-events: none;
+}
+
+.formulario .campo-valor input {
+  padding-left: 42px;
+}
+
+/* parcelas: 1x a 12x numa linha só */
+.formulario .chips-compactas {
+  flex-wrap: nowrap;
+  gap: 6px;
+}
+
+.formulario .chips-compactas .chip {
+  min-width: 0;
+  padding: 6px 4px;
+}
+
+.formulario [hidden] {
+  display: none !important;
+}
+
+.formulario .chip-icone svg {
+  width: 18px;
+  height: 18px;
+  color: color-mix(in srgb, var(--destaque) 65%, #ffffff);
+}
+
+/* boleto escolhido: as categorias ficam apagadas (o boleto já é a categoria) */
+.formulario .chips-apagadas .chip {
+  opacity: 0.45;
+}
+
+.formulario .dica-campo {
+  margin: -8px 2px 14px;
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+/* categorias: grade com todos do mesmo tamanho, ícone em cima e nome embaixo */
+.formulario .chips-categoria {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.formulario .chips-categoria .chip {
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  min-height: 66px;
+  padding: 10px 4px;
+  font-size: 12px;
+}
+
+.formulario .chips-categoria .chip-icone {
+  font-size: 21px;
+}
+
+.formulario .chip-texto {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+.formulario .chips-categoria .chip-icone svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* setas e bolinhas das páginas de categorias */
+.formulario .cat-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: -6px 0 16px;
+}
+
+.formulario .cat-nav .cat-seta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--borda);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--texto);
+}
+
+.formulario .cat-nav .cat-seta svg {
+  width: 16px;
+  height: 16px;
+}
+
+.formulario .cat-nav .cat-seta:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.formulario .cat-pontos {
+  display: flex;
+  gap: 5px;
+}
+
+.formulario .cat-pontos span {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--borda);
+  transition: width 0.2s, background 0.2s;
+}
+
+.formulario .cat-pontos span.ativo {
+  width: 16px;
+  background: var(--destaque);
+}
+
+.formulario .chips-categoria {
+  touch-action: pan-y;
+}
+
+.formulario .cat-vem-direita {
+  animation: cat-direita 0.22s ease both;
+}
+
+.formulario .cat-vem-esquerda {
+  animation: cat-esquerda 0.22s ease both;
+}
+
+@keyframes cat-direita {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes cat-esquerda {
+  from { opacity: 0; transform: translateX(-18px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .formulario .cat-vem-direita,
+  .formulario .cat-vem-esquerda {
+    animation: none;
+  }
+}
+
+.formulario .chips-categoria.cat-varias-paginas {
+  grid-template-rows: repeat(2, minmax(66px, auto));
+}
+
+/* remover categoria criada: "Editar" ao lado do título, "×" nas criadas */
+.formulario .cat-cabeca {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.formulario .cat-cabeca label {
+  margin-bottom: 6px;
+}
+
+.formulario .cat-cabeca .cat-editar {
+  width: auto;
+  padding: 2px 4px;
+  margin: 0 0 6px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: color-mix(in srgb, var(--destaque) 70%, #ffffff);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.formulario .cat-cabeca .cat-editar:hover {
+  background: transparent;
+  text-decoration: underline;
+}
+
+.formulario .chips .chip.cat-removivel {
+  position: relative;
+  border-style: dashed;
+  border-color: color-mix(in srgb, #ff6b6b 55%, var(--borda));
+}
+
+.formulario .cat-x {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ff6b6b;
+  color: #ffffff;
+}
+
+.formulario .cat-x svg {
+  width: 11px;
+  height: 11px;
+  stroke-width: 3;
+}
+
+.formulario .chips .chip.cat-fixa {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.formulario .cat-aviso {
+  margin: -8px 2px 14px;
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.formulario .cat-aviso.erro {
+  color: #ff6b6b;
+}
+
+/* bancos na mesma grade das categorias: selinho maior em cima do nome */
+.formulario .chips-categoria .chip-icone .banco-icone {
+  width: 28px;
+  height: 28px;
+  font-size: 11px;
+}
+
+/* selinho com a logo do banco: fundo branco para as logos escuras aparecerem no tema escuro */
+.banco-logo {
+  background: #fff;
+  overflow: hidden;
+}
+
+.banco-logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

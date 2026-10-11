@@ -296,6 +296,26 @@ async function buscarCategoriasUsadas() {
   return Array.from(new Set(data.map(function (linha) { return linha.categoria; })));
 }
 
+// Categoria criada pela pessoa: quantos gastos pessoais usam ela (com qualquer jeito de escrever o nome)
+async function contarGastosDaCategoria(nome) {
+  const variantes = variantesDaCategoria(nome, await buscarCategoriasUsadas());
+  if (variantes.length === 0) return 0;
+  const { count, error } = await db.from("gastos").select("id", { count: "exact", head: true }).in("categoria", variantes).is("espaco_id", null);
+  if (error) throw error;
+  return count || 0;
+}
+
+// Remove uma categoria criada pela pessoa: os gastos pessoais dela passam para "Outros".
+// As padrão não saem, e os gastos do espaço compartilhado não são tocados. Devolve quantos gastos mudaram.
+async function removerCategoria(nome) {
+  if (ehCategoriaPadrao(nome)) throw new Error("Categoria padrão não pode ser removida");
+  const variantes = variantesDaCategoria(nome, await buscarCategoriasUsadas());
+  if (variantes.length === 0) return 0;
+  const { data, error } = await db.from("gastos").update({ categoria: "Outros" }).in("categoria", variantes).is("espaco_id", null).select("id");
+  if (error) throw error;
+  return data.length;
+}
+
 async function adicionarGasto(gasto) {
   const espaco = await escopoAtual();
   const linha = paraBanco(gasto);

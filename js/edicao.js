@@ -62,7 +62,7 @@ function abrirEdicao(g, opcoes) {
         </div>
 
         <label for="ed-parcelas" id="ed-rotulo-parcelas">${eAssinatura ? "Periodicidade" : "Parcelas"}</label>
-        <select id="ed-parcelas">${montarOpcoes(eAssinatura ? listaPeriodos : opcoesDeParcelas, g.parcelas)}</select>
+        <select id="ed-parcelas">${montarOpcoes(eAssinatura ? listaPeriodos : opcoesComAtual(opcoesDeParcelas, g.parcelas), g.parcelas)}</select>
 
         <label for="ed-data">Data da compra</label>
         <input type="date" id="ed-data">

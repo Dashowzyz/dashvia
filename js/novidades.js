@@ -5,6 +5,20 @@
 
 const NOVIDADES = [
   {
+    versao: "Novo jeito de adicionar gastos",
+    data: "2026-10-11",
+    etiqueta: "Novo",
+    resumo: "A tela de Adicionar ficou mais rápida: quase tudo agora é com um toque.",
+    itens: [
+      "Categoria, forma de pagamento (Crédito, Pix ou Boleto) e banco escolhidos em botões.",
+      "Parcelas com atalhos de 2x a 12x, ou digite qualquer número de 1 a 60.",
+      "Atalhos \"Hoje\" e \"Ontem\" na data.",
+      "Remova as categorias que você criou em \"Editar\". Os gastos delas vão para \"Outros\", nenhum é apagado.",
+      "Logos dos bancos no lugar das letras.",
+      "Corrigido: editar uma compra em mais de 12x não muda mais as parcelas sozinho."
+    ]
+  },
+  {
     versao: "Início do beta teste",
     data: "2026-10-09",
     etiqueta: "Beta",

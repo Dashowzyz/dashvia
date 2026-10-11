@@ -54,3 +54,15 @@ function validarNovaCategoria(texto, existentes) {
   const igual = existentes.find(function (e) { return normalizarNome(e) === chave; });
   return { ok: true, nome: igual || nome };
 }
+
+// As categorias padrão não podem ser removidas
+function ehCategoriaPadrao(nome) {
+  const chave = normalizarNome(nome);
+  return CATEGORIAS_PADRAO.some(function (c) { return normalizarNome(c) === chave; });
+}
+
+// Todos os jeitos de escrever a mesma categoria nos gastos (ex.: "Academia" e "academia")
+function variantesDaCategoria(nome, usadas) {
+  const chave = normalizarNome(nome);
+  return usadas.filter(function (u) { return normalizarNome(u) === chave; });
+}

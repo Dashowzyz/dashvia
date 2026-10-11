@@ -219,7 +219,7 @@ function carregarNovidades(depois) {
     return;
   }
   const script = document.createElement("script");
-  script.src = "js/novidades.js?v=20261009n1";
+  script.src = "js/novidades.js?v=20261011f1";
   script.onload = depois;
   document.head.appendChild(script);
 }
