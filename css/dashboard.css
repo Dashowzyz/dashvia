@@ -5455,3 +5455,227 @@ a.linha {
   width: 100%;
   height: 100%;
 }
+
+/* ===== Dashboard: histórico + gráficos do mês ===== */
+.dash-meio,
+.dash-graficos {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+
+/* Tablet e computador pequeno: os dois gráficos lado a lado, embaixo do histórico */
+@media (min-width: 701px) {
+  .dash-graficos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Computador: histórico na esquerda, gráficos empilhados na direita */
+@media (min-width: 1200px) {
+  .dash-meio {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: start;
+  }
+
+  .dash-graficos {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  /* Coluna mais estreita: textos longos do histórico terminam em "…" */
+  .historico li > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 700px) {
+  .dash-meio,
+  .dash-graficos {
+    gap: 18px;
+  }
+}
+
+.grafico-vazio {
+  padding: 22px 12px;
+  text-align: center;
+  border: 1px dashed var(--borda);
+  border-radius: 14px;
+  list-style: none;
+}
+
+/* Rosca por categoria */
+.rosca-area {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.rosca {
+  position: relative;
+  flex: none;
+  width: 150px;
+  height: 150px;
+}
+
+.rosca svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.rosca-fatia {
+  fill: none;
+  stroke-width: 14;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.rosca-centro {
+  position: absolute;
+  inset: 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.rosca-centro small {
+  max-width: 100%;
+  font-size: 11px;
+  color: var(--texto-suave);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rosca-centro strong {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rosca-legenda {
+  flex: 1;
+  min-width: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rosca-legenda li {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto 38px;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: default;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.rosca-legenda li:focus-visible {
+  outline: 2px solid var(--destaque);
+}
+
+.rosca-legenda li.realcada {
+  background: color-mix(in srgb, var(--destaque) 10%, transparent);
+}
+
+.rosca-legenda i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.rosca-nome {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rosca-legenda strong {
+  font-weight: 600;
+}
+
+.rosca-legenda small {
+  text-align: right;
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.rosca-area.com-realce .rosca-fatia:not(.realcada),
+.rosca-area.com-realce .rosca-legenda li:not(.realcada) {
+  opacity: 0.35;
+}
+
+/* Celular estreito: rosca em cima, legenda embaixo */
+@media (max-width: 420px) {
+  .rosca-area {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rosca {
+    align-self: center;
+  }
+}
+
+/* Barras por forma de pagamento */
+.barras-pagamento {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.barra-topo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.barra-topo .banco-icone {
+  width: 20px;
+  height: 20px;
+  font-size: 8px;
+}
+
+.barra-topo .banco-icone svg {
+  width: 11px;
+  height: 11px;
+}
+
+.barra-nome {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barra-topo strong {
+  font-weight: 600;
+}
+
+.barra-trilho {
+  height: 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--borda) 70%, transparent);
+  overflow: hidden;
+}
+
+.barra-trilho i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--destaque);
+}

@@ -116,11 +116,21 @@ function marcarPontoDosCartoes() {
   setaProxima.hidden = totalPaginasCartoes <= 1 || atual >= totalPaginasCartoes - 1;
 }
 
-// Cards do topo: gastos do mês selecionado
-function mostrarCards() {
-  const doMes = gastos.map(function (g) {
+// Gastos que pesam no mês selecionado, com o valor daquele mês
+function gastosDoMes() {
+  return gastos.map(function (g) {
     return { g: g, valor: valorNoMes(g, mesSelecionado.ano, mesSelecionado.mes) };
   }).filter(function (item) { return item.valor > 0; });
+}
+
+function nomeDoMesSelecionado() {
+  return new Date(mesSelecionado.ano, mesSelecionado.mes, 1)
+    .toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+}
+
+// Cards do topo: gastos do mês selecionado
+function mostrarCards() {
+  const doMes = gastosDoMes();
 
   let blocos = listarBlocos().filter(function (b) { return !blocosOcultos.includes(b.id); });
   if (blocos.length === 0) {
@@ -152,9 +162,158 @@ function mostrarCards() {
   irParaPaginaDosCartoes(Math.min(paginaAntes, totalPaginas - 1), false);
   marcarPontoDosCartoes();
 
-  const nomeDoMes = new Date(mesSelecionado.ano, mesSelecionado.mes, 1)
-    .toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
-  document.getElementById("titulo-cards").textContent = "Gastos de " + nomeDoMes;
+  document.getElementById("titulo-cards").textContent = "Gastos de " + nomeDoMesSelecionado();
+}
+
+// ---------- Gráficos (mês selecionado) ----------
+// Cores das categorias: cada categoria tem sempre a mesma cor (pela posição na lista, não pelo valor).
+// A ordem foi escolhida para dar para diferenciar vizinhas, inclusive para quem tem daltonismo.
+// Há uma versão para fundo escuro e outra para fundo claro (a pessoa pode escolher o fundo).
+const CORES_GRAFICO = {
+  escuro: ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9", "#e66767"],
+  claro: ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#6250d6", "#e34948"]
+};
+const COR_DEMAIS = "#898781";
+
+function coresDoGrafico() {
+  const esquema = getComputedStyle(document.documentElement).colorScheme;
+  return esquema === "light" ? CORES_GRAFICO.claro : CORES_GRAFICO.escuro;
+}
+
+function porcentagem(parte, total) {
+  return Math.round(parte / total * 100) + "%";
+}
+
+// Rosca: quanto cada categoria pesou no mês
+function mostrarRosca(doMes) {
+  const area = document.getElementById("grafico-categorias");
+  const cores = coresDoGrafico();
+  const ordem = CATEGORIAS_PADRAO.concat(categoriasPersonalizadas(gastos.map(function (g) { return g.categoria; })));
+
+  // Até 8 categorias têm cor própria; o resto entra em "Demais"
+  const fatias = ordem.slice(0, cores.length).map(function (nome, i) {
+    return { nome: nome, cor: cores[i], valor: 0 };
+  });
+  const demais = { nome: "Demais", cor: COR_DEMAIS, valor: 0 };
+
+  doMes.forEach(function (item) {
+    const chave = normalizarNome(item.g.categoria);
+    const i = ordem.findIndex(function (nome) { return normalizarNome(nome) === chave; });
+    (i >= 0 && i < fatias.length ? fatias[i] : demais).valor += item.valor;
+  });
+
+  const lista = fatias.concat(demais).filter(function (f) { return f.valor > 0; });
+  const total = lista.reduce(function (soma, f) { return soma + f.valor; }, 0);
+
+  if (total === 0) {
+    area.innerHTML = '<p class="vazio grafico-vazio">Sem gastos neste mês.</p>';
+    return;
+  }
+
+  // Cada fatia é um pedaço do mesmo círculo (pathLength 100 = a volta inteira), com um respiro entre elas
+  const respiro = lista.length > 1 ? 0.6 : 0;
+  let andado = 0;
+  const arcos = lista.map(function (f, i) {
+    const tamanho = f.valor / total * 100;
+    const visivel = Math.max(tamanho - respiro, 0.01);
+    const arco = '<circle class="rosca-fatia" data-i="' + i + '" cx="60" cy="60" r="48" pathLength="100" ' +
+      'stroke="' + f.cor + '" stroke-dasharray="' + visivel + " " + (100 - visivel) + '" stroke-dashoffset="' + (-andado) + '"></circle>';
+    andado += tamanho;
+    return arco;
+  }).join("");
+
+  const legenda = lista
+    .map(function (f, i) { return { f: f, i: i }; })
+    .sort(function (a, b) { return b.f.valor - a.f.valor; })
+    .map(function (item) {
+      return '<li data-i="' + item.i + '" tabindex="0">' +
+        '<i style="background:' + item.f.cor + '"></i>' +
+        '<span class="rosca-nome">' + escapar(item.f.nome) + "</span>" +
+        "<strong>" + formatarMoeda(item.f.valor) + "</strong>" +
+        "<small>" + porcentagem(item.f.valor, total) + "</small></li>";
+    }).join("");
+
+  area.innerHTML =
+    '<div class="rosca">' +
+      '<svg viewBox="0 0 120 120" role="img" aria-label="Gastos por categoria">' +
+        '<g transform="rotate(-90 60 60)">' + arcos + "</g></svg>" +
+      '<div class="rosca-centro"><small>Total</small><strong>' + formatarMoeda(total) + "</strong></div>" +
+    "</div>" +
+    '<ul class="rosca-legenda">' + legenda + "</ul>";
+
+  area._fatias = lista;
+  area._total = total;
+}
+
+// Ao passar o mouse (ou focar) numa fatia ou na legenda, ela fica em destaque e o centro mostra o valor dela
+function realcarFatia(area, indice) {
+  const centro = area.querySelector(".rosca-centro");
+  if (!centro) return;
+
+  area.querySelectorAll("[data-i]").forEach(function (el) {
+    el.classList.toggle("realcada", el.dataset.i === indice);
+  });
+  area.classList.toggle("com-realce", indice !== null);
+
+  const f = indice !== null ? area._fatias[Number(indice)] : null;
+  centro.innerHTML = f
+    ? "<small>" + escapar(f.nome) + "</small><strong>" + formatarMoeda(f.valor) + "</strong><small>" + porcentagem(f.valor, area._total) + "</small>"
+    : "<small>Total</small><strong>" + formatarMoeda(area._total) + "</strong>";
+}
+
+const areaRosca = document.getElementById("grafico-categorias");
+["mouseover", "focusin"].forEach(function (tipo) {
+  areaRosca.addEventListener(tipo, function (e) {
+    const alvo = e.target.closest("[data-i]");
+    realcarFatia(areaRosca, alvo ? alvo.dataset.i : null);
+  });
+});
+["mouseleave", "focusout"].forEach(function (tipo) {
+  areaRosca.addEventListener(tipo, function () { realcarFatia(areaRosca, null); });
+});
+
+// Barras: quanto foi em cada forma de pagamento (o crédito aparece separado por banco)
+function mostrarPagamento(doMes) {
+  const lista = document.getElementById("grafico-pagamento");
+  const formas = {};
+
+  doMes.forEach(function (item) {
+    const g = item.g;
+    let nome, icone;
+    if (g.categoria === "Boleto") { nome = "Boleto"; icone = "Boleto"; }
+    else if (g.parcelas === "pix") { nome = "Pix"; icone = "Pix"; }
+    else if (g.parcelas === "avista") { nome = "À vista"; icone = "Outro"; }
+    else { nome = "Crédito " + (g.banco || "Outro"); icone = g.banco || "Outro"; }
+
+    if (!formas[nome]) formas[nome] = { nome: nome, icone: icone, valor: 0 };
+    formas[nome].valor += item.valor;
+  });
+
+  const linhas = Object.values(formas).sort(function (a, b) { return b.valor - a.valor; });
+  if (linhas.length === 0) {
+    lista.innerHTML = '<li class="vazio grafico-vazio">Sem gastos neste mês.</li>';
+    return;
+  }
+
+  const maior = linhas[0].valor;
+  const total = linhas.reduce(function (soma, l) { return soma + l.valor; }, 0);
+
+  lista.innerHTML = linhas.map(function (l) {
+    return '<li title="' + escapar(l.nome) + ": " + formatarMoeda(l.valor) + " (" + porcentagem(l.valor, total) + ' do mês)">' +
+      '<div class="barra-topo">' + iconeBanco(l.icone) +
+        '<span class="barra-nome">' + escapar(l.nome) + "</span>" +
+        "<strong>" + formatarMoeda(l.valor) + "</strong></div>" +
+      '<div class="barra-trilho"><i style="width:' + Math.max(l.valor / maior * 100, 2) + '%"></i></div></li>';
+  }).join("");
+}
+
+function mostrarGraficos() {
+  const doMes = gastosDoMes();
+  const legenda = "Gastos de " + nomeDoMesSelecionado();
+  document.getElementById("legenda-categorias").textContent = legenda;
+  document.getElementById("legenda-pagamento").textContent = legenda;
+  mostrarRosca(doMes);
+  mostrarPagamento(doMes);
 }
 
 // Os pontinhos acompanham a página e também levam até ela
@@ -377,6 +536,7 @@ document.getElementById("grafico").addEventListener("click", function (evento) {
   });
 
   mostrarCards();
+  mostrarGraficos();
 });
 
 // Redesenha tudo mantendo a rolagem do Resumo onde estava
@@ -386,6 +546,7 @@ function atualizarTela() {
 
   mostrarCards();
   mostrarHistorico();
+  mostrarGraficos();
   mostrarResumo();
 
   grafico.scrollLeft = posicao;
@@ -446,6 +607,7 @@ async function iniciar() {
   mostrarSaudacao();
   mostrarCards();
   mostrarHistorico();
+  mostrarGraficos();
   mostrarResumo();
 }
 

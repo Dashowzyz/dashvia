@@ -13,7 +13,7 @@
   <title>Dashboard - Dashvia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/dashboard.css?v=20261011f1">
+  <link rel="stylesheet" href="css/dashboard.css?v=20261016g1">
   <script src="js/tema.js?v=20261009z"></script>
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
@@ -57,11 +57,27 @@
     </div>
     <div id="pontos-cards" class="pontos"></div>
 
-    <section class="bloco">
-      <h2>Histórico de transação</h2>
-      <p class="legenda">Últimos registros</p>
-      <ul id="historico" class="historico"></ul>
-    </section>
+    <div class="dash-meio">
+      <section class="bloco">
+        <h2>Histórico de transação</h2>
+        <p class="legenda">Últimos registros</p>
+        <ul id="historico" class="historico"></ul>
+      </section>
+
+      <div class="dash-graficos">
+        <section class="bloco">
+          <h2>Por categoria</h2>
+          <p class="legenda" id="legenda-categorias"></p>
+          <div id="grafico-categorias" class="rosca-area"></div>
+        </section>
+
+        <section class="bloco">
+          <h2>Por forma de pagamento</h2>
+          <p class="legenda" id="legenda-pagamento"></p>
+          <ul id="grafico-pagamento" class="barras-pagamento"></ul>
+        </section>
+      </div>
+    </div>
 
     <section class="bloco">
       <h2>Resumo</h2>
@@ -77,7 +93,7 @@
   <script src="js/parcelamento.js?v=20261009z"></script>
   <script src="js/gasto-formulario.js?v=20261011a1"></script>
   <script src="js/edicao.js?v=20261011a1"></script>
-  <script src="js/dashboard.js?v=20261009z"></script>
+  <script src="js/dashboard.js?v=20261016g1"></script>
   <script src="js/guia.js?v=20261009z"></script>
   <script src="js/boasvindas.js?v=20261009bv1"></script>
   <script src="js/menu.js?v=20261011f1"></script>
