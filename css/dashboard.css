@@ -5492,10 +5492,10 @@ a.linha {
   }
 }
 
+/* Celular: os gráficos ficam só no computador e no tablet */
 @media (max-width: 700px) {
-  .dash-meio,
   .dash-graficos {
-    gap: 18px;
+    display: none;
   }
 }
 
@@ -5613,18 +5613,6 @@ a.linha {
 .rosca-area.com-realce .rosca-fatia:not(.realcada),
 .rosca-area.com-realce .rosca-legenda li:not(.realcada) {
   opacity: 0.35;
-}
-
-/* Celular estreito: rosca em cima, legenda embaixo */
-@media (max-width: 420px) {
-  .rosca-area {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .rosca {
-    align-self: center;
-  }
 }
 
 /* Barras por forma de pagamento */
