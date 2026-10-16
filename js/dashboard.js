@@ -472,6 +472,153 @@ function mostrarHistorico() {
   }).join("");
 }
 
+// ---------- Próximos boletos: os 2 que vencem primeiro, com atalho de pagar ----------
+// Mesmas regras da tela de Parcelas (parcelamento.js):
+// - boleto mensal: a cobrança deste mês (ou a do mês que vem, se esta já foi paga);
+// - boleto único ou parcelado: a próxima parcela que ainda não venceu e não foi paga.
+function listarProximosBoletos() {
+  const dia = new Date();
+  dia.setHours(0, 0, 0, 0);
+  const itens = [];
+
+  gastos.forEach(function (g) {
+    if (g.categoria !== "Boleto") return;
+
+    if (ehBoletoRecorrente(g)) {
+      let o = boletoAtual(g, dia);
+      if (o && o.paga) o = boletoDoMes(g, o.data.getFullYear() + (o.data.getMonth() === 11 ? 1 : 0), (o.data.getMonth() + 1) % 12);
+      if (o && !o.paga) itens.push({ g: g, numero: o.numero, data: o.data, valor: o.valor, nota: "Todo mês" });
+      return;
+    }
+
+    if (ehParcelado(g)) {
+      const todas = listarParcelas(g);
+      const p = todas.find(function (x) { return !parcelaMarcadaPaga(g, x.numero) && x.data >= dia; });
+      if (p) itens.push({ g: g, numero: p.numero, data: p.data, valor: p.valor, nota: todas.length === 1 ? "Boleto único" : "Parcela " + p.numero + "/" + todas.length });
+    }
+  });
+
+  return itens.sort(function (a, b) { return a.data - b.data; }).slice(0, 2);
+}
+
+function prazoDoBoleto(data) {
+  const dia = new Date();
+  dia.setHours(0, 0, 0, 0);
+  const dias = Math.round((data - dia) / 86400000);
+  if (dias < 0) return { texto: "Venceu há " + (-dias) + (dias === -1 ? " dia" : " dias"), classe: "vencido" };
+  if (dias === 0) return { texto: "Vence hoje", classe: "urgente" };
+  if (dias === 1) return { texto: "Vence amanhã", classe: "urgente" };
+  return { texto: "Vence em " + dias + " dias", classe: "" };
+}
+
+let proximosBoletos = [];
+
+function mostrarProximosBoletos() {
+  const bloco = document.getElementById("bloco-boletos");
+  const lista = document.getElementById("proximos-boletos");
+
+  // Quem não tem nenhum boleto não vê o bloco
+  bloco.hidden = !gastos.some(function (g) { return g.categoria === "Boleto"; });
+  proximosBoletos = listarProximosBoletos();
+
+  if (proximosBoletos.length === 0) {
+    lista.innerHTML = '<li class="vazio grafico-vazio">Nenhum boleto em aberto. Tudo pago por aqui.</li>';
+    return;
+  }
+
+  lista.innerHTML = proximosBoletos.map(function (b, i) {
+    const prazo = prazoDoBoleto(b.data);
+    return `
+      <li class="boleto-proximo ${prazo.classe}">
+        ${iconeBanco("Boleto")}
+        <div class="boleto-info">
+          <strong>${escapar(b.g.plataforma)}</strong>
+          <small>${b.nota} · ${b.data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</small>
+        </div>
+        <div class="boleto-valor">
+          <strong>${formatarMoeda(b.valor)}</strong>
+          <small class="boleto-prazo">${prazo.texto}</small>
+        </div>
+        <button type="button" class="btn-pagar-boleto" data-i="${i}" aria-label="Marcar ${escapar(b.g.plataforma)} como pago">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>Pagar</span>
+        </button>
+      </li>`;
+  }).join("");
+}
+
+// Aviso no topo com "Desfazer" (mesmo visual da tela de Parcelas)
+let avisoAtual = null;
+
+function mostrarAviso(texto, aoDesfazer) {
+  if (avisoAtual) avisoAtual.remove();
+
+  const aviso = document.createElement("div");
+  aviso.className = "aviso-parcelas";
+  aviso.setAttribute("role", "status");
+
+  const span = document.createElement("span");
+  span.textContent = texto;
+  aviso.appendChild(span);
+
+  if (aoDesfazer) {
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.textContent = "Desfazer";
+    botao.addEventListener("click", function () {
+      aviso.remove();
+      if (avisoAtual === aviso) avisoAtual = null;
+      aoDesfazer();
+    });
+    aviso.appendChild(botao);
+  }
+
+  document.body.appendChild(aviso);
+  avisoAtual = aviso;
+
+  setTimeout(function () {
+    aviso.remove();
+    if (avisoAtual === aviso) avisoAtual = null;
+  }, 8000);
+}
+
+// Pagar é direto, sem confirmação; o aviso tem "Desfazer" para o caso de um toque sem querer
+document.getElementById("proximos-boletos").addEventListener("click", async function (e) {
+  const botao = e.target.closest(".btn-pagar-boleto");
+  if (!botao) return;
+
+  const boleto = proximosBoletos[Number(botao.dataset.i)];
+  if (!boleto) return;
+
+  const g = boleto.g;
+  const antes = g.pagasAte || 0;
+  botao.disabled = true;
+
+  try {
+    await atualizarGasto(g.id, { pagasAte: boleto.numero });
+  } catch (falha) {
+    console.error("Erro ao registrar pagamento do boleto:", falha);
+    botao.disabled = false;
+    mostrarAviso("Não foi possível salvar. Tente de novo.");
+    return;
+  }
+
+  g.pagasAte = boleto.numero;
+  atualizarTela();
+
+  mostrarAviso("Boleto " + g.plataforma + " marcado como pago.", async function () {
+    try {
+      await atualizarGasto(g.id, { pagasAte: antes });
+    } catch (falha) {
+      console.error("Erro ao desfazer:", falha);
+      mostrarAviso("Não foi possível desfazer. Tente de novo.");
+      return;
+    }
+    g.pagasAte = antes;
+    atualizarTela();
+  });
+});
+
 // Resumo: cartões dos próximos 12 meses, começando pelo mês atual, com o gasto por banco/pix
 function mostrarResumo() {
   const nomesMeses = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
@@ -545,6 +692,7 @@ function atualizarTela() {
   const posicao = grafico.scrollLeft;
 
   mostrarCards();
+  mostrarProximosBoletos();
   mostrarHistorico();
   mostrarGraficos();
   mostrarResumo();
@@ -606,6 +754,7 @@ async function iniciar() {
   carregarBlocos(usuario);
   mostrarSaudacao();
   mostrarCards();
+  mostrarProximosBoletos();
   mostrarHistorico();
   mostrarGraficos();
   mostrarResumo();

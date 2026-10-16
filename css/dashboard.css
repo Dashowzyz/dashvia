@@ -5492,6 +5492,164 @@ a.linha {
   }
 }
 
+/* Coluna da esquerda: próximos boletos em cima do histórico */
+.dash-coluna {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+  align-content: start;
+}
+
+@media (max-width: 700px) {
+  .dash-coluna {
+    gap: 18px;
+  }
+}
+
+/* ----- Próximos boletos ----- */
+.bloco-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.link-ver-todos {
+  flex: none;
+  padding: 4px 0;
+  color: var(--destaque);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link-ver-todos:hover {
+  text-decoration: underline;
+}
+
+.proximos-boletos {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.boleto-proximo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--fundo) 60%, transparent);
+  border: 1px solid var(--borda);
+  border-left: 3px solid var(--destaque);
+}
+
+.boleto-proximo.urgente {
+  border-left-color: #f5a524;
+}
+
+.boleto-proximo.vencido {
+  border-left-color: #ff6b6b;
+}
+
+.boleto-info,
+.boleto-valor {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.boleto-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.boleto-info strong {
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.boleto-info small,
+.boleto-valor small {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.boleto-valor {
+  flex: none;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.boleto-valor strong {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.boleto-proximo.urgente .boleto-prazo {
+  color: #f5a524;
+  font-weight: 600;
+}
+
+.boleto-proximo.vencido .boleto-prazo {
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.btn-pagar-boleto {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid color-mix(in srgb, #4cd98a 55%, var(--borda));
+  border-radius: 999px;
+  background: color-mix(in srgb, #4cd98a 12%, transparent);
+  color: #4cd98a;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+}
+
+.btn-pagar-boleto:hover {
+  background: #4cd98a;
+  color: #0b2a1a;
+}
+
+.btn-pagar-boleto:active {
+  transform: scale(0.95);
+}
+
+.btn-pagar-boleto:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Celular: o botão vira só o ✓ para caber o nome do boleto */
+@media (max-width: 480px) {
+  .boleto-proximo {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .btn-pagar-boleto {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .btn-pagar-boleto span {
+    display: none;
+  }
+}
+
 /* Celular: os gráficos ficam só no computador e no tablet */
 @media (max-width: 700px) {
   .dash-graficos {
