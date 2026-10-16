@@ -6105,3 +6105,31 @@ a.linha {
   border-radius: 4px;
   background: var(--destaque);
 }
+
+/* Detalhes de um gasto (tela Todos os gastos) */
+.gasto-item { cursor: pointer; }
+.modal-detalhes .modal-titulo { margin-bottom: 12px; }
+.gasto-detalhes { margin: 0 0 8px; display: grid; gap: 10px; }
+.gasto-detalhes div { display: flex; justify-content: space-between; gap: 16px; }
+.gasto-detalhes dt { color: var(--texto-suave, #a9a3c4); font-size: 0.9rem; }
+.gasto-detalhes dd { margin: 0; text-align: right; font-weight: 600; }
+
+/* Caixa dos cartões de crédito do mês (Dashboard) */
+.modal-cartoes { max-height: 85vh; overflow-y: auto; }
+.cartoes-lista { list-style: none; margin: 12px 0 8px; padding: 0; display: grid; gap: 8px; }
+.cartao-opcao, .cartao-gasto {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 10px 12px; border: 1px solid var(--borda); border-radius: 12px;
+  background: transparent; color: var(--texto); font: inherit; text-align: left;
+}
+.cartao-opcao { cursor: pointer; }
+.cartao-opcao:hover { border-color: var(--destaque); }
+.cartao-modal-nome { flex: 1; min-width: 0; display: flex; flex-direction: column; font-weight: 600; }
+.cartao-modal-nome small { color: var(--texto-suave); font-weight: 400; font-size: 0.8rem; }
+
+/* "À vista" é um botão mais largo que os de parcelas, para o texto caber sem apertar */
+.formulario .chips-compactas .chip[data-valor="avista"] {
+  flex: 2.2 1 0;
+  white-space: nowrap;
+  padding: 6px 10px;
+}

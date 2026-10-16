@@ -66,7 +66,7 @@ function valorDoBloco(bloco, doMes) {
     return doMes.filter(function (item) { return filtro(item.g); }).reduce(function (total, item) { return total + item.valor; }, 0);
   }
 
-  if (bloco.id === "credito") return somar(function (g) { return g.categoria !== "Boleto" && g.parcelas !== "pix" && g.parcelas !== "avista"; });
+  if (bloco.id === "credito") return somar(function (g) { return g.categoria !== "Boleto" && g.parcelas !== "pix"; });
   if (bloco.id === "pix") return somar(function (g) { return g.parcelas === "pix"; });
   return somar(function (g) { return g.categoria === bloco.categoria; });
 }
@@ -131,7 +131,9 @@ function mostrarCards() {
 
   for (let i = 0; i < blocos.length; i += 4) {
     paginas += '<div class="cards-pagina">' + blocos.slice(i, i + 4).map(function (b) {
-      return '<div class="card" data-card="' + escapar(b.id) + '">' +
+      const abre = b.id === "credito" ? "Ver os cartões do mês" : "Ver o histórico do mês";
+      const link = ' role="button" tabindex="0" title="' + abre + '" style="cursor:pointer"';
+      return '<div class="card" data-card="' + escapar(b.id) + '"' + link + ">" +
         "<strong>" + formatarMoeda(valorDoBloco(b, doMes)) + "</strong>" +
         "<span>" + escapar(b.nome) + "</span></div>";
     }).join("") + "</div>";
@@ -429,33 +431,33 @@ function abrirPersonalizar() {
 
 document.getElementById("btn-personalizar").addEventListener("click", abrirPersonalizar);
 
-// ---------- Próximos boletos: os 2 que vencem primeiro, com atalho de pagar ----------
-// Mesmas regras da tela de Parcelas (parcelamento.js):
-// - boleto mensal: a cobrança deste mês (ou a do mês que vem, se esta já foi paga);
-// - boleto único ou parcelado: a próxima parcela que ainda não venceu e não foi paga.
+// ---------- Próximos boletos: os do mês escolhido no Resumo, com atalho de pagar ----------
+// Mesmas regras da tela de Parcelas (parcelamento.js), mas só o que vence no mês selecionado e ainda não foi pago:
+// - boleto mensal: a cobrança daquele mês;
+// - boleto único ou parcelado: a(s) parcela(s) que caem naquele mês.
 function listarProximosBoletos() {
-  const dia = new Date();
-  dia.setHours(0, 0, 0, 0);
   const itens = [];
 
   gastos.forEach(function (g) {
     if (g.categoria !== "Boleto") return;
 
     if (ehBoletoRecorrente(g)) {
-      let o = boletoAtual(g, dia);
-      if (o && o.paga) o = boletoDoMes(g, o.data.getFullYear() + (o.data.getMonth() === 11 ? 1 : 0), (o.data.getMonth() + 1) % 12);
+      const o = boletoDoMes(g, mesSelecionado.ano, mesSelecionado.mes);
       if (o && !o.paga) itens.push({ g: g, numero: o.numero, data: o.data, valor: o.valor, nota: "Todo mês" });
       return;
     }
 
     if (ehParcelado(g)) {
       const todas = listarParcelas(g);
-      const p = todas.find(function (x) { return !parcelaMarcadaPaga(g, x.numero) && x.data >= dia; });
-      if (p) itens.push({ g: g, numero: p.numero, data: p.data, valor: p.valor, nota: todas.length === 1 ? "Boleto único" : "Parcela " + p.numero + "/" + todas.length });
+      todas.forEach(function (p) {
+        if (p.data.getFullYear() !== mesSelecionado.ano || p.data.getMonth() !== mesSelecionado.mes) return;
+        if (parcelaMarcadaPaga(g, p.numero)) return;
+        itens.push({ g: g, numero: p.numero, data: p.data, valor: p.valor, nota: todas.length === 1 ? "Boleto único" : "Parcela " + p.numero + "/" + todas.length });
+      });
     }
   });
 
-  return itens.sort(function (a, b) { return a.data - b.data; }).slice(0, 2);
+  return itens.sort(function (a, b) { return a.data - b.data; });
 }
 
 function prazoDoBoleto(data) {
@@ -699,7 +701,7 @@ const setaCreditoProxima = document.getElementById("cc-proximo");
 
 // Mesma regra do bloco "Cartão de crédito" do topo: o que não é boleto, Pix nem à vista
 function ehNoCredito(g) {
-  return g.categoria !== "Boleto" && g.parcelas !== "pix" && g.parcelas !== "avista";
+  return g.categoria !== "Boleto" && g.parcelas !== "pix";
 }
 
 function chaveDoMes(ano, mes) {
@@ -1041,8 +1043,158 @@ document.getElementById("grafico").addEventListener("click", function (evento) {
   });
 
   mostrarCards();
+  mostrarProximosBoletos();
   mostrarGraficos();
 });
+
+// O card "Cartão de crédito" abre uma caixa com os cartões usados no mês escolhido no topo;
+// ao escolher um cartão, a mesma caixa mostra os gastos dele naquele mês.
+function textoPagamento(parcelas) {
+  if (parcelas === "pix") return "Pix";
+  if (parcelas === "avista") return "À vista";
+  if (parcelas === "mensal") return "Mensal";
+  if (parcelas === "trimestral") return "Trimestral";
+  if (parcelas === "anual") return "Anual";
+  return parcelas + "x";
+}
+
+// Listas das caixas: mostra até 6 linhas e, passando disso, a lista rola para baixo
+function limitarListaA6(caixa) {
+  const lista = caixa.querySelector(".cartoes-lista");
+  if (!lista) return;
+  lista.style.maxHeight = "";
+  lista.style.overflowY = "";
+  if (lista.children.length <= 6) return;
+  lista.style.position = "relative";
+  const primeiro = lista.children[0];
+  const sexto = lista.children[5];
+  lista.style.maxHeight = (sexto.offsetTop + sexto.offsetHeight - primeiro.offsetTop) + "px";
+  lista.style.overflowY = "auto";
+}
+
+function gastosNoCredito() {
+  return gastosDoMes().filter(function (item) { return ehNoCredito(item.g); });
+}
+
+function abrirCartoesDoMes() {
+  const fundo = document.createElement("div");
+  fundo.className = "modal-fundo";
+  fundo.innerHTML = '<div class="modal modal-detalhes modal-cartoes" role="dialog" aria-modal="true"></div>';
+  const caixa = fundo.firstChild;
+
+  function fechar() {
+    document.removeEventListener("keydown", aoTeclar);
+    fundo.remove();
+  }
+  function aoTeclar(e) { if (e.key === "Escape") fechar(); }
+
+  function mostrarLista() {
+    const porBanco = {};
+    gastosNoCredito().forEach(function (item) {
+      const banco = item.g.banco || "Outro";
+      if (!porBanco[banco]) porBanco[banco] = { total: 0, qtd: 0 };
+      porBanco[banco].total += item.valor;
+      porBanco[banco].qtd++;
+    });
+    const bancos = Object.keys(porBanco).sort(function (a, b) { return porBanco[b].total - porBanco[a].total; });
+
+    caixa.innerHTML =
+      '<h3 class="modal-titulo">Cartões de crédito</h3>' +
+      '<p class="legenda">Gastos de ' + escapar(nomeDoMesSelecionado()) + "</p>" +
+      (bancos.length === 0
+        ? '<p class="vazio">Nenhum gasto no cartão neste mês.</p>'
+        : '<ul class="cartoes-lista">' + bancos.map(function (b) {
+            return '<li><button type="button" class="cartao-opcao" data-banco="' + escapar(b) + '">' +
+              iconeBanco(b) +
+              '<span class="cartao-modal-nome">' + escapar(b) + "<small>" + porBanco[b].qtd + (porBanco[b].qtd === 1 ? " gasto" : " gastos") + "</small></span>" +
+              "<strong>" + formatarMoeda(porBanco[b].total) + "</strong></button></li>";
+          }).join("") + "</ul>") +
+      '<div class="modal-botoes"><button type="button" class="modal-cancelar">Fechar</button></div>';
+    limitarListaA6(caixa);
+  }
+
+  function mostrarGastosDoCartao(banco) {
+    const itens = gastosNoCredito().filter(function (item) { return (item.g.banco || "Outro") === banco; })
+      .sort(function (a, b) { return b.g.data < a.g.data ? -1 : b.g.data > a.g.data ? 1 : 0; });
+    const total = itens.reduce(function (soma, item) { return soma + item.valor; }, 0);
+
+    caixa.innerHTML =
+      '<h3 class="modal-titulo">' + escapar(banco) + "</h3>" +
+      '<p class="legenda">' + escapar(nomeDoMesSelecionado()) + " · " + formatarMoeda(total) + "</p>" +
+      '<ul class="cartoes-lista">' + itens.map(function (item) {
+        const g = item.g;
+        return '<li class="cartao-gasto"><span class="cartao-modal-nome">' + escapar(g.plataforma) +
+          "<small>" + escapar(g.categoria) + " · " + g.data.split("-").reverse().join("/") + " · " + textoPagamento(g.parcelas) + "</small></span>" +
+          "<strong>" + formatarMoeda(item.valor) + "</strong></li>";
+      }).join("") + "</ul>" +
+      '<div class="modal-botoes"><button type="button" class="modal-cancelar" data-voltar>Voltar</button>' +
+      '<button type="button" class="modal-ok" data-fechar>Fechar</button></div>';
+    limitarListaA6(caixa);
+  }
+
+  caixa.addEventListener("click", function (e) {
+    const opcao = e.target.closest(".cartao-opcao");
+    if (opcao) return mostrarGastosDoCartao(opcao.dataset.banco);
+    if (e.target.closest("[data-voltar]")) return mostrarLista();
+    if (e.target.closest(".modal-cancelar, [data-fechar]")) fechar();
+  });
+  fundo.addEventListener("click", function (e) { if (e.target === fundo) fechar(); });
+  document.addEventListener("keydown", aoTeclar);
+
+  document.body.appendChild(fundo);
+  mostrarLista();
+}
+
+// Os outros cards (Pix, Boleto e categorias) abrem o histórico do mês escolhido no topo
+function abrirHistoricoDoBloco(idDoBloco) {
+  const bloco = listarBlocos().find(function (b) { return b.id === idDoBloco; });
+  if (!bloco) return;
+  const itens = gastosDoMes().filter(function (item) {
+    return bloco.id === "pix" ? item.g.parcelas === "pix" : item.g.categoria === bloco.categoria;
+  })
+    .sort(function (a, b) { return b.g.data < a.g.data ? -1 : b.g.data > a.g.data ? 1 : 0; });
+  const total = itens.reduce(function (soma, item) { return soma + item.valor; }, 0);
+
+  const fundo = document.createElement("div");
+  fundo.className = "modal-fundo";
+  fundo.innerHTML =
+    '<div class="modal modal-detalhes modal-cartoes" role="dialog" aria-modal="true">' +
+      '<h3 class="modal-titulo">Histórico de ' + escapar(bloco.nome) + "</h3>" +
+      '<p class="legenda">' + escapar(nomeDoMesSelecionado()) + (itens.length ? " · " + formatarMoeda(total) : "") + "</p>" +
+      (itens.length === 0
+        ? '<p class="vazio">Nada em ' + escapar(bloco.nome) + " neste mês.</p>"
+        : '<ul class="cartoes-lista">' + itens.map(function (item) {
+            const g = item.g;
+            return '<li class="cartao-gasto"><span class="cartao-modal-nome">' + escapar(g.plataforma) +
+              "<small>" + escapar(bloco.id === "pix" ? g.categoria : textoPagamento(g.parcelas)) + (g.banco ? " · " + escapar(g.banco) : "") + " · " + g.data.split("-").reverse().join("/") + "</small></span>" +
+              "<strong>" + formatarMoeda(item.valor) + "</strong></li>";
+          }).join("") + "</ul>") +
+      '<div class="modal-botoes"><button type="button" class="modal-cancelar">Fechar</button></div>' +
+    "</div>";
+
+  function fechar() {
+    document.removeEventListener("keydown", aoTeclar);
+    fundo.remove();
+  }
+  function aoTeclar(e) { if (e.key === "Escape") fechar(); }
+
+  fundo.querySelector(".modal-cancelar").addEventListener("click", fechar);
+  fundo.addEventListener("click", function (e) { if (e.target === fundo) fechar(); });
+  document.addEventListener("keydown", aoTeclar);
+  document.body.appendChild(fundo);
+  limitarListaA6(fundo);
+}
+
+function aoClicarNoCartaoDeCredito(evento) {
+  if (evento.type === "keydown" && evento.key !== "Enter" && evento.key !== " ") return;
+  const card = evento.target.closest(".card[data-card]");
+  if (!card) return;
+  evento.preventDefault();
+  if (card.dataset.card === "credito") abrirCartoesDoMes();
+  else abrirHistoricoDoBloco(card.dataset.card);
+}
+document.getElementById("cards").addEventListener("click", aoClicarNoCartaoDeCredito);
+document.getElementById("cards").addEventListener("keydown", aoClicarNoCartaoDeCredito);
 
 // Redesenha tudo mantendo a rolagem do Resumo onde estava
 function atualizarTela() {

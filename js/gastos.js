@@ -46,9 +46,9 @@ function linhaDoGasto(g) {
   }
 
   return `
-    <li>
+    <li class="gasto-item" data-detalhe="${g.id}" tabindex="0" role="button" aria-label="Ver detalhes de ${escapar(g.plataforma)}">
       <span>${escapar(g.plataforma)}${autorHtml(g)}</span>
-      <span>${escapar(g.categoria)}</span>
+      <span>${escapar(g.categoria)}${g.banco && g.banco !== g.categoria ? " · " + escapar(g.banco) : ""}</span>
       <span>${formatarData(g.data)}</span>
       <span>${formatarMoeda(g.valor)}</span>
       <span class="tag">${g.categoria === "Boleto" && g.parcelas === "1" ? "Único" : textoParcelas(g.parcelas)}</span>
@@ -111,6 +111,60 @@ function mostrarGastos() {
 }
 
 campoBusca.addEventListener("input", mostrarGastos);
+
+// Detalhes de um gasto: banco por extenso e quando foi lançado no aplicativo
+function quandoFoiLancado(criadoEm) {
+  if (!criadoEm) return "Não informado";
+  const d = new Date(criadoEm);
+  if (isNaN(d)) return "Não informado";
+  return d.toLocaleDateString("pt-BR") + " às " + d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
+
+function abrirDetalhes(g) {
+  const linhas = [
+    ["Valor", formatarMoeda(g.valor)],
+    ["Categoria", g.categoria],
+    ["Banco ou cartão", g.banco || "Não informado"],
+    ["Data da compra", formatarData(g.data)],
+    ["Pagamento", g.categoria === "Boleto" && g.parcelas === "1" ? "Único" : textoParcelas(g.parcelas)],
+    ["Adicionado em", quandoFoiLancado(g.criadoEm)]
+  ];
+  if (g.autorNome) linhas.push(["Adicionado por", g.autorNome]);
+
+  const fundo = document.createElement("div");
+  fundo.className = "modal-fundo";
+  fundo.innerHTML =
+    '<div class="modal modal-detalhes" role="dialog" aria-modal="true">' +
+      '<h3 class="modal-titulo">' + escapar(g.plataforma) + "</h3>" +
+      '<dl class="gasto-detalhes">' + linhas.map(function (l) {
+        return "<div><dt>" + l[0] + "</dt><dd>" + escapar(l[1]) + "</dd></div>";
+      }).join("") + "</dl>" +
+      '<div class="modal-botoes"><button type="button" class="modal-cancelar">Fechar</button></div>' +
+    "</div>";
+
+  function fechar() {
+    document.removeEventListener("keydown", aoTeclar);
+    fundo.remove();
+  }
+  function aoTeclar(e) { if (e.key === "Escape") fechar(); }
+
+  fundo.querySelector(".modal-cancelar").addEventListener("click", fechar);
+  fundo.addEventListener("click", function (e) { if (e.target === fundo) fechar(); });
+  document.addEventListener("keydown", aoTeclar);
+  document.body.appendChild(fundo);
+  fundo.querySelector(".modal-cancelar").focus();
+}
+
+function aoAbrirDetalhes(evento) {
+  if (evento.type === "keydown" && evento.key !== "Enter") return;
+  if (evento.target.closest(".acoes")) return; // lápis e ✕ têm a própria ação
+  const item = evento.target.closest("[data-detalhe]");
+  if (!item) return;
+  const gasto = gastos.find(function (g) { return g.id === Number(item.dataset.detalhe); });
+  if (gasto) abrirDetalhes(gasto);
+}
+listaGastos.addEventListener("click", aoAbrirDetalhes);
+listaGastos.addEventListener("keydown", aoAbrirDetalhes);
 
 // Editar um gasto
 listaGastos.addEventListener("click", async function (evento) {

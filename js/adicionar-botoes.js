@@ -434,7 +434,7 @@
         if (o.value) faixaParcelas.appendChild(novoChip(o.text, o.value));
       });
     } else {
-      PARCELAS_RAPIDAS.forEach(function (v) { faixaParcelas.appendChild(novoChip(v === "avista" ? "1x" : v + "x", v)); });
+      PARCELAS_RAPIDAS.forEach(function (v) { faixaParcelas.appendChild(novoChip(v === "avista" ? "À vista" : v + "x", v)); });
     }
     caixaParcelas.classList.toggle("oculto", modo === "assinatura");
     campoOutraParcela.value = "";

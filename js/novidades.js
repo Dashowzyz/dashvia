@@ -5,6 +5,23 @@
 
 const NOVIDADES = [
   {
+    versao: "Cartões, boletos e todos os gastos",
+    data: "2026-10-16",
+    etiqueta: "Novo",
+    resumo: "O Dashboard ganhou gráficos, cartões de crédito e boletos do mês, e o histórico agora tem página própria.",
+    itens: [
+      "Gráficos no Dashboard (no celular eles ficam escondidos para não ocupar espaço).",
+      "Cartões de crédito no Dashboard, com fatura do mês, vencimento e botão de pagar.",
+      "Boletos do mês escolhido no topo, com atalhos para pagar e editar. Marcar como pago é direto, com \"Desfazer\".",
+      "Nova página \"Todos os gastos\", com busca. O histórico saiu do Dashboard e foi para lá.",
+      "Cada gasto mostra o banco ou cartão. Toque nele para ver o nome completo do banco e quando foi adicionado.",
+      "Toque em \"Cartão de crédito\" no Dashboard para escolher um cartão e ver os gastos dele no mês. Nos outros cards (Pix, Compras, Boleto...) você vê o histórico do mês.",
+      "Nas listas dessas janelas, a partir de 6 itens dá para rolar para baixo.",
+      "Crédito à vista: novo botão \"À vista\" nas parcelas, e esses gastos agora contam como cartão de crédito.",
+      "Página inicial com animações."
+    ]
+  },
+  {
     versao: "Novo jeito de adicionar gastos",
     data: "2026-10-11",
     etiqueta: "Novo",

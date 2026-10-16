@@ -7,10 +7,10 @@ const real = readFileSync(new URL("../../js/novidades.js", import.meta.url), "ut
 
 test("lê a novidade real do novidades.js", () => {
   const n = lerNovidadeMaisRecente(real);
-  assert.equal(n.versao, "Novo jeito de adicionar gastos");
-  assert.equal(n.data, "2026-10-11");
-  assert.equal(n.id, "2026-10-11|Novo jeito de adicionar gastos");
-  assert.ok(n.resumo.startsWith("A tela de Adicionar ficou mais rápida"));
+  assert.equal(n.versao, "Cartões, boletos e todos os gastos");
+  assert.equal(n.data, "2026-10-16");
+  assert.equal(n.id, "2026-10-16|Cartões, boletos e todos os gastos");
+  assert.ok(n.resumo.startsWith("O Dashboard ganhou gráficos"));
 });
 
 test("com duas entradas devolve a primeira", () => {
