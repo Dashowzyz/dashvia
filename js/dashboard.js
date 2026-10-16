@@ -677,13 +677,14 @@ function listarCartoesCredito() {
 
     let estado = "aberta";
     if (paga) estado = "paga";
+    else if (porBanco[banco] === 0) estado = "zerada"; // sem gastos no mês: nada a pagar, então nunca "vencida"
     else if (vence && vence < diaDeHoje) estado = "vencida";
 
     return { banco: banco, valor: porBanco[banco], vencimento: dia, vence: vence, paga: paga, estado: estado, chave: chave };
   }).sort(function (a, b) { return b.valor - a.valor; });
 }
 
-const TEXTO_ESTADO_FATURA = { paga: "Paga", aberta: "Em aberto", vencida: "Vencida" };
+const TEXTO_ESTADO_FATURA = { paga: "Paga", aberta: "Em aberto", vencida: "Vencida", zerada: "Sem gastos" };
 
 function mostrarCartoesCredito() {
   const bloco = document.getElementById("bloco-cartoes");
@@ -717,7 +718,7 @@ function mostrarCartoesCredito() {
         <div class="cc-acoes">
           <button type="button" class="cc-vencimento" data-acao="vencimento" data-i="${i}" title="Mudar o dia de vencimento">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            ${c.vencimento ? "Dia " + c.vencimento : "Definir vencimento"}
+            ${c.vencimento ? "Dia " + c.vencimento : "Vencimento"}
           </button>
           <button type="button" class="btn-pagar-boleto cc-pagar${c.paga ? " paga" : ""}" data-acao="pagar" data-i="${i}" aria-label="${c.paga ? "Desfazer pagamento da fatura " : "Marcar como paga a fatura "}${escapar(c.banco)}">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
