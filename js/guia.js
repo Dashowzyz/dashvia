@@ -46,7 +46,7 @@ const PASSOS_GUIA = [
   },
   {
     titulo: "Edite ou remova",
-    texto: "No histórico do Dashboard, o lápis corrige um gasto e o ✕ apaga. Boletos e assinaturas se editam nas próprias páginas, em " + pagina("Parcelas futuras", "parcelas") + " e " + pagina("Assinaturas", "assinatura") + "."
+    texto: "Em Todos os gastos (o link fica no Dashboard), o lápis corrige um gasto e o ✕ apaga. Boletos e assinaturas se editam nas próprias páginas, em " + pagina("Parcelas futuras", "parcelas") + " e " + pagina("Assinaturas", "assinatura") + "."
   },
   {
     titulo: "Registre assinaturas",

@@ -25,24 +25,10 @@ function formatarMoeda(numero) {
   return numero.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-function formatarData(texto) {
-  const [ano, mes, dia] = texto.split("-");
-  return dia + "/" + mes + "/" + ano;
-}
-
 function escapar(texto) {
   return texto.replace(/[&<>"']/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
   });
-}
-
-function textoParcelas(parcelas) {
-  if (parcelas === "pix") return "Pix";
-  if (parcelas === "avista") return "À vista";
-  if (parcelas === "mensal") return "Mensal";
-  if (parcelas === "trimestral") return "Trimestral";
-  if (parcelas === "anual") return "Anual";
-  return parcelas + "x";
 }
 
 function mostrarSaudacao() {
@@ -442,35 +428,6 @@ function abrirPersonalizar() {
 }
 
 document.getElementById("btn-personalizar").addEventListener("click", abrirPersonalizar);
-
-// Histórico: últimos 5 registros
-function mostrarHistorico() {
-  const lista = document.getElementById("historico");
-
-  if (gastos.length === 0) {
-    lista.innerHTML = '<li class="vazio">Nenhum gasto adicionado ainda.</li>';
-    return;
-  }
-
-  const ultimos = gastos.slice().reverse().slice(0, 5);
-  lista.innerHTML = ultimos.map(function (g) {
-    return `
-      <li>
-        <span>${escapar(g.plataforma)}${autorHtml(g)}</span>
-        <span>${escapar(g.categoria)}</span>
-        <span>${formatarData(g.data)}</span>
-        <span>${formatarMoeda(g.valor)}</span>
-        <span class="tag">${g.categoria === "Boleto" && g.parcelas === "1" ? "Único" : textoParcelas(g.parcelas)}</span>
-        <div class="acoes">
-          ${g.categoria === "Assinatura" && !g.espacoId
-            ? `<a class="editar" href="assinaturas.html" title="Ver nas assinaturas" aria-label="Ver nas assinaturas"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></a>`
-            : g.categoria === "Boleto" ? ""
-            : `<button class="editar" data-id="${g.id}" title="Editar gasto"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>`}
-          <button class="remover" data-id="${g.id}" title="Remover gasto">✕</button>
-        </div>
-      </li>`;
-  }).join("");
-}
 
 // ---------- Próximos boletos: os 2 que vencem primeiro, com atalho de pagar ----------
 // Mesmas regras da tela de Parcelas (parcelamento.js):
@@ -974,47 +931,11 @@ function atualizarTela() {
   mostrarCards();
   mostrarCartoesCredito();
   mostrarProximosBoletos();
-  mostrarHistorico();
   mostrarGraficos();
   mostrarResumo();
 
   grafico.scrollLeft = posicao;
 }
-
-// Listas usadas no formulário de edição (as mesmas da página de adicionar)
-// Editar um gasto do histórico
-document.getElementById("historico").addEventListener("click", async function (evento) {
-  const botao = evento.target.closest(".editar");
-  if (!botao) return;
-
-  const id = Number(botao.dataset.id);
-  const gasto = gastos.find(function (g) { return g.id === id; });
-  if (gasto && (gasto.categoria !== "Assinatura" || gasto.espacoId)) {
-    const opcoes = await categoriasParaEditar(gastos);
-    abrirEdicao(gasto, Object.assign({ aoSalvar: atualizarTela }, opcoes));
-  }
-});
-
-// Remover um gasto do histórico
-document.getElementById("historico").addEventListener("click", async function (evento) {
-  const botao = evento.target.closest(".remover");
-  if (!botao) return;
-
-  if (!(await confirmar("Remover este gasto?", "Remover"))) return;
-
-  const id = Number(botao.dataset.id);
-
-  try {
-    await removerGasto(id);
-  } catch (falha) {
-    console.error(falha);
-    alert("Não foi possível remover. Tente de novo.");
-    return;
-  }
-
-  gastos = gastos.filter(function (g) { return g.id !== id; });
-  atualizarTela();
-});
 
 // Confere o login, busca os dados no banco e desenha a página
 async function iniciar() {
@@ -1028,8 +949,7 @@ async function iniciar() {
     configCartoes = resultado[2];
   } catch (falha) {
     console.error(falha);
-    document.getElementById("historico").innerHTML =
-      '<li class="vazio">Não foi possível carregar seus gastos. Atualize a página.</li>';
+    document.getElementById("saudacao").textContent = "Não foi possível carregar seus gastos. Atualize a página.";
     return;
   }
 
@@ -1038,7 +958,6 @@ async function iniciar() {
   mostrarCards();
   mostrarCartoesCredito();
   mostrarProximosBoletos();
-  mostrarHistorico();
   mostrarGraficos();
   mostrarResumo();
 }

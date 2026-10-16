@@ -5483,14 +5483,6 @@ a.linha {
     grid-template-columns: minmax(0, 1fr);
     gap: 16px;
   }
-
-  /* Coluna mais estreita: textos longos do histórico terminam em "…" */
-  .historico li > span {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
 }
 
 /* Coluna da esquerda: próximos boletos em cima do histórico */
@@ -5830,6 +5822,89 @@ a.linha {
 
   .btn-pagar-boleto.cc-pagar span {
     display: inline;
+  }
+}
+
+/* Dashboard: link para a página com todos os gastos */
+.link-todos-gastos {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  background: var(--painel);
+  color: var(--texto);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.link-todos-gastos svg {
+  flex: none;
+  color: var(--destaque);
+}
+
+.link-todos-gastos span {
+  flex: 1;
+}
+
+.link-todos-gastos .seta-link {
+  color: var(--texto-suave);
+}
+
+.link-todos-gastos:hover {
+  border-color: var(--destaque);
+  background: color-mix(in srgb, var(--destaque) 8%, var(--painel));
+}
+
+/* ----- Página "Todos os gastos" ----- */
+.busca-gastos {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border: 1px solid var(--borda);
+  border-radius: 14px;
+  background: var(--painel);
+  color: var(--texto-suave);
+  transition: border-color 0.15s;
+}
+
+.busca-gastos:focus-within {
+  border-color: var(--destaque);
+}
+
+.busca-gastos svg {
+  flex: none;
+}
+
+.busca-gastos input {
+  flex: 1;
+  min-width: 0;
+  padding: 13px 0;
+  border: 0;
+  background: transparent;
+  color: var(--texto);
+  font-family: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.lista-gastos {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.lista-gastos .vazio a {
+  color: var(--destaque);
+}
+
+@media (max-width: 700px) {
+  .busca-gastos input {
+    font-size: 16px; /* evita o zoom automático do iPhone */
   }
 }
 
