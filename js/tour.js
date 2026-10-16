@@ -13,6 +13,12 @@
       texto: "Por aqui você troca de página: Dashboard, Parcelas futuras, Adicionar gasto, Assinaturas e Configurações."
     },
     {
+      pagina: "dashboard.html", alvo: "#link-todos-gastos",
+      titulo: "Todos os seus gastos",
+      avatar: "pose-09",
+      texto: "Aqui você abre a lista com todos os gastos, separados por mês e com busca. Use o lápis para corrigir um gasto e o ✕ para apagar."
+    },
+    {
       pagina: "dashboard.html", alvo: "#cards",
       avisoExemplo: true, // só neste passo o balão avisa que os valores são de exemplo
       animarValores: true, // os valores em R$ sobem de zero até o total
@@ -27,12 +33,6 @@
       titulo: "Escolha o que ver",
       avatar: "pose-03",
       texto: "Em Personalizar você decide quais blocos aparecem no topo. Pode mudar quando quiser."
-    },
-    {
-      pagina: "dashboard.html", alvo: "#link-todos-gastos",
-      titulo: "Todos os seus gastos",
-      avatar: "pose-09",
-      texto: "Aqui você abre a lista com todos os gastos, separados por mês e com busca. Use o lápis para corrigir um gasto e o ✕ para apagar."
     },
     {
       pagina: "dashboard.html", alvo: "#grafico",
