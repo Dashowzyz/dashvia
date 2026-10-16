@@ -420,10 +420,8 @@ async function alternarBoletoMensal(compra) {
   const antes = g.pagasAte || 0;
   const depois = o.paga ? o.numero - 1 : o.numero;
 
-  const pergunta = o.paga
-    ? "Desfazer o pagamento do boleto " + g.plataforma + " de " + mes + "?"
-    : "Marcar o boleto " + g.plataforma + " de " + mes + " como pago?";
-  if (!(await confirmar(pergunta, o.paga ? "Desfazer" : "Marcar como pago"))) return;
+  // Marcar como pago é direto (o aviso embaixo tem "Desfazer"); só pede confirmação para desfazer
+  if (o.paga && !(await confirmar("Desfazer o pagamento do boleto " + g.plataforma + " de " + mes + "?", "Desfazer"))) return;
 
   try {
     await atualizarGasto(g.id, { pagasAte: depois });
