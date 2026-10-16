@@ -13,7 +13,7 @@
   <title>Dashboard - Dashvia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/dashboard.css?v=20261016h1">
+  <link rel="stylesheet" href="css/dashboard.css?v=20261016c1">
   <script src="js/tema.js?v=20261009z"></script>
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
@@ -59,6 +59,25 @@
 
     <div class="dash-meio">
       <div class="dash-coluna">
+        <section class="bloco" id="bloco-cartoes" hidden>
+          <div class="bloco-topo">
+            <div>
+              <h2>Cartões de crédito</h2>
+              <p class="legenda" id="legenda-cartoes"></p>
+            </div>
+          </div>
+          <div class="cc-area">
+            <button type="button" class="cards-seta cards-seta-esq" id="cc-anterior" aria-label="Cartão anterior" title="Anterior" hidden>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <div id="faixa-cartoes-credito" class="faixa-cartoes-credito"></div>
+            <button type="button" class="cards-seta cards-seta-dir" id="cc-proximo" aria-label="Próximo cartão" title="Próximo" hidden>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+          <div id="pontos-cartoes-credito" class="pontos"></div>
+        </section>
+
         <section class="bloco" id="bloco-boletos" hidden>
           <div class="bloco-topo">
             <div>
@@ -100,13 +119,13 @@
   </main>
 
   <script src="js/supabase.bundle.js?v=20261009z"></script>
-  <script src="js/banco.js?v=20261011d1"></script>
+  <script src="js/banco.js?v=20261016c1"></script>
   <script src="js/bancos.js?v=20261011f1"></script>
   <script src="js/categorias.js?v=20261011d1"></script>
   <script src="js/parcelamento.js?v=20261009z"></script>
   <script src="js/gasto-formulario.js?v=20261011a1"></script>
   <script src="js/edicao.js?v=20261011a1"></script>
-  <script src="js/dashboard.js?v=20261016h1"></script>
+  <script src="js/dashboard.js?v=20261016c1"></script>
   <script src="js/guia.js?v=20261009z"></script>
   <script src="js/boasvindas.js?v=20261009bv1"></script>
   <script src="js/menu.js?v=20261011f1"></script>

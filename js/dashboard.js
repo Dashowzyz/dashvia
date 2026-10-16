@@ -619,6 +619,285 @@ document.getElementById("proximos-boletos").addEventListener("click", async func
   });
 });
 
+// ---------- Cartões de crédito: a fatura deste mês de cada banco ----------
+// A pessoa arrasta para o lado para ver outro cartão. O dia de vencimento e as faturas pagas
+// ficam guardados no perfil (coluna "cartoes"): { "Nubank": { vencimento: 10, pagas: ["2026-10"] } }
+let configCartoes = {};
+let cartoesCredito = [];
+const faixaCredito = document.getElementById("faixa-cartoes-credito");
+const pontosCredito = document.getElementById("pontos-cartoes-credito");
+const setaCreditoAnterior = document.getElementById("cc-anterior");
+const setaCreditoProxima = document.getElementById("cc-proximo");
+
+// Mesma regra do bloco "Cartão de crédito" do topo: o que não é boleto, Pix nem à vista
+function ehNoCredito(g) {
+  return g.categoria !== "Boleto" && g.parcelas !== "pix" && g.parcelas !== "avista";
+}
+
+function chaveDoMes(ano, mes) {
+  return ano + "-" + String(mes + 1).padStart(2, "0");
+}
+
+function dadosDoBanco(nome) {
+  return BANCOS.find(function (b) { return b.nome === nome; }) || BANCOS[BANCOS.length - 1];
+}
+
+// Sugestão para o dia de vencimento: o da compra parcelada mais recente naquele banco
+function vencimentoSugerido(banco) {
+  const comDia = gastos.filter(function (g) { return ehNoCredito(g) && (g.banco || "Outro") === banco && g.vencimento; });
+  return comDia.length ? comDia[comDia.length - 1].vencimento : 10;
+}
+
+function listarCartoesCredito() {
+  const ano = hoje.getFullYear();
+  const mes = hoje.getMonth();
+  const chave = chaveDoMes(ano, mes);
+  const porBanco = {};
+
+  gastos.forEach(function (g) {
+    if (!ehNoCredito(g)) return;
+    const valor = valorNoMes(g, ano, mes);
+    if (valor <= 0) return;
+    const banco = g.banco || "Outro";
+    porBanco[banco] = (porBanco[banco] || 0) + valor;
+  });
+
+  // Cartão com vencimento já definido continua aparecendo mesmo com a fatura zerada
+  Object.keys(configCartoes).forEach(function (banco) {
+    if (configCartoes[banco] && configCartoes[banco].vencimento && !(banco in porBanco)) porBanco[banco] = 0;
+  });
+
+  return Object.keys(porBanco).map(function (banco) {
+    const config = configCartoes[banco] || {};
+    const dia = config.vencimento || null;
+    const ultimoDia = new Date(ano, mes + 1, 0).getDate();
+    const vence = dia ? new Date(ano, mes, Math.min(dia, ultimoDia)) : null;
+    const paga = Array.isArray(config.pagas) && config.pagas.includes(chave);
+    const diaDeHoje = new Date(ano, mes, hoje.getDate());
+
+    let estado = "aberta";
+    if (paga) estado = "paga";
+    else if (vence && vence < diaDeHoje) estado = "vencida";
+
+    return { banco: banco, valor: porBanco[banco], vencimento: dia, vence: vence, paga: paga, estado: estado, chave: chave };
+  }).sort(function (a, b) { return b.valor - a.valor; });
+}
+
+const TEXTO_ESTADO_FATURA = { paga: "Paga", aberta: "Em aberto", vencida: "Vencida" };
+
+function mostrarCartoesCredito() {
+  const bloco = document.getElementById("bloco-cartoes");
+  // No espaço compartilhado cada pessoa tem os próprios cartões: o bloco fica só no lado Pessoal
+  cartoesCredito = escopoEscolhido() ? [] : listarCartoesCredito();
+  bloco.hidden = cartoesCredito.length === 0;
+  if (bloco.hidden) return;
+
+  const nomeDoMes = hoje.toLocaleDateString("pt-BR", { month: "long" });
+  document.getElementById("legenda-cartoes").textContent = "Fatura de " + nomeDoMes + " até agora";
+
+  const indiceAntes = indiceDoCartaoCredito();
+
+  faixaCredito.innerHTML = cartoesCredito.map(function (c, i) {
+    const b = dadosDoBanco(c.banco);
+    return `
+      <div class="cc-item" data-i="${i}">
+        <div class="cc-cartao" style="--cc-cor:${b.cor};--cc-texto:${b.texto}">
+          <div class="cc-topo">
+            ${iconeBanco(c.banco)}
+            <span class="cc-nome">${escapar(c.banco)}</span>
+            <span class="cc-chip" aria-hidden="true"></span>
+          </div>
+          <span class="cc-rotulo">Fatura de ${nomeDoMes}</span>
+          <strong class="cc-valor">${formatarMoeda(c.valor)}</strong>
+          <div class="cc-rodape">
+            <span>${c.vence ? "Vence " + c.vence.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : "Sem vencimento"}</span>
+            <span class="cc-status ${c.estado}">${TEXTO_ESTADO_FATURA[c.estado]}</span>
+          </div>
+        </div>
+        <div class="cc-acoes">
+          <button type="button" class="cc-vencimento" data-acao="vencimento" data-i="${i}" title="Mudar o dia de vencimento">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            ${c.vencimento ? "Dia " + c.vencimento : "Definir vencimento"}
+          </button>
+          <button type="button" class="btn-pagar-boleto cc-pagar${c.paga ? " paga" : ""}" data-acao="pagar" data-i="${i}" aria-label="${c.paga ? "Desfazer pagamento da fatura " : "Marcar como paga a fatura "}${escapar(c.banco)}">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>${c.paga ? "Paga" : "Pagar"}</span>
+          </button>
+        </div>
+      </div>`;
+  }).join("");
+
+  pontosCredito.innerHTML = cartoesCredito.length > 1
+    ? cartoesCredito.map(function () { return "<span></span>"; }).join("")
+    : "";
+
+  irParaCartaoCredito(Math.min(indiceAntes, cartoesCredito.length - 1), false);
+  marcarCartaoCredito();
+}
+
+// Qual cartão está à mostra (o mais perto do começo da faixa)
+function indiceDoCartaoCredito() {
+  let melhor = 0;
+  let menor = Infinity;
+  faixaCredito.querySelectorAll(".cc-item").forEach(function (item, i) {
+    const distancia = Math.abs(item.offsetLeft - faixaCredito.scrollLeft);
+    if (distancia < menor) {
+      menor = distancia;
+      melhor = i;
+    }
+  });
+  return melhor;
+}
+
+function irParaCartaoCredito(indice, suave) {
+  const item = faixaCredito.querySelectorAll(".cc-item")[indice];
+  if (item) faixaCredito.scrollTo({ left: item.offsetLeft, behavior: suave ? "smooth" : "auto" });
+}
+
+function marcarCartaoCredito() {
+  const atual = indiceDoCartaoCredito();
+  pontosCredito.querySelectorAll("span").forEach(function (ponto, i) {
+    ponto.classList.toggle("ativo", i === atual);
+  });
+
+  // As setas (no computador) só aparecem se houver cartão escondido para aquele lado
+  const fimDaFaixa = faixaCredito.scrollLeft + faixaCredito.clientWidth >= faixaCredito.scrollWidth - 4;
+  setaCreditoAnterior.hidden = faixaCredito.scrollLeft <= 4;
+  setaCreditoProxima.hidden = fimDaFaixa;
+}
+
+let esperandoCredito = false;
+faixaCredito.addEventListener("scroll", function () {
+  if (esperandoCredito) return;
+  esperandoCredito = true;
+  requestAnimationFrame(function () {
+    esperandoCredito = false;
+    marcarCartaoCredito();
+  });
+});
+
+pontosCredito.addEventListener("click", function (e) {
+  const ponto = e.target.closest("span");
+  if (ponto) irParaCartaoCredito(Array.from(pontosCredito.children).indexOf(ponto), true);
+});
+
+setaCreditoAnterior.addEventListener("click", function () {
+  irParaCartaoCredito(indiceDoCartaoCredito() - 1, true);
+});
+
+setaCreditoProxima.addEventListener("click", function () {
+  irParaCartaoCredito(indiceDoCartaoCredito() + 1, true);
+});
+
+window.addEventListener("resize", function () {
+  if (cartoesCredito.length) marcarCartaoCredito();
+});
+
+// Salva a configuração; se der errado, volta como estava
+async function guardarConfigCartoes(nova, antes) {
+  configCartoes = nova;
+  mostrarCartoesCredito();
+  try {
+    await salvarCartoes(nova);
+    return true;
+  } catch (falha) {
+    console.error("Erro ao salvar os cartões:", falha);
+    configCartoes = antes;
+    mostrarCartoesCredito();
+    mostrarAviso("Não foi possível salvar. Tente de novo.");
+    return false;
+  }
+}
+
+function copiaDaConfig() {
+  return JSON.parse(JSON.stringify(configCartoes));
+}
+
+// Pagar é direto (com "Desfazer" no aviso); desfazer o pagamento pede confirmação, como no boleto
+async function alternarFaturaPaga(cartao) {
+  const nomeDoMes = hoje.toLocaleDateString("pt-BR", { month: "long" });
+  if (cartao.paga && !(await confirmar("Desfazer o pagamento da fatura " + cartao.banco + " de " + nomeDoMes + "?", "Desfazer"))) return;
+
+  const antes = copiaDaConfig();
+  const nova = copiaDaConfig();
+  const config = nova[cartao.banco] || (nova[cartao.banco] = {});
+  const pagas = Array.isArray(config.pagas) ? config.pagas : [];
+
+  config.pagas = cartao.paga
+    ? pagas.filter(function (m) { return m !== cartao.chave; })
+    : pagas.concat(cartao.chave).slice(-12); // guarda só o último ano
+
+  if (!(await guardarConfigCartoes(nova, antes))) return;
+
+  if (cartao.paga) {
+    mostrarAviso("Pagamento desfeito.");
+    return;
+  }
+  mostrarAviso("Fatura " + cartao.banco + " marcada como paga.", function () {
+    guardarConfigCartoes(antes, copiaDaConfig());
+  });
+}
+
+// Janela para escolher o dia de vencimento da fatura
+function abrirVencimentoCartao(cartao) {
+  const atual = cartao.vencimento || vencimentoSugerido(cartao.banco);
+  let opcoes = "";
+  for (let d = 1; d <= 31; d++) {
+    opcoes += '<option value="' + d + '"' + (d === atual ? " selected" : "") + ">Dia " + d + "</option>";
+  }
+
+  const fundo = document.createElement("div");
+  fundo.className = "modal-fundo";
+  fundo.innerHTML = `
+    <div class="modal modal-form">
+      <h3 class="modal-titulo">Vencimento do ${escapar(cartao.banco)}</h3>
+      <form id="form-vencimento" class="formulario" novalidate>
+        <label for="cc-dia">Dia do vencimento da fatura</label>
+        <select id="cc-dia">${opcoes}</select>
+        <p class="modal-nota">Vale para todos os meses. Se o mês não tiver esse dia, a fatura vence no último dia dele.</p>
+      </form>
+      <div class="modal-botoes">
+        <button type="button" class="modal-cancelar">Cancelar</button>
+        <button type="submit" form="form-vencimento" class="modal-ok salvar">Salvar</button>
+      </div>
+    </div>`;
+
+  function fechar() {
+    document.removeEventListener("keydown", aoTeclar);
+    fundo.remove();
+  }
+  function aoTeclar(e) {
+    if (e.key === "Escape") fechar();
+  }
+  document.addEventListener("keydown", aoTeclar);
+  fundo.querySelector(".modal-cancelar").addEventListener("click", fechar);
+  fundo.addEventListener("click", function (e) {
+    if (e.target === fundo) fechar();
+  });
+
+  fundo.querySelector("#form-vencimento").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const antes = copiaDaConfig();
+    const nova = copiaDaConfig();
+    (nova[cartao.banco] || (nova[cartao.banco] = {})).vencimento = Number(fundo.querySelector("#cc-dia").value);
+    fechar();
+    if (await guardarConfigCartoes(nova, antes)) mostrarAviso("Vencimento do " + cartao.banco + " salvo.");
+  });
+
+  document.body.appendChild(fundo);
+  fundo.querySelector("#cc-dia").focus();
+}
+
+faixaCredito.addEventListener("click", function (e) {
+  const botao = e.target.closest("[data-acao]");
+  if (!botao) return;
+  const cartao = cartoesCredito[Number(botao.dataset.i)];
+  if (!cartao) return;
+
+  if (botao.dataset.acao === "pagar") alternarFaturaPaga(cartao);
+  else abrirVencimentoCartao(cartao);
+});
+
 // Resumo: cartões dos próximos 12 meses, começando pelo mês atual, com o gasto por banco/pix
 function mostrarResumo() {
   const nomesMeses = ["JAN", "FEV", "MAR", "ABR", "MAI", "JUN", "JUL", "AGO", "SET", "OUT", "NOV", "DEZ"];
@@ -692,6 +971,7 @@ function atualizarTela() {
   const posicao = grafico.scrollLeft;
 
   mostrarCards();
+  mostrarCartoesCredito();
   mostrarProximosBoletos();
   mostrarHistorico();
   mostrarGraficos();
@@ -741,9 +1021,10 @@ async function iniciar() {
   if (!usuario) return;
 
   try {
-    const resultado = await Promise.all([buscarGastos(), buscarPerfil()]);
+    const resultado = await Promise.all([buscarGastos(), buscarPerfil(), buscarCartoes().catch(function () { return {}; })]);
     gastos = resultado[0];
     perfilAtual = resultado[1];
+    configCartoes = resultado[2];
   } catch (falha) {
     console.error(falha);
     document.getElementById("historico").innerHTML =
@@ -754,6 +1035,7 @@ async function iniciar() {
   carregarBlocos(usuario);
   mostrarSaudacao();
   mostrarCards();
+  mostrarCartoesCredito();
   mostrarProximosBoletos();
   mostrarHistorico();
   mostrarGraficos();

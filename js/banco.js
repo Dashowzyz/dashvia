@@ -422,6 +422,29 @@ async function salvarBancoFavorito(banco) {
   }
 }
 
+// ---------- Cartões de crédito (dia de vencimento e faturas pagas) ----------
+// Formato: { "Nubank": { vencimento: 10, pagas: ["2026-10"] } }
+// Busca separada do perfil: se a coluna "cartoes" ainda não existir no banco, só esta parte fica vazia.
+async function buscarCartoes() {
+  const usuario = await usuarioAtual();
+  if (!usuario) return {};
+
+  const { data, error } = await db.from("perfis").select("cartoes").eq("id", usuario.id).maybeSingle();
+  if (error) {
+    console.error("Não foi possível buscar os cartões:", error);
+    return {};
+  }
+  return (data && data.cartoes) || {};
+}
+
+async function salvarCartoes(cartoes) {
+  const usuario = await usuarioAtual();
+  if (!usuario) throw new Error("Sem login");
+
+  const { error } = await db.from("perfis").upsert({ id: usuario.id, cartoes: cartoes });
+  if (error) throw error;
+}
+
 
 // ---------- Atualizar ao voltar para a aba ----------
 // Se a pessoa ficou fora da aba por um tempo (ou mexeu em outro aparelho), busca os dados de novo.

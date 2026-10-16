@@ -15,6 +15,10 @@ create table if not exists public.perfis (
   criado_em timestamptz not null default now()
 );
 
+-- Cartões de crédito: dia de vencimento da fatura e meses já pagos, por banco.
+-- Formato: { "Nubank": { "vencimento": 10, "pagas": ["2026-10"] } }
+alter table public.perfis add column if not exists cartoes jsonb not null default '{}'::jsonb;
+
 -- Gastos e assinaturas
 create table if not exists public.gastos (
   id bigint generated always as identity primary key,
