@@ -724,10 +724,18 @@ function listarCartoesCredito() {
 
   gastos.forEach(function (g) {
     if (!ehNoCredito(g)) return;
-    const valor = valorNoMes(g, ano, mes);
-    if (valor <= 0) return;
     const banco = g.banco || "Outro";
-    porBanco[banco] = (porBanco[banco] || 0) + valor;
+
+    // Todo cartão em uso aparece: com cobrança neste mês ou em algum dos próximos 12
+    // (ex.: compra feita depois do vencimento, que só entra na fatura do mês que vem)
+    let emUso = false;
+    for (let i = 0; i <= 12 && !emUso; i++) {
+      const d = new Date(ano, mes + i, 1);
+      emUso = valorNoMes(g, d.getFullYear(), d.getMonth()) > 0;
+    }
+    if (!emUso) return;
+
+    porBanco[banco] = (porBanco[banco] || 0) + valorNoMes(g, ano, mes);
   });
 
   // Cartão com vencimento já definido continua aparecendo mesmo com a fatura zerada
@@ -749,7 +757,7 @@ function listarCartoesCredito() {
     else if (vence && vence < diaDeHoje) estado = "vencida";
 
     return { banco: banco, valor: porBanco[banco], vencimento: dia, vence: vence, paga: paga, estado: estado, chave: chave };
-  }).sort(function (a, b) { return b.valor - a.valor; });
+  }).sort(function (a, b) { return (b.valor - a.valor) || a.banco.localeCompare(b.banco, "pt-BR"); });
 }
 
 const TEXTO_ESTADO_FATURA = { paga: "Paga", aberta: "Em aberto", vencida: "Vencida", zerada: "Sem gastos" };
@@ -788,10 +796,10 @@ function mostrarCartoesCredito() {
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
             ${c.vencimento ? "Dia " + c.vencimento : "Vencimento"}
           </button>
-          <button type="button" class="btn-pagar-boleto cc-pagar${c.paga ? " paga" : ""}" data-acao="pagar" data-i="${i}" aria-label="${c.paga ? "Desfazer pagamento da fatura " : "Marcar como paga a fatura "}${escapar(c.banco)}">
+          ${c.estado === "zerada" ? "" : `<button type="button" class="btn-pagar-boleto cc-pagar${c.paga ? " paga" : ""}" data-acao="pagar" data-i="${i}" aria-label="${c.paga ? "Desfazer pagamento da fatura " : "Marcar como paga a fatura "}${escapar(c.banco)}">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
             <span>${c.paga ? "Paga" : "Pagar"}</span>
-          </button>
+          </button>`}
         </div>
       </div>`;
   }).join("");
@@ -802,6 +810,8 @@ function mostrarCartoesCredito() {
 
   irParaCartaoCredito(Math.min(indiceAntes, cartoesCredito.length - 1), false);
   marcarCartaoCredito();
+  // Confere de novo depois que a tela terminou de montar (larguras finais), para a seta "›" não sumir por engano
+  requestAnimationFrame(marcarCartaoCredito);
 }
 
 // Qual cartão está à mostra (o mais perto do começo da faixa)
