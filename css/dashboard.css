@@ -5624,6 +5624,19 @@ a.linha {
   cursor: wait;
 }
 
+/* Lápis do boleto: redondo e da mesma altura do botão de pagar */
+.boleto-proximo .btn-editar-boleto {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+}
+
+.boleto-proximo .btn-editar-boleto svg {
+  width: 15px;
+  height: 15px;
+}
+
 /* Celular: o botão vira só o ✓ e o ícone de boleto sai, para caber o nome do boleto */
 @media (max-width: 480px) {
   .boleto-proximo {
@@ -5633,6 +5646,11 @@ a.linha {
 
   .boleto-proximo > .banco-icone {
     display: none;
+  }
+
+  .boleto-proximo .btn-editar-boleto {
+    width: 36px;
+    height: 36px;
   }
 
   .btn-pagar-boleto {
