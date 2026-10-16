@@ -496,6 +496,9 @@ function mostrarProximosBoletos() {
           <strong>${formatarMoeda(b.valor)}</strong>
           <small class="boleto-prazo">${prazo.texto}</small>
         </div>
+        <button type="button" class="editar btn-editar-boleto" data-i="${i}" title="Editar boleto" aria-label="Editar ${escapar(b.g.plataforma)}">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+        </button>
         <button type="button" class="btn-pagar-boleto" data-i="${i}" aria-label="Marcar ${escapar(b.g.plataforma)} como pago">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
           <span>Pagar</span>
@@ -538,6 +541,114 @@ function mostrarAviso(texto, aoDesfazer) {
     if (avisoAtual === aviso) avisoAtual = null;
   }, 8000);
 }
+
+// Janela de editar o boleto.
+// - Mensal: nome, valor por mês e dia do vencimento (o mesmo "Editar boleto" da tela de Parcelas).
+// - Único ou parcelado: nome, valor total e a data do vencimento (no parcelado, a da 1ª parcela; as outras acompanham).
+function abrirEdicaoBoleto(g) {
+  const mensal = ehBoletoRecorrente(g);
+  const parcelado = !mensal && Number(g.parcelas) > 1;
+  const diaAtual = g.vencimento || Number(g.data.split("-")[2]);
+
+  let campoData;
+  if (mensal) {
+    let opcoesDia = "";
+    for (let d = 1; d <= 31; d++) {
+      opcoesDia += '<option value="' + d + '"' + (d === diaAtual ? " selected" : "") + ">Dia " + d + "</option>";
+    }
+    campoData = '<label for="eb-dia">Dia do vencimento (todo mês)</label><select id="eb-dia">' + opcoesDia + "</select>";
+  } else {
+    campoData = '<label for="eb-data">' + (parcelado ? "Vencimento da 1ª parcela" : "Data do vencimento") + '</label><input type="date" id="eb-data" value="' + g.data + '">';
+  }
+
+  const fundo = document.createElement("div");
+  fundo.className = "modal-fundo";
+  fundo.innerHTML = `
+    <div class="modal modal-form">
+      <h3 class="modal-titulo">Editar boleto</h3>
+      <form id="form-boleto" class="formulario" novalidate>
+        <label for="eb-nome">Nome do boleto</label>
+        <input type="text" id="eb-nome" maxlength="60" autocomplete="off">
+
+        <label for="eb-valor">${mensal ? "Valor por mês (R$)" : parcelado ? "Valor total, somando as " + g.parcelas + " parcelas (R$)" : "Valor (R$)"}</label>
+        <input type="number" id="eb-valor" step="0.01" min="0.01">
+
+        ${campoData}
+
+        <p class="modal-nota">${mensal ? "A mudança vale para todos os meses." : parcelado ? "As outras parcelas mudam junto com a primeira." : ""}</p>
+        <p class="modal-erro" id="eb-erro"></p>
+      </form>
+      <div class="modal-botoes">
+        <button type="button" class="modal-cancelar">Cancelar</button>
+        <button type="submit" form="form-boleto" class="modal-ok salvar">Salvar</button>
+      </div>
+    </div>`;
+
+  const campoNome = fundo.querySelector("#eb-nome");
+  const campoValor = fundo.querySelector("#eb-valor");
+  const erro = fundo.querySelector("#eb-erro");
+  const botaoSalvar = fundo.querySelector(".modal-ok");
+  campoNome.value = g.plataforma;
+  campoValor.value = g.valor;
+
+  function fechar() {
+    document.removeEventListener("keydown", aoTeclar);
+    fundo.remove();
+  }
+  function aoTeclar(e) {
+    if (e.key === "Escape") fechar();
+  }
+  document.addEventListener("keydown", aoTeclar);
+  fundo.querySelector(".modal-cancelar").addEventListener("click", fechar);
+  fundo.addEventListener("click", function (e) {
+    if (e.target === fundo) fechar();
+  });
+
+  fundo.querySelector("#form-boleto").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const nome = campoNome.value.trim();
+    const valor = parseFloat(campoValor.value);
+    if (!nome) { erro.textContent = "Digite o nome do boleto."; return; }
+    if (!(valor > 0)) { erro.textContent = "Digite um valor maior que zero."; return; }
+
+    const novo = { plataforma: nome, valor: valor };
+    if (mensal) {
+      novo.vencimento = Number(fundo.querySelector("#eb-dia").value);
+    } else {
+      const data = fundo.querySelector("#eb-data").value;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) { erro.textContent = "Escolha a data do vencimento."; return; }
+      novo.data = data;
+      novo.vencimento = null; // boleto único/parcelado vence no dia da própria data
+    }
+
+    botaoSalvar.disabled = true;
+    try {
+      await atualizarGasto(g.id, novo);
+    } catch (falha) {
+      console.error("Erro ao editar o boleto:", falha);
+      erro.textContent = "Não foi possível salvar. Tente de novo.";
+      botaoSalvar.disabled = false;
+      return;
+    }
+
+    Object.assign(g, novo);
+    fechar();
+    atualizarTela();
+    mostrarAviso("Boleto atualizado.");
+  });
+
+  document.body.appendChild(fundo);
+  campoNome.focus();
+}
+
+// Editar um boleto da lista
+document.getElementById("proximos-boletos").addEventListener("click", function (e) {
+  const botao = e.target.closest(".btn-editar-boleto");
+  if (!botao) return;
+  const boleto = proximosBoletos[Number(botao.dataset.i)];
+  if (boleto) abrirEdicaoBoleto(boleto.g);
+});
 
 // Pagar é direto, sem confirmação; o aviso tem "Desfazer" para o caso de um toque sem querer
 document.getElementById("proximos-boletos").addEventListener("click", async function (e) {

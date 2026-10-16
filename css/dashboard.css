@@ -5624,11 +5624,15 @@ a.linha {
   cursor: wait;
 }
 
-/* Celular: o botão vira só o ✓ para caber o nome do boleto */
+/* Celular: o botão vira só o ✓ e o ícone de boleto sai, para caber o nome do boleto */
 @media (max-width: 480px) {
   .boleto-proximo {
-    gap: 10px;
+    gap: 8px;
     padding: 12px;
+  }
+
+  .boleto-proximo > .banco-icone {
+    display: none;
   }
 
   .btn-pagar-boleto {
